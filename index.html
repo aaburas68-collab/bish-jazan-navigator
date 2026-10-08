@@ -468,9 +468,8 @@ L.control.layers(
 
  if (arrowElement) {
 
-arrowElement.style.setProperty(
-  '--arrow-heading',
-  degrees + 'deg'
+arrowElement.style.transform =
+  'rotate(' + degrees + 'deg)';
 );
 }
 
