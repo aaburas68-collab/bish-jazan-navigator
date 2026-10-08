@@ -95,18 +95,25 @@
 
   /* سهم الاتجاه */
 .direction-arrow {
-  width: 0;
-  height: 0;
+  width: 24px;
+  height: 32px;
 
-  border-left: 9px solid transparent;
-  border-right: 9px solid transparent;
+  background: #1976ff;
 
-  border-bottom: 25px solid #1976ff;
+  clip-path: polygon(
+    50% 0%,
+    100% 100%,
+    50% 75%,
+    0% 100%
+  );
 
   filter:
-    drop-shadow(0 1px 2px rgba(0,0,0,0.35));
+    drop-shadow(0 1px 3px rgba(0,0,0,0.35));
 
-  transform-origin: 50% 80%;
+  transform:
+    rotate(var(--arrow-heading, 0deg));
+
+  transform-origin: 50% 50%;
 }
 
     /* نقطة الموقع */
