@@ -93,7 +93,16 @@
       font-size: 14px;
     }
 
-  /* سهم الاتجاه */
+/* سهم الاتجاه */
+.direction-arrow-container {
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .direction-arrow {
   width: 24px;
   height: 32px;
@@ -110,26 +119,9 @@
   filter:
     drop-shadow(0 1px 3px rgba(0,0,0,0.35));
 
-transform: rotate(var(--arrow-heading, 0deg)) !important;
-
-  transform-origin: 50% 75%;
+  transform: rotate(0deg);
+  transform-origin: 50% 50%;
 }
-
-    /* نقطة الموقع */
-    .user-dot {
-      width: 20px;
-      height: 20px;
-
-      border-radius: 50%;
-
-      background: #1976ff;
-
-      border: 3px solid white;
-
-      box-shadow:
-        0 0 0 4px rgba(25, 118, 255, 0.20),
-        0 2px 6px rgba(0,0,0,0.35);
-    }
 
     .leaflet-control-attribution {
       font-size: 9px;
@@ -474,10 +466,12 @@ L.control.layers(
 
       if (arrowElement) {
 
-  arrowElement.style.setProperty(
-  '--arrow-heading',
-  degrees + 'deg'
-);
+ if (arrowElement) {
+
+  arrowElement.style.transform =
+    'rotate(' + degrees + 'deg)';
+
+}
 
       }
 
@@ -592,11 +586,16 @@ L.control.layers(
                         className:
                           '',
 
-                      html:
-  '<div class="direction-arrow"></div>',
+                   html:
+  '<div class="direction-arrow-container">' +
+    '<div class="direction-arrow"></div>' +
+  '</div>',
 
-                        iconSize:
-                          [26,35],
+                      iconSize:
+  [40,40],
+
+iconAnchor:
+  [20,20]
 
                         iconAnchor:
                           [13,28]
