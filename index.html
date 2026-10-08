@@ -1104,6 +1104,51 @@ savedPins.forEach(function(pin, index) {
   }
 
 });
+function playAlertSound() {
+
+  try {
+
+    const AudioContext =
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+    const audioContext =
+      new AudioContext();
+
+    const oscillator =
+      audioContext.createOscillator();
+
+    const gain =
+      audioContext.createGain();
+
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+
+    oscillator.frequency.value = 880;
+    gain.gain.value = 0.08;
+
+    oscillator.start();
+
+    setTimeout(function() {
+
+      oscillator.stop();
+      audioContext.close();
+
+    }, 250);
+
+  }
+
+  catch (error) {
+
+    console.log(
+      'Alert sound error:',
+      error
+    );
+
+  }
+
+}
+    
     function enableAlerts() {
 
       alertsEnabled = true;
