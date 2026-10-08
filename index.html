@@ -456,21 +456,6 @@ function updateDirection(degrees) {
 
 }
 
-function loadSavedPins() {
-
-  savedPins.forEach(function(pin) {
-
-    const marker =
-      L.marker([
-        pin.lat,
-        pin.lng
-      ]).addTo(map);
-
-    marker.bindPopup(
-      '📌 موقع مسجل'
-    );
-
-  });
 
 }
 
@@ -1064,49 +1049,7 @@ function getDistance(lat1, lng1, lat2, lng2) {
 
 }
 
-savedPins.forEach(function(pin, index) {
 
-  const distance =
-    getDistance(
-      lat,
-      lng,
-      pin.lat,
-      pin.lng
-    );
-
-  if (distance <= 300) {
-
-    if (!alertedPins.includes(index)) {
-
-      alertedPins.push(index);
-
-      updateStatus(
-        '🔔 أنت قريب من موقع مسجل — ' +
-        Math.round(distance) +
-        ' متر'
-      );
-
-    }
-
-  }
-
-  else if (distance > 400) {
-
-    const position =
-      alertedPins.indexOf(index);
-
-    if (position !== -1) {
-
-      alertedPins.splice(
-        position,
-        1
-      );
-
-    }
-
-  }
-
-});
 function playAlertSound() {
 
   try {
