@@ -539,7 +539,7 @@ savedPins.forEach(function(pin, index) {
     if (!alertedPins.includes(index)) {
 
       alertedPins.push(index);
-
+playAlertSound();
       updateStatus(
         '🔔 أنت قريب من موقع مسجل — ' +
         Math.round(distance) +
