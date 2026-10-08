@@ -489,14 +489,23 @@ function loadSavedPins() {
 
       if (watchId !== null) {
 
-        updateStatus(
-          '🔵 التتبع يعمل بالفعل'
-        );
+  updateStatus(
+    '🔵 التتبع يعمل بالفعل'
+  );
 
-        startCompass();
+  startCompass();
 
-        return;
-      }
+  if (userMarker) {
+
+    map.setView(
+      userMarker.getLatLng(),
+      16
+    );
+
+  }
+
+  return;
+}
 
 
       updateStatus(
@@ -747,13 +756,7 @@ playAlertSound();
             }
 
 
-            map.panTo(
-              userLocation,
-              {
-                animate: true,
-                duration: 0.5
-              }
-            );
+         
 
 
             /*
