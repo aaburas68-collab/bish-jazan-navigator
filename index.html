@@ -440,7 +440,28 @@ function updateDirection(degrees) {
 
 }
 
+function loadSavedPins() {
 
+  savedPins.forEach(function(pin) {
+
+    const marker =
+      L.marker([
+        pin.lat,
+        pin.lng
+      ]).addTo(map);
+
+    marker.bindPopup(
+      '📌 موقع مسجل'
+    );
+
+  });
+
+}
+
+
+loadSavedPins();
+
+</script>
 
     function startTracking() {
 
