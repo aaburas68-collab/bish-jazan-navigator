@@ -882,7 +882,9 @@ function handleOrientation(event) {
   // تصحيح اتجاه السهم ليتوافق مع اتجاه البوصلة
 
 
-  updateDirection(heading);
+document.getElementById('directionDegree').textContent =
+  Math.round(heading) + '°';
+updateDirection(heading);
 
 }
     /* =========================
