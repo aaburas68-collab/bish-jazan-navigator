@@ -2,21 +2,26 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  >
 
   <title>بيش ↔ جازان</title>
 
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
+  >
 
   <style>
     * {
       box-sizing: border-box;
     }
 
-    html, body {
+    html,
+    body {
       margin: 0;
       padding: 0;
       width: 100%;
@@ -30,12 +35,14 @@
       height: 100%;
     }
 
+    /* لوحة الأزرار */
     .top-panel {
       position: fixed;
       top: 12px;
       right: 12px;
       left: 12px;
       z-index: 1000;
+
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
@@ -46,10 +53,15 @@
       border: none;
       border-radius: 12px;
       padding: 12px 15px;
+
       font-size: 15px;
       font-weight: bold;
+
       background: white;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.20);
+
+      box-shadow:
+        0 3px 12px rgba(0, 0, 0, 0.20);
+
       cursor: pointer;
     }
 
@@ -57,192 +69,753 @@
       transform: scale(0.96);
     }
 
+    /* معلومات الموقع */
     .status {
       position: fixed;
+
       bottom: 15px;
       right: 15px;
       left: 15px;
+
       z-index: 1000;
-      background: rgba(255,255,255,0.94);
+
+      background: rgba(255, 255, 255, 0.94);
+
       border-radius: 15px;
+
       padding: 12px;
+
       text-align: center;
-      box-shadow: 0 3px 15px rgba(0,0,0,0.20);
+
+      box-shadow:
+        0 3px 15px rgba(0, 0, 0, 0.20);
+
       font-size: 14px;
+    }
+
+    /* سهم الاتجاه */
+    .direction-arrow {
+      width: 0;
+      height: 0;
+
+      border-left: 13px solid transparent;
+      border-right: 13px solid transparent;
+
+      border-bottom: 32px solid #1976ff;
+
+      filter:
+        drop-shadow(0 2px 3px rgba(0,0,0,0.35));
+
+      transform-origin: 50% 80%;
+    }
+
+    /* نقطة الموقع */
+    .user-dot {
+      width: 20px;
+      height: 20px;
+
+      border-radius: 50%;
+
+      background: #1976ff;
+
+      border: 3px solid white;
+
+      box-shadow:
+        0 0 0 4px rgba(25, 118, 255, 0.20),
+        0 2px 6px rgba(0,0,0,0.35);
     }
 
     .leaflet-control-attribution {
       font-size: 9px;
+    }
+
+    /* صندوق الاتجاه */
+    .direction-box {
+      position: fixed;
+
+      top: 125px;
+      left: 15px;
+
+      z-index: 1000;
+
+      background: rgba(255,255,255,0.95);
+
+      border-radius: 14px;
+
+      padding: 10px 14px;
+
+      box-shadow:
+        0 3px 12px rgba(0,0,0,0.20);
+
+      text-align: center;
+
+      min-width: 90px;
+    }
+
+    .direction-degree {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .direction-name {
+      font-size: 13px;
+      margin-top: 3px;
     }
   </style>
 </head>
 
 <body>
 
+  <!-- الأزرار -->
   <div class="top-panel">
-    <button onclick="startTracking()">🔵 موقعي</button>
-    <button onclick="addManualPin()">📌 إضافة دبوس</button>
-    <button onclick="enableAlerts()">🔔 تشغيل التنبيهات</button>
+
+    <button onclick="startTracking()">
+      🔵 موقعي
+    </button>
+
+    <button onclick="addManualPin()">
+      📌 إضافة دبوس
+    </button>
+
+    <button onclick="enableAlerts()">
+      🔔 تشغيل التنبيهات
+    </button>
+
   </div>
 
+
+  <!-- معلومات الاتجاه -->
+  <div class="direction-box">
+
+    <div class="direction-degree" id="directionDegree">
+      --°
+    </div>
+
+    <div class="direction-name" id="directionName">
+      الاتجاه غير معروف
+    </div>
+
+  </div>
+
+
+  <!-- الخريطة -->
   <div id="map"></div>
 
+
+  <!-- الحالة -->
   <div class="status" id="status">
-    جاهز — اضغط «موقعي» لبدء تحديد موقعك
+    جاهز — اضغط «موقعي» لبدء التتبع
   </div>
 
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 
   <script>
 
     /*
-      ==================================================
-      مشروع بيش ↔ جازان
-      الإصدار الأساسي
-      ==================================================
+    ==================================================
+    مشروع بيش ↔ جازان
+    الإصدار 2
 
-      سيتم لاحقًا إضافة:
-      - الاتجاه 🧭
-      - التتبع المستمر 🔵
-      - الدبابيس 📌
-      - التنبيهات 🔔
-      - الاهتزاز 📳
-      - ETA ⏱️
-      - قاعدة البيانات ☁️
+    يحتوي على:
+
+    🔵 GPS
+    🧭 اتجاه الحركة
+    📍 تتبع مستمر
+    📌 دبابيس
+    🔔 أساس التنبيهات
+
+    ==================================================
     */
 
-    const map = L.map('map').setView([17.15, 42.56], 9);
 
-    // الخريطة العادية
+    /* =========================
+       إنشاء الخريطة
+    ========================= */
+
+    const map = L.map('map').setView(
+      [17.15, 42.56],
+      9
+    );
+
+
+    /* =========================
+       الخريطة العادية
+    ========================= */
+
     const normalMap = L.tileLayer(
       'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       {
         maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors'
+
+        attribution:
+          '&copy; OpenStreetMap contributors'
       }
     );
 
+
     normalMap.addTo(map);
 
-    // هنا سنضيف لاحقًا:
-    // Satellite
-    // Terrain
+
+    /* =========================
+       طبقات الخريطة
+    ========================= */
 
     const layers = {
-      "الخريطة العادية": normalMap
+
+      "الخريطة العادية":
+        normalMap
+
     };
 
-    L.control.layers(layers, null, {
-      position: 'topright'
-    }).addTo(map);
 
+    L.control.layers(
+      layers,
+      null,
+      {
+        position: 'topright'
+      }
+    ).addTo(map);
+
+
+    /* =========================
+       متغيرات GPS
+    ========================= */
+
+    let watchId = null;
 
     let userMarker = null;
+
     let accuracyCircle = null;
-    let watchId = null;
+
+    let directionMarker = null;
+
+    let lastPosition = null;
+
+    let currentHeading = null;
+
     let alertsEnabled = false;
 
 
+    /* =========================
+       تحديث الحالة
+    ========================= */
+
     function updateStatus(text) {
-      document.getElementById('status').textContent = text;
+
+      document.getElementById(
+        'status'
+      ).textContent = text;
+
     }
 
+
+    /* =========================
+       تحويل الاتجاه إلى اسم
+    ========================= */
+
+    function getDirectionName(degrees) {
+
+      if (
+        degrees >= 337.5 ||
+        degrees < 22.5
+      ) {
+
+        return 'شمال';
+
+      }
+
+      if (
+        degrees >= 22.5 &&
+        degrees < 67.5
+      ) {
+
+        return 'شمال شرقي';
+
+      }
+
+      if (
+        degrees >= 67.5 &&
+        degrees < 112.5
+      ) {
+
+        return 'شرق';
+
+      }
+
+      if (
+        degrees >= 112.5 &&
+        degrees < 157.5
+      ) {
+
+        return 'جنوب شرقي';
+
+      }
+
+      if (
+        degrees >= 157.5 &&
+        degrees < 202.5
+      ) {
+
+        return 'جنوب';
+
+      }
+
+      if (
+        degrees >= 202.5 &&
+        degrees < 247.5
+      ) {
+
+        return 'جنوب غربي';
+
+      }
+
+      if (
+        degrees >= 247.5 &&
+        degrees < 292.5
+      ) {
+
+        return 'غرب';
+
+      }
+
+      return 'شمال غربي';
+
+    }
+
+
+    /* =========================
+       حساب اتجاه الحركة
+    ========================= */
+
+    function calculateBearing(
+      lat1,
+      lon1,
+      lat2,
+      lon2
+    ) {
+
+      const toRadians =
+        Math.PI / 180;
+
+      const toDegrees =
+        180 / Math.PI;
+
+
+      const phi1 =
+        lat1 * toRadians;
+
+      const phi2 =
+        lat2 * toRadians;
+
+
+      const deltaLambda =
+        (lon2 - lon1) * toRadians;
+
+
+      const y =
+        Math.sin(deltaLambda) *
+        Math.cos(phi2);
+
+
+      const x =
+        Math.cos(phi1) *
+        Math.sin(phi2) -
+
+        Math.sin(phi1) *
+        Math.cos(phi2) *
+        Math.cos(deltaLambda);
+
+
+      let bearing =
+        Math.atan2(y, x) *
+        toDegrees;
+
+
+      bearing =
+        (bearing + 360) % 360;
+
+
+      return bearing;
+
+    }
+
+
+    /* =========================
+       تحديث واجهة الاتجاه
+    ========================= */
+
+    function updateDirection(degrees) {
+
+      currentHeading = degrees;
+
+
+      document.getElementById(
+        'directionDegree'
+      ).textContent =
+        Math.round(degrees) + '°';
+
+
+      document.getElementById(
+        'directionName'
+      ).textContent =
+        getDirectionName(degrees);
+
+
+      if (directionMarker) {
+
+        const element =
+          directionMarker.getElement();
+
+
+        if (element) {
+
+          element.style.transform =
+            'rotate(' +
+            degrees +
+            'deg)';
+
+        }
+
+      }
+
+    }
+
+
+    /* =========================
+       بدء تتبع GPS
+    ========================= */
 
     function startTracking() {
 
       if (!navigator.geolocation) {
-        updateStatus('❌ جهازك لا يدعم تحديد الموقع');
+
+        updateStatus(
+          '❌ جهازك لا يدعم تحديد الموقع'
+        );
+
         return;
+
       }
+
 
       if (watchId !== null) {
-        updateStatus('🔵 التتبع يعمل بالفعل');
+
+        updateStatus(
+          '🔵 التتبع يعمل بالفعل'
+        );
+
         return;
+
       }
 
-      updateStatus('⏳ جاري تحديد موقعك...');
 
-      watchId = navigator.geolocation.watchPosition(
-
-        function(position) {
-
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-          const accuracy = position.coords.accuracy;
-
-          const userLocation = [lat, lng];
-
-          if (!userMarker) {
-
-            userMarker = L.circleMarker(userLocation, {
-              radius: 9,
-              color: '#ffffff',
-              weight: 3,
-              fillColor: '#1976ff',
-              fillOpacity: 1
-            }).addTo(map);
-
-            map.setView(userLocation, 16);
-
-          } else {
-
-            userMarker.setLatLng(userLocation);
-
-          }
-
-          if (!accuracyCircle) {
-
-            accuracyCircle = L.circle(userLocation, {
-              radius: accuracy,
-              color: '#1976ff',
-              fillOpacity: 0.08,
-              weight: 1
-            }).addTo(map);
-
-          } else {
-
-            accuracyCircle.setLatLng(userLocation);
-            accuracyCircle.setRadius(accuracy);
-
-          }
-
-          updateStatus(
-            '🔵 موقعك يعمل — الدقة التقريبية: ' +
-            Math.round(accuracy) +
-            ' متر'
-          );
-
-        },
-
-        function(error) {
-
-          let message = '❌ تعذر تحديد الموقع';
-
-          if (error.code === 1) {
-            message = '❌ اسمح للموقع من إعدادات المتصفح';
-          }
-
-          if (error.code === 2) {
-            message = '❌ تعذر الحصول على موقعك';
-          }
-
-          if (error.code === 3) {
-            message = '❌ انتهت مهلة تحديد الموقع';
-          }
-
-          updateStatus(message);
-
-        },
-
-        {
-          enableHighAccuracy: true,
-          maximumAge: 1000,
-          timeout: 15000
-        }
-
+      updateStatus(
+        '⏳ جاري تحديد موقعك...'
       );
+
+
+      watchId =
+        navigator.geolocation.watchPosition(
+
+          function(position) {
+
+            const lat =
+              position.coords.latitude;
+
+            const lng =
+              position.coords.longitude;
+
+            const accuracy =
+              position.coords.accuracy;
+
+
+            const userLocation = [
+              lat,
+              lng
+            ];
+
+
+            /* =========================
+               إنشاء نقطة المستخدم
+            ========================= */
+
+            if (!userMarker) {
+
+              userMarker =
+                L.marker(
+                  userLocation,
+                  {
+                    icon:
+                      L.divIcon({
+
+                        className:
+                          '',
+
+                        html:
+                          '<div class="user-dot"></div>',
+
+                        iconSize:
+                          [20,20],
+
+                        iconAnchor:
+                          [10,10]
+
+                      })
+                  }
+                ).addTo(map);
+
+
+              map.setView(
+                userLocation,
+                16
+              );
+
+
+              /* =========================
+                 إنشاء سهم الاتجاه
+              ========================= */
+
+              directionMarker =
+                L.marker(
+                  userLocation,
+                  {
+                    icon:
+                      L.divIcon({
+
+                        className:
+                          '',
+
+                        html:
+                          '<div class="direction-arrow"></div>',
+
+                        iconSize:
+                          [26,35],
+
+                        iconAnchor:
+                          [13,28]
+
+                      }),
+
+                    zIndexOffset:
+                      1000
+                  }
+                ).addTo(map);
+
+            }
+
+
+            else {
+
+              userMarker.setLatLng(
+                userLocation
+              );
+
+
+              directionMarker.setLatLng(
+                userLocation
+              );
+
+            }
+
+
+            /* =========================
+               دائرة دقة GPS
+            ========================= */
+
+            if (!accuracyCircle) {
+
+              accuracyCircle =
+                L.circle(
+                  userLocation,
+                  {
+
+                    radius:
+                      accuracy,
+
+                    color:
+                      '#1976ff',
+
+                    fillColor:
+                      '#1976ff',
+
+                    fillOpacity:
+                      0.08,
+
+                    weight:
+                      1
+
+                  }
+                ).addTo(map);
+
+            }
+
+            else {
+
+              accuracyCircle.setLatLng(
+                userLocation
+              );
+
+              accuracyCircle.setRadius(
+                accuracy
+              );
+
+            }
+
+
+            /* =========================
+               حساب الاتجاه
+            ========================= */
+
+            if (lastPosition) {
+
+              const distanceMoved =
+                map.distance(
+                  lastPosition,
+                  userLocation
+                );
+
+
+              /*
+              لا نحسب اتجاه جديد
+              إذا كانت الحركة صغيرة جدًا.
+
+              هذا يقلل الاهتزاز
+              الناتج عن GPS.
+              */
+
+              if (distanceMoved >= 5) {
+
+                const bearing =
+                  calculateBearing(
+
+                    lastPosition[0],
+                    lastPosition[1],
+
+                    lat,
+                    lng
+
+                  );
+
+
+                updateDirection(
+                  bearing
+                );
+
+              }
+
+            }
+
+
+            lastPosition =
+              userLocation;
+
+
+            /* =========================
+               متابعة الخريطة
+            ========================= */
+
+            map.panTo(
+              userLocation,
+              {
+                animate: true,
+                duration: 0.5
+              }
+            );
+
+
+            /* =========================
+               الحالة
+            ========================= */
+
+            let directionText =
+              'الاتجاه غير معروف';
+
+
+            if (
+              currentHeading !== null
+            ) {
+
+              directionText =
+                getDirectionName(
+                  currentHeading
+                );
+
+            }
+
+
+            updateStatus(
+
+              '🔵 التتبع يعمل — ' +
+              directionText +
+              ' — دقة GPS: ' +
+              Math.round(accuracy) +
+              ' م'
+
+            );
+
+          },
+
+
+          function(error) {
+
+            let message =
+              '❌ تعذر تحديد الموقع';
+
+
+            if (error.code === 1) {
+
+              message =
+                '❌ اسمح للموقع من إعدادات الآيفون';
+
+            }
+
+
+            if (error.code === 2) {
+
+              message =
+                '❌ تعذر الحصول على موقعك';
+
+            }
+
+
+            if (error.code === 3) {
+
+              message =
+                '❌ انتهت مهلة تحديد الموقع';
+
+            }
+
+
+            updateStatus(
+              message
+            );
+
+          },
+
+
+          {
+
+            enableHighAccuracy:
+              true,
+
+            maximumAge:
+              1000,
+
+            timeout:
+              15000
+
+          }
+
+        );
+
     }
 
+
+    /* =========================
+       إضافة دبوس يدوي
+    ========================= */
 
     function addManualPin() {
 
@@ -250,53 +823,108 @@
         '📌 اضغط على أي مكان في الخريطة لإضافة دبوس'
       );
 
-      map.once('click', function(event) {
 
-        const marker = L.marker(event.latlng).addTo(map);
+      map.once(
+        'click',
+        function(event) {
 
-        marker.bindPopup(
-          '📌 موقع مسجل'
-        ).openPopup();
+          const marker =
+            L.marker(
+              event.latlng
+            ).addTo(map);
 
-        updateStatus(
-          '✅ تمت إضافة الدبوس'
-        );
 
-      });
+          marker.bindPopup(
+            '📌 موقع مسجل'
+          ).openPopup();
+
+
+          updateStatus(
+            '✅ تمت إضافة الدبوس'
+          );
+
+        }
+      );
 
     }
 
+
+    /* =========================
+       تشغيل التنبيهات
+    ========================= */
 
     function enableAlerts() {
 
-      alertsEnabled = true;
+      alertsEnabled =
+        true;
 
-      // هذا الصوت البسيط هدفه تفعيل الصوت بعد تفاعل المستخدم.
-      const audioContext =
-        new (window.AudioContext || window.webkitAudioContext)();
 
-      const oscillator =
-        audioContext.createOscillator();
+      try {
 
-      const gain =
-        audioContext.createGain();
+        const AudioContext =
+          window.AudioContext ||
+          window.webkitAudioContext;
 
-      oscillator.connect(gain);
-      gain.connect(audioContext.destination);
 
-      oscillator.frequency.value = 880;
-      gain.gain.value = 0.08;
+        const audioContext =
+          new AudioContext();
 
-      oscillator.start();
 
-      setTimeout(function() {
-        oscillator.stop();
-      }, 150);
+        const oscillator =
+          audioContext.createOscillator();
 
-      updateStatus(
-        '🔔 تم تشغيل نظام التنبيهات'
-      );
+
+        const gain =
+          audioContext.createGain();
+
+
+        oscillator.connect(
+          gain
+        );
+
+
+        gain.connect(
+          audioContext.destination
+        );
+
+
+        oscillator.frequency.value =
+          880;
+
+
+        gain.gain.value =
+          0.08;
+
+
+        oscillator.start();
+
+
+        setTimeout(
+          function() {
+
+            oscillator.stop();
+
+          },
+          150
+        );
+
+
+        updateStatus(
+          '🔔 تم تشغيل التنبيهات'
+        );
+
+      }
+
+      catch (error) {
+
+        updateStatus(
+          '🔔 تم تفعيل التنبيهات'
+        );
+
+      }
+
     }
+
 
   </script>
 
