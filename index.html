@@ -439,41 +439,47 @@ L.control.layers(
        تحديث واجهة الاتجاه
     ========================= */
 
-    function updateDirection(degrees) {
+   function updateDirection(degrees) {
 
-      currentHeading = degrees;
+  currentHeading = degrees;
 
+  document.getElementById(
+    'directionDegree'
+  ).textContent =
+    Math.round(degrees) + '°';
 
-      document.getElementById(
-        'directionDegree'
-      ).textContent =
-        Math.round(degrees) + '°';
-
-
-      document.getElementById(
-        'directionName'
-      ).textContent =
-        getDirectionName(degrees);
+  document.getElementById(
+    'directionName'
+  ).textContent =
+    getDirectionName(degrees);
 
 
-      if (directionMarker) {
+  if (directionMarker) {
 
-        const element =
-          directionMarker.getElement();
+    const markerElement =
+      directionMarker.getElement();
 
+    if (markerElement) {
 
-        if (element) {
+      const arrowElement =
+        markerElement.querySelector(
+          '.direction-arrow'
+        );
 
-          element.style.transform =
-            'rotate(' +
-            degrees +
-            'deg)';
+      if (arrowElement) {
 
-        }
+        arrowElement.style.transform =
+          'rotate(' +
+          degrees +
+          'deg)';
 
       }
 
     }
+
+  }
+
+}
 
 
     /* =========================
