@@ -110,8 +110,7 @@
   filter:
     drop-shadow(0 1px 3px rgba(0,0,0,0.35));
 
-  transform:
-    rotate(var(--arrow-heading, 0deg));
+transform: rotate(var(--arrow-heading, 0deg)) !important;
 
   transform-origin: 50% 75%;
 }
@@ -475,10 +474,9 @@ L.control.layers(
 
       if (arrowElement) {
 
-    arrowElement.style.setProperty(
-  'transform',
-  'rotate(' + degrees + 'deg)',
-  'important'
+  arrowElement.style.setProperty(
+  '--arrow-heading',
+  degrees + 'deg'
 );
 
       }
