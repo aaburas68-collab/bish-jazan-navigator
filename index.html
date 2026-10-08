@@ -477,7 +477,7 @@ L.control.layers(
 
        arrowElement.style.transform =
   'rotate(' +
-  (degrees - 90) +
+  (degrees + 180) +
   'deg)';
 
       }
@@ -880,7 +880,7 @@ function handleOrientation(event) {
   }
 
   // تصحيح اتجاه السهم ليتوافق مع اتجاه البوصلة
-  heading = (heading + 180) % 360;
+
 
   updateDirection(heading);
 
