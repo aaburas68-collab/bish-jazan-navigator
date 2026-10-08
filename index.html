@@ -326,90 +326,115 @@
       2- اسم الاتجاه
       3- تدوير السهم
     */
+function updateDirection(degrees) {
 
-    function updateDirection(degrees) {
+  if (!Number.isFinite(degrees)) {
+    return;
+  }
 
-      if (!Number.isFinite(degrees)) {
-        return;
+  degrees = (degrees + 360) % 360;
+
+  currentHeading = degrees;
+
+  document.getElementById('directionDegree').textContent =
+    Math.round(degrees) + '°';
+
+  document.getElementById('directionName').textContent =
+    getDirectionName(degrees);
+
+
+  if (directionMarker) {
+
+    const markerElement =
+      directionMarker.getElement();
+
+    if (markerElement) {
+
+      const arrow =
+        markerElement.querySelector(
+          '.direction-arrow-shape'
+        );
+
+      if (arrow) {
+
+        /*
+          نحرك نقاط السهم نفسها بدل استخدام transform.
+
+          0°   = شمال
+          90°  = شرق
+          180° = جنوب
+          270° = غرب
+        */
+
+        const angle =
+          degrees * Math.PI / 180;
+
+        const centerX = 20;
+        const centerY = 20;
+
+        const tipDistance = 18;
+        const sideDistance = 15;
+        const rearDistance = 7;
+
+        const tipX =
+          centerX +
+          Math.sin(angle) * tipDistance;
+
+        const tipY =
+          centerY -
+          Math.cos(angle) * tipDistance;
+
+        const rightX =
+          centerX +
+          Math.sin(angle + Math.PI / 2) *
+          sideDistance;
+
+        const rightY =
+          centerY -
+          Math.cos(angle + Math.PI / 2) *
+          sideDistance;
+
+        const rearX =
+          centerX -
+          Math.sin(angle) *
+          rearDistance;
+
+        const rearY =
+          centerY +
+          Math.cos(angle) *
+          rearDistance;
+
+        const leftX =
+          centerX +
+          Math.sin(angle - Math.PI / 2) *
+          sideDistance;
+
+        const leftY =
+          centerY -
+          Math.cos(angle - Math.PI / 2) *
+          sideDistance;
+
+
+        arrow.setAttribute(
+          'points',
+
+          tipX + ',' + tipY + ' ' +
+
+          rightX + ',' + rightY + ' ' +
+
+          rearX + ',' + rearY + ' ' +
+
+          leftX + ',' + leftY
+        );
+
       }
-
-
-      degrees =
-        (degrees + 360) % 360;
-
-
-      currentHeading = degrees;
-
-
-      document.getElementById(
-        'directionDegree'
-      ).textContent =
-        Math.round(degrees) + '°';
-
-
-      document.getElementById(
-        'directionName'
-      ).textContent =
-        getDirectionName(degrees);
-
-
-      /*
-        هنا النقطة المهمة:
-
-        نحن لا نستخدم transform على عنصر Leaflet.
-
-        نحن ندور polygon داخل SVG فقط.
-      */
-
-      if (directionMarker) {
-
-        const markerElement =
-          directionMarker.getElement();
-
-
-        if (markerElement) {
-
-          const arrow =
-            markerElement.querySelector(
-              '.direction-arrow-svg'
-            );
-
-
-          if (arrow) {
-
-            const polygon =
-              arrow.querySelector(
-                '.direction-arrow-shape'
-              );
-
-
-            if (polygon) {
-
-              polygon.setAttribute(
-                'transform',
-                'rotate(' +
-                  degrees +
-                  ' 20 20)'
-              );
-
-            }
-
-          }
-
-        }
-
-      }
-
-
-      updateStatus(
-        '🔵 التتبع يعمل — ' +
-        getDirectionName(degrees) +
-        ' — ' +
-        Math.round(degrees) +
-        '°'
-      );
 
     }
+
+  }
+
+}
+
 
 
     function startTracking() {
