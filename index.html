@@ -524,7 +524,7 @@ savedPins.forEach(function(pin, index) {
       pin.lng
     );
 
-  if (distance <= 300) {
+  if (distance <= 15) {
 
     if (!alertedPins.includes(index)) {
 
@@ -540,7 +540,7 @@ playAlertSound();
 
   }
 
-  else if (distance > 400) {
+  else if (distance > 18) {
 
     const position =
       alertedPins.indexOf(index);
