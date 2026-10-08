@@ -879,6 +879,9 @@ function handleOrientation(event) {
     return;
   }
 
+  // تصحيح اتجاه السهم ليتوافق مع اتجاه البوصلة
+  heading = (heading + 180) % 360;
+
   updateDirection(heading);
 
 }
