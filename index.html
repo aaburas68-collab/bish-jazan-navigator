@@ -520,7 +520,7 @@ L.control.layers(
       updateStatus(
         '⏳ جاري تحديد موقعك...'
       );
-
+      startCompass();
 
       watchId =
         navigator.geolocation.watchPosition(
@@ -818,7 +818,70 @@ L.control.layers(
 
     }
 
+/* =========================
+   بوصلة الجهاز
+========================= */
 
+function startCompass() {
+
+  if (
+    typeof DeviceOrientationEvent !== 'undefined' &&
+    typeof DeviceOrientationEvent.requestPermission === 'function'
+  ) {
+
+    DeviceOrientationEvent
+      .requestPermission()
+      .then(function(permission) {
+
+        if (permission === 'granted') {
+
+          window.addEventListener(
+            'deviceorientation',
+            handleOrientation,
+            true
+          );
+
+        }
+
+      })
+      .catch(function(error) {
+        console.log('Compass permission error:', error);
+      });
+
+  } else {
+
+    window.addEventListener(
+      'deviceorientation',
+      handleOrientation,
+      true
+    );
+
+  }
+
+}
+
+
+function handleOrientation(event) {
+
+  let heading = null;
+
+  if (event.webkitCompassHeading !== undefined) {
+
+    heading = event.webkitCompassHeading;
+
+  } else if (event.alpha !== null) {
+
+    heading = 360 - event.alpha;
+
+  }
+
+  if (heading === null) {
+    return;
+  }
+
+  updateDirection(heading);
+
+}
     /* =========================
        إضافة دبوس يدوي
     ========================= */
