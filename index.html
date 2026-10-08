@@ -524,7 +524,7 @@ function loadSavedPins() {
 
             const userLocation =
               [lat, lng];
-savedPins.forEach(function(pin) {
+savedPins.forEach(function(pin, index) {
 
   const distance =
     getDistance(
@@ -536,11 +536,33 @@ savedPins.forEach(function(pin) {
 
   if (distance <= 300) {
 
-    updateStatus(
-      '🔔 أنت قريب من موقع مسجل — ' +
-      Math.round(distance) +
-      ' متر'
-    );
+    if (!alertedPins.includes(index)) {
+
+      alertedPins.push(index);
+
+      updateStatus(
+        '🔔 أنت قريب من موقع مسجل — ' +
+        Math.round(distance) +
+        ' متر'
+      );
+
+    }
+
+  }
+
+  else if (distance > 400) {
+
+    const position =
+      alertedPins.indexOf(index);
+
+    if (position !== -1) {
+
+      alertedPins.splice(
+        position,
+        1
+      );
+
+    }
 
   }
 
