@@ -260,17 +260,22 @@
     ).addTo(map);
 
 
-    let watchId = null;
+  let watchId = null;
 
-    let userMarker = null;
+let userMarker = null;
 
-    let accuracyCircle = null;
+let accuracyCircle = null;
 
-    let directionMarker = null;
+let directionMarker = null;
 
-    let currentHeading = null;
+let currentHeading = null;
 
-    let alertsEnabled = false;
+let alertsEnabled = false;
+
+let savedPins =
+  JSON.parse(
+    localStorage.getItem('savedPins') || '[]'
+  );
 
 
     function updateStatus(text) {
