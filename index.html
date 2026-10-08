@@ -900,38 +900,61 @@ function updateDirection(degrees) {
     }
 
 
-    function addManualPin() {
+  function addManualPin() {
 
-      updateStatus(
-        '📌 اضغط على أي مكان في الخريطة لإضافة دبوس'
+  updateStatus(
+    '📌 اضغط على مكان الكاميرا في الخريطة'
+  );
+
+
+  map.once(
+    'click',
+    function(event) {
+
+      const pin = {
+
+        lat:
+          event.latlng.lat,
+
+        lng:
+          event.latlng.lng,
+
+        createdAt:
+          Date.now()
+
+      };
+
+
+      savedPins.push(pin);
+
+
+      localStorage.setItem(
+        'savedPins',
+        JSON.stringify(savedPins)
       );
 
 
-      map.once(
-        'click',
-        function(event) {
-
-          const marker =
-            L.marker(
-              event.latlng
-            ).addTo(map);
+      const marker =
+        L.marker(
+          event.latlng
+        ).addTo(map);
 
 
-          marker
-            .bindPopup(
-              '📌 موقع مسجل'
-            )
-            .openPopup();
+      marker
+        .bindPopup(
+          '📌 موقع مسجل'
+        )
+        .openPopup();
 
 
-          updateStatus(
-            '✅ تمت إضافة الدبوس'
-          );
-
-        }
+      updateStatus(
+        '✅ تم حفظ الدبوس'
       );
 
     }
+  );
+
+}
 
 
     function enableAlerts() {
