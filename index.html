@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
+
   <meta charset="UTF-8">
 
   <meta
@@ -8,7 +10,7 @@
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
   >
 
-  <title>بيش ↔ جازان</title>
+  <title>بيش ↔️ جازان</title>
 
   <link
     rel="stylesheet"
@@ -16,6 +18,7 @@
   >
 
   <style>
+
     * {
       box-sizing: border-box;
     }
@@ -36,15 +39,19 @@
     }
 
     /* لوحة الأزرار */
+
     .top-panel {
       position: fixed;
+
       top: 12px;
       right: 12px;
       left: 12px;
+
       z-index: 1000;
 
       display: flex;
       gap: 8px;
+
       flex-wrap: wrap;
       justify-content: center;
     }
@@ -52,6 +59,7 @@
     button {
       border: none;
       border-radius: 12px;
+
       padding: 12px 15px;
 
       font-size: 15px;
@@ -70,6 +78,7 @@
     }
 
     /* معلومات الموقع */
+
     .status {
       position: fixed;
 
@@ -93,41 +102,31 @@
       font-size: 14px;
     }
 
-/* سهم الاتجاه */
-.direction-arrow-container {
-  width: 40px;
-  height: 40px;
+    /* حاوية سهم الاتجاه */
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+    .direction-arrow-container {
+      width: 40px;
+      height: 40px;
 
-.direction-arrow {
-  width: 24px;
-  height: 32px;
+      display: flex;
 
-  background: #1976ff;
+      align-items: center;
+      justify-content: center;
+    }
 
-  clip-path: polygon(
-    50% 0%,
-    100% 100%,
-    50% 75%,
-    0% 100%
-  );
+    /* سهم البوصلة */
 
-  filter:
-    drop-shadow(0 1px 3px rgba(0,0,0,0.35));
+    .direction-arrow-svg {
+      width: 32px;
+      height: 32px;
 
-transform: rotate(var(--arrow-heading, 0deg));
-  transform-origin: 50% 50%;
-}
+      display: block;
 
-    .leaflet-control-attribution {
-      font-size: 9px;
+      overflow: visible;
     }
 
     /* صندوق الاتجاه */
+
     .direction-box {
       position: fixed;
 
@@ -136,14 +135,14 @@ transform: rotate(var(--arrow-heading, 0deg));
 
       z-index: 1000;
 
-      background: rgba(255,255,255,0.95);
+      background: rgba(255, 255, 255, 0.95);
 
       border-radius: 14px;
 
       padding: 10px 14px;
 
       box-shadow:
-        0 3px 12px rgba(0,0,0,0.20);
+        0 3px 12px rgba(0, 0, 0, 0.20);
 
       text-align: center;
 
@@ -159,12 +158,19 @@ transform: rotate(var(--arrow-heading, 0deg));
       font-size: 13px;
       margin-top: 3px;
     }
+
+    .leaflet-control-attribution {
+      font-size: 9px;
+    }
+
   </style>
+
 </head>
+
 
 <body>
 
-  <!-- الأزرار -->
+
   <div class="top-panel">
 
     <button onclick="startTracking()">
@@ -182,97 +188,77 @@ transform: rotate(var(--arrow-heading, 0deg));
   </div>
 
 
-  <!-- معلومات الاتجاه -->
   <div class="direction-box">
 
-    <div class="direction-degree" id="directionDegree">
+    <div
+      class="direction-degree"
+      id="directionDegree"
+    >
       --°
     </div>
 
-    <div class="direction-name" id="directionName">
+    <div
+      class="direction-name"
+      id="directionName"
+    >
       الاتجاه غير معروف
     </div>
 
   </div>
 
 
-  <!-- الخريطة -->
   <div id="map"></div>
 
 
-  <!-- الحالة -->
-  <div class="status" id="status">
+  <div
+    class="status"
+    id="status"
+  >
     جاهز — اضغط «موقعي» لبدء التتبع
   </div>
 
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  ></script>
 
 
   <script>
 
-    /*
-    ==================================================
-    مشروع بيش ↔ جازان
-    الإصدار 2
-
-    يحتوي على:
-
-    🔵 GPS
-    🧭 اتجاه الحركة
-    📍 تتبع مستمر
-    📌 دبابيس
-    🔔 أساس التنبيهات
-
-    ==================================================
-    */
+    const map =
+      L.map('map').setView(
+        [17.15, 42.56],
+        9
+      );
 
 
-    /* =========================
-       إنشاء الخريطة
-    ========================= */
+    const normalMap =
+      L.tileLayer(
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        {
+          maxZoom: 19,
 
-    const map = L.map('map').setView(
-      [17.15, 42.56],
-      9
-    );
-
-
-    /* =========================
-       الخريطة العادية
-    ========================= */
-
-    const normalMap = L.tileLayer(
-  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-  {
-    maxZoom: 19,
-    attribution: '&copy; OpenStreetMap contributors'
-  }
-);
-
-normalMap.addTo(map);
+          attribution:
+            '&copy; OpenStreetMap contributors'
+        }
+      );
 
 
-/* =========================
-   طبقات الخريطة
-========================= */
-
-const layers = {
-  "الخريطة العادية": normalMap
-};
-
-L.control.layers(
-  layers,
-  null,
-  {
-    position: 'topright'
-  }
-).addTo(map);
+    normalMap.addTo(map);
 
 
-    /* =========================
-       متغيرات GPS
-    ========================= */
+    L.control.layers(
+      {
+        "الخريطة العادية": normalMap
+      },
+
+      null,
+
+      {
+        position: 'topright'
+      }
+    ).addTo(map);
+
 
     let watchId = null;
 
@@ -282,16 +268,10 @@ L.control.layers(
 
     let directionMarker = null;
 
-    let lastPosition = null;
-
     let currentHeading = null;
 
     let alertsEnabled = false;
 
-
-    /* =========================
-       تحديث الحالة
-    ========================= */
 
     function updateStatus(text) {
 
@@ -302,73 +282,37 @@ L.control.layers(
     }
 
 
-    /* =========================
-       تحويل الاتجاه إلى اسم
-    ========================= */
-
     function getDirectionName(degrees) {
 
       if (
         degrees >= 337.5 ||
         degrees < 22.5
       ) {
-
         return 'شمال';
-
       }
 
-      if (
-        degrees >= 22.5 &&
-        degrees < 67.5
-      ) {
-
+      if (degrees < 67.5) {
         return 'شمال شرقي';
-
       }
 
-      if (
-        degrees >= 67.5 &&
-        degrees < 112.5
-      ) {
-
+      if (degrees < 112.5) {
         return 'شرق';
-
       }
 
-      if (
-        degrees >= 112.5 &&
-        degrees < 157.5
-      ) {
-
+      if (degrees < 157.5) {
         return 'جنوب شرقي';
-
       }
 
-      if (
-        degrees >= 157.5 &&
-        degrees < 202.5
-      ) {
-
+      if (degrees < 202.5) {
         return 'جنوب';
-
       }
 
-      if (
-        degrees >= 202.5 &&
-        degrees < 247.5
-      ) {
-
+      if (degrees < 247.5) {
         return 'جنوب غربي';
-
       }
 
-      if (
-        degrees >= 247.5 &&
-        degrees < 292.5
-      ) {
-
+      if (degrees < 292.5) {
         return 'غرب';
-
       }
 
       return 'شمال غربي';
@@ -376,115 +320,97 @@ L.control.layers(
     }
 
 
-    /* =========================
-       حساب اتجاه الحركة
-    ========================= */
+    /*
+      هذه الدالة هي المسؤولة عن:
+      1- الرقم
+      2- اسم الاتجاه
+      3- تدوير السهم
+    */
 
-    function calculateBearing(
-      lat1,
-      lon1,
-      lat2,
-      lon2
-    ) {
+    function updateDirection(degrees) {
 
-      const toRadians =
-        Math.PI / 180;
-
-      const toDegrees =
-        180 / Math.PI;
+      if (!Number.isFinite(degrees)) {
+        return;
+      }
 
 
-      const phi1 =
-        lat1 * toRadians;
-
-      const phi2 =
-        lat2 * toRadians;
+      degrees =
+        (degrees + 360) % 360;
 
 
-      const deltaLambda =
-        (lon2 - lon1) * toRadians;
+      currentHeading = degrees;
 
 
-      const y =
-        Math.sin(deltaLambda) *
-        Math.cos(phi2);
+      document.getElementById(
+        'directionDegree'
+      ).textContent =
+        Math.round(degrees) + '°';
 
 
-      const x =
-        Math.cos(phi1) *
-        Math.sin(phi2) -
-
-        Math.sin(phi1) *
-        Math.cos(phi2) *
-        Math.cos(deltaLambda);
+      document.getElementById(
+        'directionName'
+      ).textContent =
+        getDirectionName(degrees);
 
 
-      let bearing =
-        Math.atan2(y, x) *
-        toDegrees;
+      /*
+        هنا النقطة المهمة:
+
+        نحن لا نستخدم transform على عنصر Leaflet.
+
+        نحن ندور polygon داخل SVG فقط.
+      */
+
+      if (directionMarker) {
+
+        const markerElement =
+          directionMarker.getElement();
 
 
-      bearing =
-        (bearing + 360) % 360;
+        if (markerElement) {
+
+          const arrow =
+            markerElement.querySelector(
+              '.direction-arrow-svg'
+            );
 
 
-      return bearing;
+          if (arrow) {
 
-    }
-
-
-    /* =========================
-       تحديث واجهة الاتجاه
-    ========================= */
-
-   function updateDirection(degrees) {
-
-  currentHeading = degrees;
-
-  document.getElementById(
-    'directionDegree'
-  ).textContent =
-    Math.round(degrees) + '°';
-
-  document.getElementById(
-    'directionName'
-  ).textContent =
-    getDirectionName(degrees);
+            const polygon =
+              arrow.querySelector(
+                '.direction-arrow-shape'
+              );
 
 
-  if (directionMarker) {
+            if (polygon) {
 
-    const markerElement =
-      directionMarker.getElement();
+              polygon.setAttribute(
+                'transform',
+                'rotate(' +
+                  degrees +
+                  ' 20 20)'
+              );
 
-    if (markerElement) {
+            }
 
-      const 470lement =
-        markerElement.querySelector(
-          '.direction-arrow'
-        );
+          }
 
-      if (470lement) {
-
- if (arrowElement) {
-
-arrowElement.style.transform =
-  'rotate(' + degrees + 'deg)';
-);
-}
+        }
 
       }
 
+
+      updateStatus(
+        '🔵 التتبع يعمل — ' +
+        getDirectionName(degrees) +
+        ' — ' +
+        Math.round(degrees) +
+        '°'
+      );
+
     }
 
-  }
-
-}
-
-
-    /* =========================
-       بدء تتبع GPS
-    ========================= */
 
     function startTracking() {
 
@@ -495,7 +421,6 @@ arrowElement.style.transform =
         );
 
         return;
-
       }
 
 
@@ -505,15 +430,19 @@ arrowElement.style.transform =
           '🔵 التتبع يعمل بالفعل'
         );
 
-        return;
+        startCompass();
 
+        return;
       }
 
 
       updateStatus(
         '⏳ جاري تحديد موقعك...'
       );
+
+
       startCompass();
+
 
       watchId =
         navigator.geolocation.watchPosition(
@@ -530,15 +459,13 @@ arrowElement.style.transform =
               position.coords.accuracy;
 
 
-            const userLocation = [
-              lat,
-              lng
-            ];
+            const userLocation =
+              [lat, lng];
 
 
-            /* =========================
-               إنشاء نقطة المستخدم
-            ========================= */
+            /*
+              إنشاء علامة المستخدم
+            */
 
             if (!userMarker) {
 
@@ -546,22 +473,25 @@ arrowElement.style.transform =
                 L.marker(
                   userLocation,
                   {
+
                     icon:
-                      L.divIcon({
+                      L.divIcon(
+                        {
 
-                        className:
-                          '',
+                          className: '',
 
-                        html:
-                          '<div class="user-dot"></div>',
+                          html:
+                            '<div class="user-dot"></div>',
 
-                        iconSize:
-                          [20,20],
+                          iconSize:
+                            [20, 20],
 
-                        iconAnchor:
-                          [10,10]
+                          iconAnchor:
+                            [10, 10]
 
-                      })
+                        }
+                      )
+
                   }
                 ).addTo(map);
 
@@ -572,49 +502,94 @@ arrowElement.style.transform =
               );
 
 
-              /* =========================
-                 إنشاء سهم الاتجاه
-              ========================= */
+              /*
+                إنشاء سهم الاتجاه
+
+                لاحظ:
+                Leaflet يتحكم في الحاوية الخارجية فقط.
+
+                SVG الداخلي هو الذي يدور.
+              */
 
               directionMarker =
                 L.marker(
                   userLocation,
                   {
+
                     icon:
-                      L.divIcon({
+                      L.divIcon(
+                        {
 
-                        className:
-                          '',
+                          className: '',
 
-                   html:
-  '<div class="direction-arrow-container">' +
-    '<div class="direction-arrow"></div>' +
-  '</div>',
+                          html:
 
-                      iconSize:
-  [40,40],
+                            '<div class="direction-arrow-container">' +
 
-iconAnchor:
-  [20,20]
+                              '<svg ' +
+                                'class="direction-arrow-svg" ' +
+                                'viewBox="0 0 40 40" ' +
+                                'aria-hidden="true"' +
+                              '>' +
 
-                  
+                                '<polygon ' +
 
-                      }),
+                                  'class="direction-arrow-shape" ' +
+
+                                  'points="20,2 35,35 20,27 5,35" ' +
+
+                                  'fill="#1976ff" ' +
+
+                                  'stroke="white" ' +
+
+                                  'stroke-width="1.5" ' +
+
+                                  'stroke-linejoin="round"' +
+
+                                '></polygon>' +
+
+                              '</svg>' +
+
+                            '</div>',
+
+                          iconSize:
+                            [40, 40],
+
+                          iconAnchor:
+                            [20, 20]
+
+                        }
+                      ),
 
                     zIndexOffset:
                       1000
+
                   }
                 ).addTo(map);
 
-            }
 
+              /*
+                إذا كانت البوصلة أعطتنا اتجاهًا
+                قبل إنشاء السهم، نطبقه مباشرة.
+              */
+
+              if (
+                currentHeading !== null
+              ) {
+
+                updateDirection(
+                  currentHeading
+                );
+
+              }
+
+            }
 
             else {
 
               userMarker.setLatLng(
                 userLocation
               );
-
 
               directionMarker.setLatLng(
                 userLocation
@@ -623,9 +598,9 @@ iconAnchor:
             }
 
 
-            /* =========================
-               دائرة دقة GPS
-            ========================= */
+            /*
+              دائرة دقة GPS
+            */
 
             if (!accuracyCircle) {
 
@@ -667,58 +642,6 @@ iconAnchor:
             }
 
 
-            /* =========================
-               حساب الاتجاه
-            ========================= */
-
-            if (lastPosition) {
-
-              const distanceMoved =
-                map.distance(
-                  lastPosition,
-                  userLocation
-                );
-
-
-              /*
-              لا نحسب اتجاه جديد
-              إذا كانت الحركة صغيرة جدًا.
-
-              هذا يقلل الاهتزاز
-              الناتج عن GPS.
-              */
-
-              if (distanceMoved >= 5) {
-
-                const bearing =
-                  calculateBearing(
-
-                    lastPosition[0],
-                    lastPosition[1],
-
-                    lat,
-                    lng
-
-                  );
-
-
-                updateDirection(
-                  bearing
-                );
-
-              }
-
-            }
-
-
-            lastPosition =
-              userLocation;
-
-
-            /* =========================
-               متابعة الخريطة
-            ========================= */
-
             map.panTo(
               userLocation,
               {
@@ -728,36 +651,22 @@ iconAnchor:
             );
 
 
-            /* =========================
-               الحالة
-            ========================= */
-
-            let directionText =
-              'الاتجاه غير معروف';
-
+            /*
+              إذا لم تصل البوصلة بعد،
+              نوضح ذلك فقط.
+            */
 
             if (
-              currentHeading !== null
+              currentHeading === null
             ) {
 
-              
-              directionText =
-                getDirectionName(
-                  currentHeading
-                );
+              updateStatus(
+                '🔵 التتبع يعمل — بانتظار البوصلة — دقة GPS: ' +
+                Math.round(accuracy) +
+                ' م'
+              );
 
             }
-
-
-            updateStatus(
-
-              '🔵 التتبع يعمل — ' +
-              directionText +
-              ' — دقة GPS: ' +
-              Math.round(accuracy) +
-              ' م'
-
-            );
 
           },
 
@@ -816,73 +725,150 @@ iconAnchor:
 
     }
 
-/* =========================
-   بوصلة الجهاز
-========================= */
 
-function startCompass() {
+    /*
+      تشغيل البوصلة
+    */
 
-  if (
-    typeof DeviceOrientationEvent !== 'undefined' &&
-    typeof DeviceOrientationEvent.requestPermission === 'function'
-  ) {
+    function startCompass() {
 
-    DeviceOrientationEvent
-      .requestPermission()
-      .then(function(permission) {
+      if (
 
-        if (permission === 'granted') {
+        typeof DeviceOrientationEvent !==
+          'undefined'
 
-          window.addEventListener(
-            'deviceorientation',
-            handleOrientation,
-            true
+        &&
+
+        typeof DeviceOrientationEvent
+          .requestPermission ===
+          'function'
+
+      ) {
+
+
+        DeviceOrientationEvent
+          .requestPermission()
+
+          .then(
+            function(permission) {
+
+              if (
+                permission === 'granted'
+              ) {
+
+                window.addEventListener(
+                  'deviceorientation',
+                  handleOrientation,
+                  true
+                );
+
+              }
+
+              else {
+
+                updateStatus(
+                  '❌ لم يتم السماح باستخدام البوصلة'
+                );
+
+              }
+
+            }
+          )
+
+          .catch(
+            function(error) {
+
+              console.log(
+                'Compass permission error:',
+                error
+              );
+
+              updateStatus(
+                '❌ تعذر تشغيل البوصلة'
+              );
+
+            }
           );
 
-        }
+      }
 
-      })
-      .catch(function(error) {
-        console.log('Compass permission error:', error);
-      });
+      else {
 
-  } else {
+        window.addEventListener(
+          'deviceorientation',
+          handleOrientation,
+          true
+        );
 
-    window.addEventListener(
-      'deviceorientation',
-      handleOrientation,
-      true
-    );
+      }
 
-  }
-
-}
+    }
 
 
-function handleOrientation(event) {
+    /*
+      قراءة بوصلة الآيفون
 
-  let heading = null;
+      0   = شمال
+      90  = شرق
+      180 = جنوب
+      270 = غرب
+    */
 
-  if (event.webkitCompassHeading !== undefined) {
+    function handleOrientation(event) {
 
-    heading = event.webkitCompassHeading;
+      let heading = null;
 
-  } else if (event.alpha !== null) {
 
-    heading = 360 - event.alpha;
+      if (
 
-  }
+        typeof event.webkitCompassHeading ===
+          'number'
 
-  if (heading === null) {
-    return;
-  }
+        &&
 
-  updateDirection(heading);
+        Number.isFinite(
+          event.webkitCompassHeading
+        )
 
-}
-    /* =========================
-       إضافة دبوس يدوي
-    ========================= */
+      ) {
+
+        heading =
+          event.webkitCompassHeading;
+
+      }
+
+      else if (
+
+        typeof event.alpha ===
+          'number'
+
+        &&
+
+        Number.isFinite(
+          event.alpha
+        )
+
+      ) {
+
+        heading =
+          360 - event.alpha;
+
+      }
+
+
+      if (heading === null) {
+
+        return;
+
+      }
+
+
+      updateDirection(
+        heading
+      );
+
+    }
+
 
     function addManualPin() {
 
@@ -901,9 +887,11 @@ function handleOrientation(event) {
             ).addTo(map);
 
 
-          marker.bindPopup(
-            '📌 موقع مسجل'
-          ).openPopup();
+          marker
+            .bindPopup(
+              '📌 موقع مسجل'
+            )
+            .openPopup();
 
 
           updateStatus(
@@ -916,14 +904,9 @@ function handleOrientation(event) {
     }
 
 
-    /* =========================
-       تشغيل التنبيهات
-    ========================= */
-
     function enableAlerts() {
 
-      alertsEnabled =
-        true;
+      alertsEnabled = true;
 
 
       try {
@@ -992,8 +975,8 @@ function handleOrientation(event) {
 
     }
 
-
   </script>
 
 </body>
+
 </html>
