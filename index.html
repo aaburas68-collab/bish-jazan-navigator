@@ -882,8 +882,8 @@ function handleOrientation(event) {
   // تصحيح اتجاه السهم ليتوافق مع اتجاه البوصلة
 
 
-document.getElementById('directionDegree').textContent =
-  Math.round(heading) + '°';
+console.log('COMPASS:', heading);
+
 updateDirection(heading);
 
 }
