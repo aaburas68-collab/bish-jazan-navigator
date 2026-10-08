@@ -272,10 +272,26 @@ let currentHeading = null;
 
 let alertsEnabled = false;
 
-let savedPins =
-  JSON.parse(
-    localStorage.getItem('savedPins') || '[]'
-  );
+let savedPins = [];
+
+try {
+
+  savedPins =
+    JSON.parse(
+      localStorage.getItem('savedPins') || '[]'
+    );
+
+  if (!Array.isArray(savedPins)) {
+    savedPins = [];
+  }
+
+} catch (error) {
+
+  savedPins = [];
+
+  localStorage.removeItem('savedPins');
+
+}
 
 
     function updateStatus(text) {
