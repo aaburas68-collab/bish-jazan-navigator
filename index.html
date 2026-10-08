@@ -245,38 +245,31 @@
     ========================= */
 
     const normalMap = L.tileLayer(
-      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      {
-        maxZoom: 19,
+  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+  {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }
+);
 
-        attribution:
-          '&copy; OpenStreetMap contributors'
-      }
-    );
-
-
-    normalMap.addTo(map);
+normalMap.addTo(map);
 
 
-    /* =========================
-       طبقات الخريطة
-    ========================= */
+/* =========================
+   طبقات الخريطة
+========================= */
 
-    const layers = {
+const layers = {
+  "الخريطة العادية": normalMap
+};
 
-      "الخريطة العادية":
-        normalMap
-
-    };
-
-
-    L.control.layers(
-      layers,
-      null,
-      {
-        position: 'topright'
-      }
-    ).addTo(map);
+L.control.layers(
+  layers,
+  null,
+  {
+    position: 'topright'
+  }
+).addTo(map);
 
 
     /* =========================
