@@ -468,9 +468,11 @@ L.control.layers(
 
  if (arrowElement) {
 
-  arrowElement.style.transform =
-    'rotate('180'deg)';
-
+ arrowElement.style.setProperty(
+  'transform',
+  'rotate(180deg)',
+  'important'
+);
 }
 
       }
