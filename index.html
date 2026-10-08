@@ -524,7 +524,27 @@ function loadSavedPins() {
 
             const userLocation =
               [lat, lng];
+savedPins.forEach(function(pin) {
 
+  const distance =
+    getDistance(
+      lat,
+      lng,
+      pin.lat,
+      pin.lng
+    );
+
+  if (distance <= 300) {
+
+    updateStatus(
+      '🔔 أنت قريب من موقع مسجل — ' +
+      Math.round(distance) +
+      ' متر'
+    );
+
+  }
+
+});
 
             /*
               إنشاء علامة المستخدم
