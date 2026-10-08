@@ -668,10 +668,10 @@ playAlertSound();
                 قبل إنشاء السهم، نطبقه مباشرة.
               */
 
-              if (
-                currentHeading !== null
-              ) {
-
+            if (
+  currentHeading === null &&
+  alertedPins.length === 0
+) {
                 updateDirection(
                   currentHeading
                 );
