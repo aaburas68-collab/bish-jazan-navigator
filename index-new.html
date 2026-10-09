@@ -1,659 +1,1043 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-<title>مستكشف بيش - جازان</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ملاحة بيش وجازان</title>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/perliedman-leaflet-control-geocoder/2.4.0/Control.Geocoder.min.css">
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
-<style>
-*{box-sizing:border-box}
-html,body{width:100%;height:100%;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif;background:#fff}
-#map{position:fixed;inset:0;width:100%;height:100%;background:#eee}
+  <style>
+    * { box-sizing: border-box; }
 
-.leaflet-top.leaflet-right{
-  top:max(10px,env(safe-area-inset-top));right:8px;left:auto;
-  display:flex;flex-direction:column;align-items:flex-start;gap:8px;
-  max-width:calc(100vw - 76px);max-height:calc(100% - 25px);
-  overflow-y:auto;overflow-x:visible;padding-bottom:5px
-}
-.leaflet-top.leaflet-right .leaflet-control{
-  float:none!important;margin:0!important;max-width:100%;flex-shrink:0
-}
-.gps-control{order:1}
-.search-control{order:2}
-.route-control{order:3}
-.layers-control{order:4}
+    body {
+      margin: 0;
+      font-family: Tahoma, Arial, sans-serif;
+      background: #f3f5f8;
+      color: #202938;
+    }
 
-.gps-panel,.route-panel{
-  width:215px;max-width:calc(100vw - 95px);padding:9px;
-  background:#fff;color:#202733;border:1px solid #d4d9df;
-  border-radius:12px;box-shadow:0 2px 8px #0003;text-align:center;direction:rtl
-}
-.gps-title,.route-title{font-size:15px;font-weight:700;margin-bottom:8px}
-.gps-button,.route-button{
-  display:block;width:100%;min-height:39px;margin-top:6px;padding:7px;
-  border:0;border-radius:8px;font-family:inherit;font-size:13px;cursor:pointer
-}
-.gps-button{color:#fff}
-.gps-button:disabled,.route-button:disabled{opacity:.6;cursor:wait}
-#locateBtn{background:#2867a5}
-#stopBtn{background:#b4474f}
-#gpsStatus,#routeStatus{
-  margin-top:8px;font-size:12px;line-height:1.6;
-  white-space:pre-line;overflow-wrap:anywhere;color:#424b57
-}
+    header {
+      padding: 13px 16px;
+      color: white;
+      background: #176b55;
+    }
 
-.leaflet-control-geocoder{
-  background:#fff!important;border:1px solid #d4d9df!important;
-  border-radius:10px!important;box-shadow:0 2px 8px #0003!important;
-  direction:rtl;max-width:calc(100vw - 85px)
-}
-.leaflet-control-geocoder form{direction:rtl}
-.leaflet-control-geocoder input{
-  width:100%;direction:rtl;text-align:right;font-family:inherit;font-size:14px
-}
-.leaflet-control-geocoder-expanded{width:min(250px,calc(100vw - 90px))!important}
-.leaflet-control-geocoder-icon{background:#fff!important}
-.leaflet-control-geocoder-alternatives{
-  direction:rtl;text-align:right;max-width:min(250px,calc(100vw - 90px))
-}
+    header h1 {
+      font-size: 20px;
+      margin: 0 0 5px;
+    }
 
-.route-panel{text-align:right}
-.route-point{
-  padding:7px;margin-bottom:7px;border-radius:7px;background:#f5f7f9;
-  border:1px solid #e1e5e9;font-size:12px;line-height:1.6;overflow-wrap:anywhere
-}
-.route-button{background:#edf3f9;color:#235a8d;border:1px solid #d2e1f0}
-#calculateRouteBtn{background:#23784b;color:#fff;font-weight:700}
-#clearRouteBtn{background:#f2f2f2;color:#343a40;border-color:#ddd}
-#routeResult{
-  display:none;margin-top:9px;padding:9px;border-radius:8px;
-  background:#eef7f0;border:1px solid #cce5d2;font-size:13px;line-height:1.8
-}
+    header p {
+      font-size: 12px;
+      margin: 0;
+      opacity: .9;
+    }
 
-.leaflet-control-layers{
-  padding:8px 10px;background:#fff!important;color:#202733;
-  border:1px solid #d4d9df!important;border-radius:12px!important;
-  box-shadow:0 2px 8px #0003!important;direction:rtl;
-  font-family:inherit;font-size:13px
-}
-.leaflet-control-layers label{margin:6px 0}
-.leaflet-control-layers-selector{margin-left:6px}
+    #map {
+      width: 100%;
+      height: 72vh;
+      min-height: 420px;
+      background: #e7ecef;
+      z-index: 1;
+    }
 
-.leaflet-top.leaflet-left{top:max(10px,env(safe-area-inset-top));left:8px;right:auto}
-.leaflet-control-zoom{
-  overflow:hidden;border:1px solid #d4d9df!important;border-radius:10px!important;
-  box-shadow:0 2px 8px #0003!important
-}
-.leaflet-control-zoom a{
-  width:42px!important;height:42px!important;line-height:42px!important;
-  color:#253142!important;background:#fff!important
-}
-.leaflet-control-attribution{font-size:10px}
-.leaflet-popup-content{direction:rtl;text-align:right;font-family:inherit;line-height:1.7}
+    .controls {
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      max-width: 900px;
+      margin: auto;
+    }
 
-@media(max-width:420px){
-  .leaflet-top.leaflet-right{right:7px;gap:7px}
-  .gps-panel{width:185px;padding:8px}
-  .route-panel{width:200px;padding:8px}
-  .leaflet-control-geocoder-expanded{width:min(220px,calc(100vw - 90px))!important}
-  .leaflet-control-layers{padding:7px 8px;font-size:12px}
-}
-</style>
+    .panel {
+      background: white;
+      border: 1px solid #dce3e8;
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 2px 7px #0000000a;
+    }
+
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 15px;
+    }
+
+    .muted {
+      color: #64748b;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    input, select, button {
+      font: inherit;
+      font-size: 14px;
+      border-radius: 8px;
+    }
+
+    input, select {
+      width: 100%;
+      min-width: 0;
+      padding: 11px;
+      border: 1px solid #ccd5dd;
+      background: white;
+      color: #17212b;
+    }
+
+    button {
+      border: 0;
+      padding: 11px 13px;
+      cursor: pointer;
+      font-weight: 700;
+      min-height: 42px;
+    }
+
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .primary { background: #176b55; color: white; }
+    .blue { background: #2563eb; color: white; }
+    .light { background: #edf2f6; color: #253343; }
+    .danger { background: #fee2e2; color: #991b1b; }
+    .full { width: 100%; }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .row > * { flex: 1; }
+
+    .search-results {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .result-item {
+      width: 100%;
+      text-align: right;
+      background: #f5f8fa;
+      color: #1e293b;
+      border: 1px solid #e1e7ec;
+      font-weight: 400;
+      line-height: 1.6;
+    }
+
+    .result-item small {
+      display: block;
+      color: #64748b;
+      font-size: 11px;
+    }
+
+    .info {
+      margin-top: 8px;
+      padding: 9px;
+      background: #f7faf9;
+      border: 1px solid #e1ebe6;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.9;
+      overflow-wrap: anywhere;
+    }
+
+    .info a {
+      color: #176b55;
+      font-weight: bold;
+    }
+
+    .status {
+      font-size: 12px;
+      line-height: 1.8;
+      color: #526273;
+      margin-top: 7px;
+    }
+
+    .layer-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .layer-options button {
+      background: #edf2f6;
+      color: #253343;
+    }
+
+    .layer-options button.active {
+      background: #d7eee5;
+      outline: 2px solid #176b55;
+    }
+
+    .leaflet-control-attribution {
+      font-size: 9px !important;
+    }
+
+    .car-icon {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 38px;
+      height: 38px;
+      border: 2px solid white;
+      border-radius: 50%;
+      background: #176b55;
+      box-shadow: 0 2px 8px #0005;
+      font-size: 23px;
+    }
+
+    .pin-icon {
+      font-size: 31px;
+      text-align: center;
+      line-height: 35px;
+      filter: drop-shadow(0 2px 2px #0005);
+    }
+
+    @media (max-width: 480px) {
+      #map { height: 62vh; min-height: 350px; }
+      .controls { padding: 8px; }
+      .panel { padding: 10px; }
+    }
+  </style>
 </head>
+
 <body>
-<div id="map" aria-label="خريطة بيش التفاعلية"></div>
+<header>
+  <h1>ملاحة بيش وجازان</h1>
+  <p>تحديد المواقع، معرفة الطرق، وتخطيط الرحلات</p>
+</header>
+
+<div id="map" aria-label="الخريطة"></div>
+
+<main class="controls">
+
+  <!-- 1: موقعي -->
+  <section class="panel">
+    <h2>📍 موقعي</h2>
+    <div class="row">
+      <button id="locateBtn" class="primary">تحديد موقعي</button>
+      <button id="stopGpsBtn" class="light">إيقاف التتبع</button>
+    </div>
+    <div id="gpsStatus" class="status">
+      اضغط «تحديد موقعي» واسمح للمتصفح بالوصول إلى الموقع.
+    </div>
+    <div id="gpsInfo" class="info" hidden></div>
+  </section>
+
+  <!-- 2: البحث -->
+  <section class="panel">
+    <h2>🔎 البحث عن مدينة أو حي أو شارع</h2>
+    <input id="searchInput"
+           type="search"
+           placeholder="مثال: بيش، صبيا، حي الروضة، جازان">
+
+    <div class="row" style="margin-top:8px">
+      <button id="searchBtn" class="blue">ابحث</button>
+      <button id="clearSearchBtn" class="light">مسح البحث</button>
+    </div>
+
+    <div id="searchStatus" class="status">
+      اكتب اسم المكان ثم اضغط ابحث، واختر النتيجة المطابقة.
+    </div>
+    <div id="searchResults" class="search-results"></div>
+    <div id="placeInfo" class="info" hidden></div>
+  </section>
+
+  <!-- 3: تخطيط المسار -->
+  <section class="panel">
+    <h2>🛣️ تخطيط المسار</h2>
+
+    <label for="startLabel" class="muted">نقطة الانطلاق</label>
+    <input id="startLabel" placeholder="حدد موقعي أو اختر نقطة على الخريطة">
+
+    <div style="height:9px"></div>
+
+    <label for="destinationLabel" class="muted">الوجهة</label>
+    <input id="destinationLabel" placeholder="ابحث عن مدينة أو اختر مكانًا على الخريطة">
+
+    <div class="row" style="margin-top:9px">
+      <button id="useGpsStartBtn" class="light">الانطلاق من موقعي</button>
+      <button id="pickStartBtn" class="light">تحديد البداية بالخريطة</button>
+    </div>
+
+    <div class="row" style="margin-top:8px">
+      <button id="pickEndBtn" class="light">تحديد الوجهة بالخريطة</button>
+      <button id="routeBtn" class="primary">احسب المسار</button>
+    </div>
+
+    <div id="routeInfo" class="info">
+      حدد البداية والوجهة، ثم اضغط «احسب المسار».
+    </div>
+
+    <div class="row" style="margin-top:8px">
+      <button id="clearRouteBtn" class="danger">مسح المسار</button>
+    </div>
+
+    <button id="goBtn" class="primary full" style="margin-top:8px" disabled>
+      🚗 انطلق
+    </button>
+
+    <div class="row" style="margin-top:8px">
+      <button id="pauseBtn" class="light" hidden>إيقاف مؤقت</button>
+      <button id="stopTripBtn" class="danger" hidden>إنهاء الرحلة</button>
+    </div>
+
+    <div id="tripStatus" class="status" aria-live="polite"></div>
+  </section>
+
+  <!-- 4: الطبقات -->
+  <section class="panel">
+    <h2>🗺️ طبقات الخريطة</h2>
+    <div class="layer-options">
+      <button data-layer="street" class="active">الشوارع</button>
+      <button data-layer="satellite">الأقمار الصناعية</button>
+      <button data-layer="terrain">التضاريس</button>
+    </div>
+  </section>
+</main>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/perliedman-leaflet-control-geocoder/2.4.0/Control.Geocoder.min.js"></script>
 
 <script>
 (() => {
-"use strict";
+  "use strict";
 
-/* إنشاء الخريطة ومجموعة تكبير واحدة فقط */
-const map = L.map("map", {
-  zoomControl:false,
-  attributionControl:true
-}).setView([17.38,42.54],11);
+  const $ = id => document.getElementById(id);
 
-L.control.zoom({position:"topleft"}).addTo(map);
+  const map = L.map("map", {
+    zoomControl: false
+  }).setView([17.5, 42.5], 8);
 
-/* طبقات الخريطة */
-const standard=L.tileLayer(
-  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-  {
-    maxZoom:19,
-    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-  }
-);
+  // مجموعة تكبير واحدة فقط
+  L.control.zoom({ position: "topleft" }).addTo(map);
 
-const topo=L.tileLayer(
-  "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-  {maxZoom:17,attribution:"&copy; OpenTopoMap contributors"}
-);
+  const streetLayer = L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }
+  );
 
-const satellite=L.tileLayer(
-  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-  {maxZoom:22,maxNativeZoom:19,attribution:"Tiles &copy; Esri"}
-);
+  const satelliteLayer = L.tileLayer(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    {
+      maxZoom: 19,
+      attribution: "Tiles &copy; Esri"
+    }
+  );
 
-standard.addTo(map);
+  const terrainLayer = L.tileLayer(
+    "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+    {
+      maxZoom: 17,
+      attribution: 'Map data: &copy; OpenStreetMap contributors, SRTM | Map style: &copy; OpenTopoMap'
+    }
+  );
 
-const layersControl=L.control.layers({
-  "الخريطة العادية":standard,
-  "التضاريس والارتفاعات":topo,
-  "صور الأقمار الصناعية":satellite
-},null,{position:"topright",collapsed:false}).addTo(map);
+  streetLayer.addTo(map);
+  let currentLayer = streetLayer;
 
-layersControl.getContainer().classList.add("layers-control");
+  document.querySelectorAll("[data-layer]").forEach(button => {
+    button.addEventListener("click", () => {
+      const layers = {
+        street: streetLayer,
+        satellite: satelliteLayer,
+        terrain: terrainLayer
+      };
 
-/* البحث */
-const searchControl=L.Control.geocoder({
-  position:"topright",
-  collapsed:false,
-  defaultMarkGeocode:true,
-  placeholder:"ابحث عن مكان أو عنوان",
-  errorMessage:"لم يتم العثور على المكان",
-  showResultIcons:false,
-  geocoder:L.Control.Geocoder.nominatim({
-    geocodingQueryParams:{"accept-language":"ar,en"}
-  })
-}).addTo(map);
+      if (currentLayer) map.removeLayer(currentLayer);
+      currentLayer = layers[button.dataset.layer];
+      currentLayer.addTo(map);
 
-searchControl.getContainer().classList.add("search-control");
-
-/* بيانات GPS */
-let watchId=null;
-let currentMarker=null;
-let accuracyCircle=null;
-let firstFix=true;
-let bestAccuracy=null;
-
-/* بيانات المسار وأسماء الأماكن */
-let startPoint=null;
-let endPoint=null;
-let startName="";
-let endName="";
-let startMarker=null;
-let endMarker=null;
-let routeLine=null;
-let pickMode=null;
-let routeRequestNumber=0;
-
-/* أدوات الواجهة */
-const gpsControl=L.control({position:"topright"});
-gpsControl.onAdd=function(){
-  const box=L.DomUtil.create("div","gps-panel gps-control");
-  box.innerHTML=`
-    <div class="gps-title">📍 موقعي</div>
-    <button id="locateBtn" class="gps-button" type="button">تحديد موقعي</button>
-    <button id="stopBtn" class="gps-button" type="button">إيقاف التتبع</button>
-    <div id="gpsStatus" role="status" aria-live="polite">اضغط لتحديد موقعك.</div>`;
-  L.DomEvent.disableClickPropagation(box);
-  L.DomEvent.disableScrollPropagation(box);
-  return box;
-};
-gpsControl.addTo(map);
-
-const routeControl=L.control({position:"topright"});
-routeControl.onAdd=function(){
-  const box=L.DomUtil.create("div","route-panel route-control");
-  box.innerHTML=`
-    <div class="route-title">🧭 تخطيط المسار</div>
-    <div class="route-point" id="startLabel">نقطة الانطلاق: لم تُحدد</div>
-    <div class="route-point" id="endLabel">الوجهة: لم تُحدد</div>
-    <button id="useGpsStartBtn" class="route-button" type="button">استخدام موقعي كنقطة انطلاق</button>
-    <button id="pickStartBtn" class="route-button" type="button">اختيار نقطة الانطلاق من الخريطة</button>
-    <button id="pickEndBtn" class="route-button" type="button">اختيار الوجهة من الخريطة</button>
-    <button id="calculateRouteBtn" class="route-button" type="button">احسب المسار</button>
-    <button id="clearRouteBtn" class="route-button" type="button">مسح المسار</button>
-    <div id="routeStatus" role="status" aria-live="polite">حدد نقطة الانطلاق والوجهة لحساب الطريق.</div>
-    <div id="routeResult"></div>`;
-  L.DomEvent.disableClickPropagation(box);
-  L.DomEvent.disableScrollPropagation(box);
-  return box;
-};
-routeControl.addTo(map);
-
-/* ترتيب الصناديق: موقعي، البحث، المسارات، الطبقات */
-const rightControls=map.getContainer().querySelector(".leaflet-top.leaflet-right");
-const gpsPanel=gpsControl.getContainer();
-const searchPanel=searchControl.getContainer();
-const routePanel=routeControl.getContainer();
-const layersPanel=layersControl.getContainer();
-
-gpsPanel.classList.add("gps-control");
-searchPanel.classList.add("search-control");
-routePanel.classList.add("route-control");
-layersPanel.classList.add("layers-control");
-
-if(rightControls){
-  rightControls.style.display="flex";
-  rightControls.style.flexDirection="column";
-  rightControls.style.alignItems="flex-start";
-  rightControls.style.gap="8px";
-  rightControls.append(gpsPanel,searchPanel,routePanel,layersPanel);
-}
-
-function gpsStatus(message){
-  const el=document.getElementById("gpsStatus");
-  if(el) el.textContent=message;
-}
-function routeStatus(message){
-  const el=document.getElementById("routeStatus");
-  if(el) el.textContent=message;
-}
-function setLocateDisabled(value){
-  const el=document.getElementById("locateBtn");
-  if(el) el.disabled=value;
-}
-function formatPoint(point){
-  return point.lat.toFixed(5)+", "+point.lng.toFixed(5);
-}
-function setResultVisible(html){
-  const el=document.getElementById("routeResult");
-  if(!el) return;
-  el.innerHTML=html;
-  el.style.display="block";
-}
-function hideResult(){
-  const el=document.getElementById("routeResult");
-  if(el){el.style.display="none";el.innerHTML="";}
-}
-
-/*
- * تحويل الإحداثيات إلى اسم مكان.
- * طلب واحد عند اختيار كل نقطة فقط، وليس عند كل حركة للخريطة.
- */
-async function reverseGeocode(point){
-  const url="https://nominatim.openstreetmap.org/reverse?format=jsonv2"+
-    "&lat="+encodeURIComponent(point.lat)+
-    "&lon="+encodeURIComponent(point.lng)+
-    "&zoom=16&addressdetails=1&accept-language=ar";
-
-  const response=await fetch(url);
-  if(!response.ok) throw new Error("تعذر الحصول على اسم المكان");
-
-  const data=await response.json();
-  const a=data.address||{};
-
-  const locality=
-    a.city||a.town||a.village||a.municipality||
-    a.suburb||a.neighbourhood||a.hamlet||
-    a.county||a.state_district||"";
-
-  const region=a.state||a.region||"";
-  const country=a.country||"";
-
-  let shortName=locality;
-
-  if(!shortName && data.name) shortName=data.name;
-  if(!shortName && data.display_name){
-    shortName=data.display_name.split(",").slice(0,2).join("،").trim();
-  }
-
-  const parts=[];
-  if(shortName) parts.push(shortName);
-  if(region && region!==shortName) parts.push(region);
-  if(country && !parts.includes(country)) parts.push(country);
-
-  return {
-    name:parts.length?parts.join("، "):"مكان غير معروف",
-    fullName:data.display_name||""
-  };
-}
-
-/* تحديث أسماء الانطلاق والوجهة على الشاشة */
-function updateLabels(){
-  const s=document.getElementById("startLabel");
-  const e=document.getElementById("endLabel");
-
-  if(s){
-    s.textContent="نقطة الانطلاق: "+(startPoint?(startName||"جارٍ التعرف على المكان…"):"لم تُحدد");
-  }
-  if(e){
-    e.textContent="الوجهة: "+(endPoint?(endName||"جارٍ التعرف على المكان…"):"لم تُحدد");
-  }
-}
-
-/* إعادة رسم دبابيس المسار مع أسماء الأماكن */
-function drawRouteMarkers(){
-  if(startMarker) map.removeLayer(startMarker);
-  if(endMarker) map.removeLayer(endMarker);
-
-  if(startPoint){
-    startMarker=L.marker(startPoint,{title:"نقطة الانطلاق"}).addTo(map);
-    startMarker.bindPopup(
-      "<strong>نقطة الانطلاق</strong><br>"+escapeHtml(startName||"جارٍ تحديد اسم المكان")+
-      "<br><small>"+escapeHtml(formatPoint(startPoint))+"</small>"
-    );
-  }
-
-  if(endPoint){
-    endMarker=L.marker(endPoint,{title:"الوجهة"}).addTo(map);
-    endMarker.bindPopup(
-      "<strong>الوجهة</strong><br>"+escapeHtml(endName||"جارٍ تحديد اسم المكان")+
-      "<br><small>"+escapeHtml(formatPoint(endPoint))+"</small>"
-    );
-  }
-}
-
-/* منع إدخال HTML غير موثوق داخل نافذة الدبوس */
-function escapeHtml(value){
-  return String(value).replace(/[&<>"']/g,function(ch){
-    return {
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-    }[ch];
+      document.querySelectorAll("[data-layer]").forEach(b => {
+        b.classList.toggle("active", b === button);
+      });
+    });
   });
-}
 
-function clearRouteDrawing(){
-  if(routeLine){map.removeLayer(routeLine);routeLine=null;}
-  if(startMarker){map.removeLayer(startMarker);startMarker=null;}
-  if(endMarker){map.removeLayer(endMarker);endMarker=null;}
-  hideResult();
-}
+  let gpsWatchId = null;
+  let currentPosition = null;
+  let gpsMarker = null;
+  let gpsAccuracyCircle = null;
 
-/* GPS: علامة الموقع ودائرة الدقة */
-function onPosition(position){
-  const lat=position.coords.latitude;
-  const lng=position.coords.longitude;
-  const accuracy=Math.round(position.coords.accuracy||0);
-  const point=[lat,lng];
+  let startPoint = null;
+  let endPoint = null;
+  let startMarker = null;
+  let endMarker = null;
+  let routeLine = null;
+  let routeCoordinates = [];
+  let routeDistance = 0;
+  let routeDuration = 0;
 
-  if(bestAccuracy===null||accuracy<bestAccuracy) bestAccuracy=accuracy;
+  let pickMode = null;
+  let tripAnimation = null;
+  let tripRunning = false;
+  let tripPaused = false;
+  let carMarker = null;
+  let tripStartTime = 0;
+  let pausedElapsed = 0;
+  let tripSpeedFactor = 1;
+  let lastFrameTime = null;
 
-  if(!currentMarker){
-    currentMarker=L.marker(point,{title:"موقعي الحالي"})
-      .addTo(map).bindPopup("موقعي الحالي");
-  }else{
-    currentMarker.setLatLng(point);
-  }
-
-  if(!accuracyCircle){
-    accuracyCircle=L.circle(point,{
-      radius:accuracy,color:"#2867a5",weight:2,opacity:.85,
-      fillColor:"#3985c8",fillOpacity:.12
-    }).addTo(map);
-  }else{
-    accuracyCircle.setLatLng(point);
-    accuracyCircle.setRadius(accuracy);
-  }
-
-  if(firstFix){
-    map.setView(point,Math.max(map.getZoom(),16));
-    firstFix=false;
-  }
-
-  gpsStatus("الدقة الحالية: "+accuracy+" متر\nأفضل دقة: "+bestAccuracy+" متر");
-  setLocateDisabled(false);
-}
-
-function onPositionError(error){
-  let message="تعذر تحديد الموقع.";
-  if(error.code===1) message="تم رفض إذن الموقع. اسمح للمتصفح بالوصول إلى موقعك.";
-  else if(error.code===2) message="الموقع غير متاح. تأكد من تشغيل خدمات الموقع.";
-  else if(error.code===3) message="انتهت مهلة تحديد الموقع. حاول مرة أخرى.";
-  gpsStatus(message);
-  setLocateDisabled(false);
-}
-
-function startTracking(){
-  if(!navigator.geolocation){
-    gpsStatus("المتصفح لا يدعم تحديد الموقع.");
-    return;
-  }
-  if(watchId!==null){
-    if(currentMarker) map.setView(currentMarker.getLatLng(),Math.max(map.getZoom(),16));
-    gpsStatus("التتبع نشط ويتم تحديث موقعك.");
-    return;
-  }
-
-  firstFix=true;
-  bestAccuracy=null;
-  setLocateDisabled(true);
-  gpsStatus("جارٍ تحديد موقعك… اسمح بالوصول إلى الموقع.");
-
-  watchId=navigator.geolocation.watchPosition(onPosition,onPositionError,{
-    enableHighAccuracy:true,maximumAge:0,timeout:20000
+  const carIcon = L.divIcon({
+    className: "",
+    html: '<div class="car-icon">🚗</div>',
+    iconSize: [38, 38],
+    iconAnchor: [19, 19]
   });
-}
 
-function stopTracking(){
-  if(watchId!==null){
-    navigator.geolocation.clearWatch(watchId);
-    watchId=null;
-  }
-  setLocateDisabled(false);
-  gpsStatus(currentMarker?"تم إيقاف التتبع. آخر موقع ما زال ظاهرًا.":"تم إيقاف التتبع.");
-}
+  const startIcon = L.divIcon({
+    className: "",
+    html: '<div class="pin-icon">🟢</div>',
+    iconSize: [34, 38],
+    iconAnchor: [17, 35]
+  });
 
-/* اختيار نقطة الانطلاق أو الوجهة بالنقر على الخريطة */
-function beginPickingPoint(mode){
-  pickMode=mode;
-  routeStatus(mode==="start"
-    ?"انقر على الخريطة لتحديد نقطة الانطلاق."
-    :"انقر على الخريطة لتحديد الوجهة.");
-}
+  const endIcon = L.divIcon({
+    className: "",
+    html: '<div class="pin-icon">📍</div>',
+    iconSize: [34, 38],
+    iconAnchor: [17, 35]
+  });
 
-async function setPointFromMap(mode,latlng){
-  const point=L.latLng(latlng.lat,latlng.lng);
-
-  if(mode==="start"){
-    startPoint=point;
-    startName="";
-  }else{
-    endPoint=point;
-    endName="";
+  function escapeHtml(value) {
+    return String(value ?? "").replace(/[&<>"']/g, ch => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[ch]);
   }
 
-  clearRouteDrawing();
-  updateLabels();
-  drawRouteMarkers();
-  routeStatus("جارٍ التعرف على اسم المكان…");
+  function googleMapsLink(latlng) {
+    return "https://www.google.com/maps/search/?api=1&query=" +
+      encodeURIComponent(latlng.lat + "," + latlng.lng);
+  }
 
-  try{
-    const place=await reverseGeocode(point);
+  function formatCoords(latlng) {
+    return latlng.lat.toFixed(6) + ", " + latlng.lng.toFixed(6);
+  }
 
-    if(mode==="start"){
-      startName=place.name;
-    }else{
-      endName=place.name;
+  function showLocationInfo(container, data, latlng) {
+    const address = data.address || {};
+    const city =
+      address.city ||
+      address.town ||
+      address.village ||
+      address.municipality ||
+      address.county ||
+      address.state_district ||
+      "";
+
+    const district =
+      address.suburb ||
+      address.neighbourhood ||
+      address.quarter ||
+      address.city_district ||
+      "";
+
+    const road =
+      address.road ||
+      address.pedestrian ||
+      address.residential ||
+      address.footway ||
+      "";
+
+    const building =
+      address.house_number ? "رقم المبنى: " + address.house_number : "";
+
+    const title = data.name ||
+      data.display_name?.split(",")[0] ||
+      "موقع محدد على الخريطة";
+
+    const parts = [];
+    if (city) parts.push("المدينة/المحافظة: " + city);
+    if (district) parts.push("الحي: " + district);
+    if (road) parts.push("الشارع: " + road);
+    if (building) parts.push(building);
+
+    const details = parts.length
+      ? parts.map(escapeHtml).join("<br>")
+      : "لم تتوفر بيانات كافية لتحديد الحي أو الشارع لهذا الموقع.";
+
+    container.hidden = false;
+    container.innerHTML =
+      "<strong>" + escapeHtml(title) + "</strong><br>" +
+      details + "<br>" +
+      "الإحداثيات: " + escapeHtml(formatCoords(latlng)) + "<br>" +
+      '<a href="' + escapeHtml(googleMapsLink(latlng)) +
+      '" target="_blank" rel="noopener noreferrer">فتح الموقع في خرائط Google</a>';
+  }
+
+  // يستخدم عند اختيار مكان محدد فقط، وليس في كل تحديث GPS
+  async function reverseGeocode(latlng, container, statusElement) {
+    if (statusElement) statusElement.textContent = "جارٍ تحديد اسم الموقع والحي والشارع…";
+
+    try {
+      const url = new URL("https://nominatim.openstreetmap.org/reverse");
+      url.search = new URLSearchParams({
+        format: "jsonv2",
+        lat: latlng.lat,
+        lon: latlng.lng,
+        zoom: "18",
+        addressdetails: "1",
+        "accept-language": "ar"
+      });
+
+      const response = await fetch(url.toString(), {
+        headers: { "Accept": "application/json" }
+      });
+
+      if (!response.ok) throw new Error("تعذر جلب بيانات الموقع");
+
+      const data = await response.json();
+      showLocationInfo(container, data, latlng);
+
+      if (statusElement) statusElement.textContent = "تم تحديد تفاصيل الموقع المتاحة.";
+      return data;
+    } catch (error) {
+      container.hidden = false;
+      container.innerHTML =
+        "<strong>تعذر جلب اسم المكان حاليًا.</strong><br>" +
+        "الإحداثيات: " + escapeHtml(formatCoords(latlng)) + "<br>" +
+        '<a href="' + escapeHtml(googleMapsLink(latlng)) +
+        '" target="_blank" rel="noopener noreferrer">فتح الإحداثيات في خرائط Google</a>';
+
+      if (statusElement) statusElement.textContent =
+        "تعذر الوصول إلى خدمة أسماء الأماكن. يمكنك فتح الإحداثيات في خرائط Google.";
+
+      return null;
+    }
+  }
+
+  async function searchPlaces(query) {
+    const url = new URL("https://nominatim.openstreetmap.org/search");
+    url.search = new URLSearchParams({
+      q: query,
+      format: "jsonv2",
+      addressdetails: "1",
+      limit: "7",
+      countrycodes: "sa",
+      "accept-language": "ar"
+    });
+
+    const response = await fetch(url.toString(), {
+      headers: { "Accept": "application/json" }
+    });
+
+    if (!response.ok) throw new Error("تعذر البحث الآن");
+    return response.json();
+  }
+
+  function coordsFromResult(result) {
+    return L.latLng(Number(result.lat), Number(result.lon));
+  }
+
+  function setStart(latlng, name) {
+    startPoint = L.latLng(latlng.lat, latlng.lng);
+    $("startLabel").value = name || "نقطة محددة على الخريطة";
+
+    if (startMarker) map.removeLayer(startMarker);
+    startMarker = L.marker(startPoint, { icon: startIcon })
+      .addTo(map)
+      .bindPopup("<b>نقطة الانطلاق</b><br>" + escapeHtml($("startLabel").value));
+
+    resetRoute("تم تغيير نقطة الانطلاق. احسب المسار من جديد.");
+  }
+
+  function setEnd(latlng, name) {
+    endPoint = L.latLng(latlng.lat, latlng.lng);
+    $("destinationLabel").value = name || "وجهة محددة على الخريطة";
+
+    if (endMarker) map.removeLayer(endMarker);
+    endMarker = L.marker(endPoint, { icon: endIcon })
+      .addTo(map)
+      .bindPopup("<b>الوجهة</b><br>" + escapeHtml($("destinationLabel").value));
+
+    resetRoute("تم تغيير الوجهة. احسب المسار من جديد.");
+  }
+
+  function resetRoute(message) {
+    stopTrip(false);
+
+    if (routeLine) map.removeLayer(routeLine);
+    routeLine = null;
+    routeCoordinates = [];
+    routeDistance = 0;
+    routeDuration = 0;
+
+    $("goBtn").disabled = true;
+    $("routeInfo").textContent = message || "حدد البداية والوجهة ثم احسب المسار.";
+    $("tripStatus").textContent = "";
+  }
+
+  function clearRoute() {
+    resetRoute("تم مسح المسار. حدد البداية والوجهة من جديد.");
+
+    if (startMarker) map.removeLayer(startMarker);
+    if (endMarker) map.removeLayer(endMarker);
+    if (carMarker) map.removeLayer(carMarker);
+
+    startMarker = null;
+    endMarker = null;
+    carMarker = null;
+    startPoint = null;
+    endPoint = null;
+
+    $("startLabel").value = "";
+    $("destinationLabel").value = "";
+  }
+
+  $("clearRouteBtn").addEventListener("click", clearRoute);
+
+  $("useGpsStartBtn").addEventListener("click", () => {
+    if (!currentPosition) {
+      $("gpsStatus").textContent = "حدد موقعك أولًا، ثم اضغط هذا الزر.";
+      return;
     }
 
-    updateLabels();
-    drawRouteMarkers();
-    routeStatus("تم تحديد المكان: "+place.name);
-  }catch(error){
-    const fallback="مكان محدد على الخريطة";
-    if(mode==="start") startName=fallback;
-    else endName=fallback;
+    setStart(currentPosition, "موقعي الحالي");
+    map.setView(currentPosition, 15);
+  });
 
-    updateLabels();
-    drawRouteMarkers();
-    routeStatus("تم حفظ النقطة، لكن تعذر جلب اسم المكان. يمكنك متابعة حساب المسار.");
-  }
-}
+  $("pickStartBtn").addEventListener("click", () => {
+    pickMode = "start";
+    $("gpsStatus").textContent = "اضغط على الخريطة لتحديد نقطة الانطلاق.";
+  });
 
-map.on("click",function(event){
-  if(!pickMode) return;
-  const mode=pickMode;
-  pickMode=null;
-  setPointFromMap(mode,event.latlng);
-});
+  $("pickEndBtn").addEventListener("click", () => {
+    pickMode = "end";
+    $("gpsStatus").textContent = "اضغط على الخريطة لتحديد الوجهة.";
+  });
 
-/* نتيجة البحث تصبح الوجهة بالاسم الذي أعاده محرك البحث */
-searchControl.on("markgeocode",async function(event){
-  if(!event.geocode||!event.geocode.center) return;
+  map.on("click", async event => {
+    const point = event.latlng;
 
-  endPoint=L.latLng(event.geocode.center.lat,event.geocode.center.lng);
-  endName=event.geocode.name||"";
+    if (pickMode === "start") {
+      setStart(point, "جارٍ تحديد اسم نقطة الانطلاق…");
+      pickMode = null;
 
-  clearRouteDrawing();
-  updateLabels();
-  drawRouteMarkers();
-
-  if(!endName){
-    try{
-      const place=await reverseGeocode(endPoint);
-      endName=place.name;
-      updateLabels();
-      drawRouteMarkers();
-    }catch(error){}
-  }
-
-  routeStatus("تم تعيين "+(endName||"النتيجة المختارة")+" كوجهة. حدد نقطة الانطلاق ثم احسب المسار.");
-});
-
-/* استخدام GPS كنقطة انطلاق، مع التعرف على اسم المكان */
-async function useGpsAsStart(){
-  if(!currentMarker){
-    routeStatus("حدد موقعك أولًا من صندوق موقعي، ثم اضغط استخدام موقعي.");
-    return;
-  }
-
-  const pos=currentMarker.getLatLng();
-  startPoint=L.latLng(pos.lat,pos.lng);
-  startName="";
-
-  clearRouteDrawing();
-  updateLabels();
-  drawRouteMarkers();
-  routeStatus("جارٍ التعرف على اسم موقعك…");
-
-  try{
-    const place=await reverseGeocode(startPoint);
-    startName=place.name;
-    updateLabels();
-    drawRouteMarkers();
-    routeStatus("نقطة الانطلاق: "+startName);
-  }catch(error){
-    startName="موقعي الحالي";
-    updateLabels();
-    drawRouteMarkers();
-    routeStatus("تم تحديد موقعك، لكن تعذر جلب اسم المنطقة.");
-  }
-}
-
-/* حساب المسار عبر الطرق باستخدام OSRM */
-async function calculateRoute(){
-  if(!startPoint||!endPoint){
-    routeStatus("حدد نقطة الانطلاق والوجهة أولًا، أو ابحث عن الوجهة.");
-    return;
-  }
-
-  const button=document.getElementById("calculateRouteBtn");
-  if(button) button.disabled=true;
-
-  hideResult();
-  routeStatus("جارٍ حساب الطريق عبر شبكة الطرق…");
-
-  const requestId=++routeRequestNumber;
-  const coords=startPoint.lng+","+startPoint.lat+";"+endPoint.lng+","+endPoint.lat;
-  const url="https://router.project-osrm.org/route/v1/driving/"+coords+
-    "?overview=full&geometries=geojson&steps=false";
-
-  try{
-    const response=await fetch(url);
-    if(!response.ok) throw new Error("تعذر الاتصال بخدمة حساب المسارات.");
-
-    const data=await response.json();
-    if(requestId!==routeRequestNumber) return;
-
-    if(data.code!=="Ok"||!data.routes||!data.routes.length){
-      throw new Error("لم يُعثر على طريق بين النقطتين. جرّب تحديد نقاط أقرب إلى الطرق.");
+      const data = await reverseGeocode(point, $("placeInfo"), $("searchStatus"));
+      if (data) {
+        $("startLabel").value =
+          data.name || data.display_name || formatCoords(point);
+        startMarker?.setPopupContent(
+          "<b>نقطة الانطلاق</b><br>" + escapeHtml($("startLabel").value)
+        );
+      }
+      return;
     }
 
-    const route=data.routes[0];
-    const distanceKm=route.distance/1000;
-    const durationMinutes=Math.round(route.duration/60);
-    const latlngs=route.geometry.coordinates.map(c=>[c[1],c[0]]);
+    if (pickMode === "end") {
+      setEnd(point, "جارٍ تحديد اسم الوجهة…");
+      pickMode = null;
 
-    if(routeLine) map.removeLayer(routeLine);
+      const data = await reverseGeocode(point, $("placeInfo"), $("searchStatus"));
+      if (data) {
+        $("destinationLabel").value =
+          data.name || data.display_name || formatCoords(point);
+        endMarker?.setPopupContent(
+          "<b>الوجهة</b><br>" + escapeHtml($("destinationLabel").value)
+        );
+      }
+      return;
+    }
 
-    routeLine=L.polyline(latlngs,{
-      color:"#1769aa",weight:6,opacity:.85,lineCap:"round",lineJoin:"round"
+    await reverseGeocode(point, $("placeInfo"), $("searchStatus"));
+  });
+
+  $("searchBtn").addEventListener("click", runSearch);
+  $("searchInput").addEventListener("keydown", event => {
+    if (event.key === "Enter") runSearch();
+  });
+
+  $("clearSearchBtn").addEventListener("click", () => {
+    $("searchInput").value = "";
+    $("searchResults").innerHTML = "";
+    $("placeInfo").hidden = true;
+    $("searchStatus").textContent = "اكتب اسم المكان ثم اضغط ابحث.";
+  });
+
+  async function runSearch() {
+    const query = $("searchInput").value.trim();
+    if (!query) {
+      $("searchStatus").textContent = "اكتب اسم مدينة أو حي أو شارع أولًا.";
+      return;
+    }
+
+    $("searchStatus").textContent = "جارٍ البحث عن المواقع المطابقة…";
+    $("searchResults").innerHTML = "";
+
+    try {
+      const results = await searchPlaces(query);
+      if (!results.length) {
+        $("searchStatus").textContent = "لم نعثر على نتائج. جرّب اسمًا أدق.";
+        return;
+      }
+
+      $("searchStatus").textContent =
+        "اختر النتيجة الصحيحة من القائمة لتحديد موقعها.";
+
+      results.forEach(result => {
+        const button = document.createElement("button");
+        button.className = "result-item";
+
+        const title = result.name || result.display_name.split(",")[0];
+        button.innerHTML =
+          "<strong>" + escapeHtml(title) + "</strong>" +
+          "<small>" + escapeHtml(result.display_name) + "</small>";
+
+        button.addEventListener("click", async () => {
+          const point = coordsFromResult(result);
+          map.setView(point, Math.max(map.getZoom(), 16));
+
+          $("placeInfo").hidden = false;
+          $("placeInfo").innerHTML =
+            "<strong>" + escapeHtml(title) + "</strong><br>" +
+            escapeHtml(result.display_name) + "<br>" +
+            "الإحداثيات: " + escapeHtml(formatCoords(point)) + "<br>" +
+            '<a href="' + escapeHtml(googleMapsLink(point)) +
+            '" target="_blank" rel="noopener noreferrer">فتح الموقع في خرائط Google</a>';
+
+          if (pickMode === "start") {
+            setStart(point, title);
+            pickMode = null;
+          } else {
+            // نتيجة البحث تعتبر الوجهة المختارة
+            setEnd(point, title);
+          }
+
+          if (endMarker) endMarker.openPopup();
+          await reverseGeocode(point, $("placeInfo"), $("searchStatus"));
+
+          if (pickMode === null) {
+            $("destinationLabel").value =
+              $("destinationLabel").value || title;
+          }
+        });
+
+        $("searchResults").appendChild(button);
+      });
+    } catch (error) {
+      $("searchStatus").textContent =
+        "تعذر الاتصال بخدمة البحث. تحقق من الإنترنت وحاول مرة أخرى.";
+    }
+  }
+
+  // GPS
+  $("locateBtn").addEventListener("click", () => {
+    if (!navigator.geolocation) {
+      $("gpsStatus").textContent = "متصفحك لا يدعم تحديد الموقع.";
+      return;
+    }
+
+    $("gpsStatus").textContent =
+      "جارٍ تحديد موقعك. تأكد من السماح للموقع باستخدام GPS.";
+
+    if (gpsWatchId !== null) {
+      navigator.geolocation.clearWatch(gpsWatchId);
+      gpsWatchId = null;
+    }
+
+    gpsWatchId = navigator.geolocation.watchPosition(position => {
+      const point = L.latLng(
+        position.coords.latitude,
+        position.coords.longitude
+      );
+
+      currentPosition = point;
+      const accuracy = Math.round(position.coords.accuracy);
+
+      if (!gpsMarker) {
+        gpsMarker = L.marker(point).addTo(map).bindPopup("موقعي الحالي");
+      } else {
+        gpsMarker.setLatLng(point);
+      }
+
+      if (!gpsAccuracyCircle) {
+        gpsAccuracyCircle = L.circle(point, {
+          radius: accuracy,
+          color: "#2563eb",
+          fillColor: "#60a5fa",
+          fillOpacity: 0.12
+        }).addTo(map);
+      } else {
+        gpsAccuracyCircle.setLatLng(point).setRadius(accuracy);
+      }
+
+      $("gpsStatus").textContent =
+        "تم تحديد موقعك. دقة GPS التقريبية: " + accuracy + " متر.";
+
+      $("gpsInfo").hidden = false;
+      $("gpsInfo").innerHTML =
+        "الإحداثيات: " + escapeHtml(formatCoords(point)) + "<br>" +
+        "دقة التحديد التقريبية: " + accuracy + " متر<br>" +
+        '<a href="' + escapeHtml(googleMapsLink(point)) +
+        '" target="_blank" rel="noopener noreferrer">فتح موقعي في خرائط Google</a>';
+
+      if (!$("startLabel").value) {
+        setStart(point, "موقعي الحالي");
+      }
+    }, error => {
+      const messages = {
+        1: "لم يتم السماح بالوصول للموقع. فعّل إذن الموقع من إعدادات المتصفح.",
+        2: "تعذر تحديد الموقع. تأكد من تفعيل GPS.",
+        3: "انتهت مهلة تحديد الموقع. حاول مرة أخرى."
+      };
+
+      $("gpsStatus").textContent =
+        messages[error.code] || "حدث خطأ أثناء تحديد الموقع.";
+    }, {
+      enableHighAccuracy: true,
+      maximumAge: 3000,
+      timeout: 20000
+    });
+  });
+
+  $("stopGpsBtn").addEventListener("click", () => {
+    if (gpsWatchId !== null) {
+      navigator.geolocation.clearWatch(gpsWatchId);
+      gpsWatchId = null;
+    }
+    $("gpsStatus").textContent = "تم إيقاف تحديثات الموقع.";
+  });
+
+  // حساب مسار القيادة عبر OSRM
+  $("routeBtn").addEventListener("click", calculateRoute);
+
+  async function calculateRoute() {
+    if (!startPoint || !endPoint) {
+      $("routeInfo").textContent =
+        "حدد نقطة الانطلاق والوجهة أولًا. يمكنك استخدام موقعك الحالي أو البحث أو النقر على الخريطة.";
+      return;
+    }
+
+    stopTrip(false);
+    $("routeBtn").disabled = true;
+    $("routeInfo").textContent = "جارٍ حساب مسار القيادة…";
+
+    try {
+      const url =
+        "https://router.project-osrm.org/route/v1/driving/" +
+        startPoint.lng + "," + startPoint.lat + ";" +
+        endPoint.lng + "," + endPoint.lat +
+        "?overview=full&geometries=geojson&steps=true";
+
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("تعذر الوصول لخدمة المسارات");
+
+      const data = await response.json();
+
+      if (data.code !== "Ok" || !data.routes?.length) {
+        throw new Error("لم يتم العثور على مسار قيادة.");
+      }
+
+      const route = data.routes[0];
+      routeCoordinates = route.geometry.coordinates.map(
+        coord => L.latLng(coord[1], coord[0])
+      );
+      routeDistance = route.distance;
+      routeDuration = route.duration;
+
+      if (routeLine) map.removeLayer(routeLine);
+      routeLine = L.polyline(routeCoordinates, {
+        color: "#176b55",
+        weight: 6,
+        opacity: 0.9
+      }).addTo(map);
+
+      map.fitBounds(routeLine.getBounds(), { padding: [35, 35] });
+
+      const km = (routeDistance / 1000).toFixed(1);
+      const mins = Math.round(routeDuration / 60);
+      const hoursText = mins >= 60
+        ? Math.floor(mins / 60) + " ساعة و" + (mins % 60) + " دقيقة"
+        : mins + " دقيقة";
+
+      let roads = [];
+      route.legs?.forEach(leg => {
+        leg.steps?.forEach(step => {
+          const name = step.name?.trim();
+          if (name && !roads.includes(name)) roads.push(name);
+        });
+      });
+
+      $("routeInfo").innerHTML =
+        "<strong>تم حساب المسار</strong><br>" +
+        "من: " + escapeHtml($("startLabel").value) + "<br>" +
+        "إلى: " + escapeHtml($("destinationLabel").value) + "<br>" +
+        "المسافة: " + km + " كم تقريبًا<br>" +
+        "المدة التقديرية: " + escapeHtml(hoursText) + "<br>" +
+        (roads.length
+          ? "أسماء الطرق المتاحة: " + roads.slice(0, 8).map(escapeHtml).join("، ")
+          : "لا تتوفر أسماء طرق كافية في بيانات المسار.") +
+        "<br><span class='muted'>المدة تقديرية وليست مبنية بالضرورة على حركة المرور المباشرة.</span>";
+
+      $("goBtn").disabled = false;
+      $("tripStatus").textContent = "المسار جاهز. اضغط «انطلق» لبدء محاكاة الرحلة.";
+    } catch (error) {
+      $("routeInfo").textContent =
+        "تعذر حساب المسار: " + error.message +
+        " جرّب تحديد نقاط أقرب أو أعد المحاولة لاحقًا.";
+      $("goBtn").disabled = true;
+    } finally {
+      $("routeBtn").disabled = false;
+    }
+  }
+
+  // محاكاة السيارة على خط المسار
+  function interpolateRoute(progress) {
+    if (routeCoordinates.length < 2) return routeCoordinates[0];
+
+    const segmentLengths = [];
+    let total = 0;
+
+    for (let i = 1; i < routeCoordinates.length; i++) {
+      const length = routeCoordinates[i - 1].distanceTo(routeCoordinates[i]);
+      segmentLengths.push(length);
+      total += length;
+    }
+
+    let target = total * progress;
+
+    for (let i = 0; i < segmentLengths.length; i++) {
+      const length = segmentLengths[i];
+
+      if (target <= length) {
+        const a = routeCoordinates[i];
+        const b = routeCoordinates[i + 1];
+        const ratio = length === 0 ? 0 : target / length;
+
+        return L.latLng(
+          a.lat + (b.lat - a.lat) * ratio,
+          a.lng + (b.lng - a.lng) * ratio
+        );
+      }
+
+      target -= length;
+    }
+
+    return routeCoordinates[routeCoordinates.length - 1];
+  }
+
+  $("goBtn").addEventListener("click", startTrip);
+
+  function startTrip() {
+    if (routeCoordinates.length < 2 || tripRunning) return;
+
+    if (carMarker) map.removeLayer(carMarker);
+
+    carMarker = L.marker(routeCoordinates[0], {
+      icon: carIcon,
+      zIndexOffset: 1000
     }).addTo(map);
 
-    drawRouteMarkers();
+    tripRunning = true;
+    tripPaused = false;
+    tripStartTime = performance.now();
+    pausedElapsed = 0;
+    lastFrameTime = null;
 
-    const bounds=routeLine.getBounds();
-    if(bounds.isValid()) map.fitBounds(bounds,{padding:[35,35],maxZoom:17});
+    $("goBtn").disabled = true;
+    $("pauseBtn").hidden = false;
+    $("stopTripBtn").hidden = false;
+    $("pauseBtn").textContent = "إيقاف مؤقت";
+    $("tripStatus").textContent = "🚗 انطلقت المحاكاة. السيارة تتحرك على المسار.";
 
-    setResultVisible(
-      "<strong>من:</strong> "+escapeHtml(startName||"نقطة الانطلاق")+
-      "<br><strong>إلى:</strong> "+escapeHtml(endName||"الوجهة")+
-      "<br><strong>المسافة:</strong> "+distanceKm.toFixed(2)+" كم"+
-      "<br><strong>الوقت التقديري:</strong> "+formatDuration(durationMinutes)+
-      "<br><small>الوقت تقديري ولا يتضمن بالضرورة الازدحام المروري المباشر.</small>"
-    );
-
-    routeStatus("تم حساب المسار بنجاح.");
-  }catch(error){
-    if(requestId!==routeRequestNumber) return;
-    routeStatus(error.message||"حدث خطأ أثناء حساب المسار. تحقق من الإنترنت وحاول مجددًا.");
-  }finally{
-    if(requestId===routeRequestNumber&&button) button.disabled=false;
+    tripAnimation = requestAnimationFrame(animateTrip);
   }
-}
 
-function formatDuration(totalMinutes){
-  if(totalMinutes<1) return "أقل من دقيقة";
-  const hours=Math.floor(totalMinutes/60);
-  const minutes=totalMinutes%60;
-  if(hours===0) return minutes+" دقيقة";
-  if(minutes===0) return hours+" ساعة";
-  return hours+" ساعة و"+minutes+" دقيقة";
-}
+  function animateTrip(timestamp) {
+    if (!tripRunning || tripPaused) return;
 
-function clearAllRouteData(){
-  routeRequestNumber++;
-  pickMode=null;
-  startPoint=null;
-  endPoint=null;
-  startName="";
-  endName="";
-  clearRouteDrawing();
-  updateLabels();
-  routeStatus("تم مسح المسار. حدد نقطتي الانطلاق والوجهة.");
-}
+    if (lastFrameTime === null) lastFrameTime = timestamp;
 
-/* ربط الأزرار */
-document.getElementById("locateBtn").addEventListener("click",function(e){
-  e.preventDefault();e.stopPropagation();startTracking();
-});
-document.getElementById("stopBtn").addEventListener("click",function(e){
-  e.preventDefault();e.stopPropagation();stopTracking();
-});
-document.getElementById("useGpsStartBtn").addEventListener("click",function(e){
-  e.preventDefault();e.stopPropagation();useGpsAsStart();
-});
-document.getElementById("pickStartBtn").addEventListener("click",function(e){
-  e.preventDefault();e.stopPropagation();beginPickingPoint("start");
-});
-document.getElementById("pickEndBtn").addEventListener("click",function(e){
-  e.preventDefault();e.stopPropagation();beginPickingPoint("end");
-});
-document.getElementById("calculateRouteBtn").addEventListener("click",function(e){
-  e.preventDefault();e.stopPropagation();calculateRoute();
-});
-document.getElementById("clearRouteBtn").addEventListener("click",function(e){
-  e.preventDefault();e.stopPropagation();clearAllRouteData();
-});
+    const elapsed = timestamp - tripStartTime - pausedElapsed;
 
-updateLabels();
+    // مدة المحاكاة ثابتة تقريبًا حتى تكون السيارة مرئية
+    const simulationDuration = Math.max(12000, Math.min(45000, routeDuration * 1000 / 10));
+    const progress = Math.min(1, elapsed / simulationDuration);
+    const point = interpolateRoute(progress);
 
-window.addEventListener("pagehide",function(){
-  if(watchId!==null){
-    navigator.geolocation.clearWatch(watchId);
-    watchId=null;
+    if (carMarker) carMarker.setLatLng(point);
+
+    map.panTo(point, { animate: false });
+
+    const remainingKm = (routeDistance * (1 - progress) / 1000).toFixed(1);
+    $("tripStatus").textContent =
+      "🚗 تقدم الرحلة: " + Math.round(progress * 100) +
+      "% — المسافة المتبقية تقريبًا: " + remainingKm + " كم.";
+
+    if (progress >= 1) {
+      tripRunning = false;
+      tripAnimation = null;
+      $("goBtn").disabled = false;
+      $("pauseBtn").hidden = true;
+      $("stopTripBtn").hidden = true;
+      $("tripStatus").textContent = "🏁 وصلت السيارة إلى الوجهة في نهاية المحاكاة.";
+      if (carMarker) carMarker.setLatLng(routeCoordinates[routeCoordinates.length - 1]);
+      return;
+    }
+
+    lastFrameTime = timestamp;
+    tripAnimation = requestAnimationFrame(animateTrip);
   }
-});
+
+  $("pauseBtn").addEventListener("click", () => {
+    if (!tripRunning) return;
+
+    if (!tripPaused) {
+      tripPaused = true;
+      pausedElapsed += performance.now() - (lastFrameTime || performance.now());
+      if (tripAnimation) cancelAnimationFrame(tripAnimation);
+      tripAnimation = null;
+      $("pauseBtn").textContent = "متابعة الرحلة";
+      $("tripStatus").textContent = "تم إيقاف حركة السيارة مؤقتًا.";
+    } else {
+      tripPaused = false;
+      lastFrameTime = null;
+      tripStartTime = performance.now() - pausedElapsed;
+      $("pauseBtn").textContent = "إيقاف مؤقت";
+      tripAnimation = requestAnimationFrame(animateTrip);
+    }
+  });
+
+  $("stopTripBtn").addEventListener("click", () => stopTrip(true));
+
+  function stopTrip(showMessage) {
+    if (tripAnimation !== null) {
+      cancelAnimationFrame(tripAnimation);
+      tripAnimation = null;
+    }
+
+    const wasActive = tripRunning || tripPaused;
+    tripRunning = false;
+    tripPaused = false;
+
+    $("pauseBtn").hidden = true;
+    $("stopTripBtn").hidden = true;
+    $("goBtn").disabled = routeCoordinates.length < 2;
+
+    if (showMessage && wasActive) {
+      $("tripStatus").textContent = "تم إنهاء محاكاة الرحلة.";
+    }
+  }
+
+  // افتح الموقع المحدد من النافذة المنبثقة للدبابيس
+  // مع الحفاظ على أسماء البداية والوجهة
+  map.whenReady(() => {
+    $("gpsStatus").textContent =
+      "الخريطة جاهزة. استخدم البحث أو اضغط على الخريطة لاختيار موقع.";
+  });
+
 })();
 </script>
 </body>
