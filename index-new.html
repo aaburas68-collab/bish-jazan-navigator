@@ -6,7 +6,7 @@ Issues
 Pull requests
 Actions
 Projects
-Wiki
+Wiki 
 Security and quality
 Insights
 Settings
@@ -668,6 +668,36 @@ Blame
 
     <div id="moreContent" class="more-content">
       <div class="more-grid">
+       <div style="
+  margin-top:12px;
+  padding:12px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:13px;
+">
+  <div style="font-size:13px;font-weight:800;margin-bottom:10px">
+    دليل ألوان المسار
+  </div>
+
+  <div style="display:grid;gap:9px;font-size:12px">
+    <div style="display:flex;align-items:center;gap:9px">
+      <span style="width:13px;height:13px;border-radius:50%;background:#1689ff"></span>
+      <span>الأزرق: نقطة البداية</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:9px">
+      <span style="width:13px;height:13px;border-radius:50%;background:#ef4444"></span>
+      <span>الأحمر: المتبقي أكثر من 5 كم</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:9px">
+      <span style="width:13px;height:13px;border-radius:50%;background:#facc15"></span>
+      <span>الأصفر: المتبقي أكثر من 2 وحتى 5 كم</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:9px">
+      <span style="width:13px;height:13px;border-radius:50%;background:#22c55e"></span>
+      <span>الأخضر: المتبقي 2 كم أو أقل، وعند الوصول</span>
+    </div>
+  </div>
+</div>
         <button id="pickStartBtn">📍 تحديد البداية من الخريطة</button>
         <button id="mapDestinationBtn">🎯 تحديد الوجهة من الخريطة</button>
         <button id="fitRouteBtn">↗ عرض المسار كاملًا</button>
@@ -787,10 +817,26 @@ Blame
     if (startMarker) map.removeLayer(startMarker);
     if (endMarker) map.removeLayer(endMarker);
 
-    if (state.start) {
-      startMarker = L.marker(state.start).addTo(map)
-        .bindTooltip("نقطة البداية", { direction: "top" });
-    }
+   if (state.start) {
+  const startIcon = L.divIcon({
+    className: "",
+    html: `
+      <div style="
+        width:28px;height:28px;
+        background:#1689ff;
+        border:3px solid white;
+        border-radius:50%;
+        box-shadow:0 2px 8px rgba(0,0,0,.35);
+      "></div>
+    `,
+    iconSize: [28, 28],
+    iconAnchor: [14, 14]
+  });
+
+  startMarker = L.marker(state.start, { icon: startIcon })
+    .addTo(map)
+    .bindTooltip("نقطة البداية", { direction: "top" });
+}
 
     if (state.end) {
       endMarker = L.marker(state.end).addTo(map)
@@ -1362,7 +1408,7 @@ Blame
     state.lastFrameTime = null;
   }
 
-  function updateTripProgress(progress) {
+ function updateTripProgress(progress) {
   const bounded = Math.min(1, Math.max(0, progress));
   $("progressBar").style.width = (bounded * 100) + "%";
 
@@ -1375,59 +1421,46 @@ Blame
   if (!state.routeCoords.length) return;
 
   const point = interpolatePoint(state.routeCoords, bounded);
-
-  // لون الدبوس حسب المسافة المتبقية
   const remainingKm = remaining / 1000;
-  let pinColor;
 
+  let color;
   if (bounded >= 1 || remainingKm <= 2) {
-    pinColor = "#22c55e"; // أخضر: آخر 2 كم والوصول
+    color = "#22c55e";
   } else if (remainingKm <= 5) {
-    pinColor = "#facc15"; // أصفر: من 2 إلى 5 كم
+    color = "#facc15";
   } else {
-    pinColor = "#ef4444"; // أحمر: أكثر من 5 كم
+    color = "#ef4444";
   }
 
-  const pinHtml = `
-    <div style="
-      width: 30px;
-      height: 30px;
-      background: ${pinColor};
-      border: 3px solid white;
-      border-radius: 50% 50% 50% 0;
-      transform: rotate(-45deg);
-      box-shadow: 0 2px 8px rgba(0,0,0,.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    ">
-      <span style="
-        width: 8px;
-        height: 8px;
-        background: white;
-        border-radius: 50%;
-      "></span>
-    </div>
-  `;
-
-  const pinIcon = L.divIcon({
+  const icon = L.divIcon({
     className: "",
-    html: pinHtml,
+    html: `
+      <div style="
+        width:30px;height:30px;
+        background:${color};
+        border:3px solid white;
+        border-radius:50% 50% 50% 0;
+        transform:rotate(-45deg);
+        box-shadow:0 2px 8px rgba(0,0,0,.4);
+        display:flex;align-items:center;justify-content:center;
+      ">
+        <span style="width:8px;height:8px;background:white;border-radius:50%"></span>
+      </div>
+    `,
     iconSize: [36, 36],
     iconAnchor: [15, 30]
   });
 
   if (!state.carMarker) {
     state.carMarker = L.marker(point, {
-      icon: pinIcon,
+      icon,
       zIndexOffset: 1000
     }).addTo(map);
   } else {
     state.carMarker.setLatLng(point);
-    state.carMarker.setIcon(pinIcon);
+    state.carMarker.setIcon(icon);
   }
 }
-
   function animateTrip(timestamp) {
     if (state.tripState !== "running") return;
 
