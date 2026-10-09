@@ -659,10 +659,27 @@
         }
       )
     };
+// اختبار تحميل طبقة الخريطة
+layers.street.on("tileerror", function (event) {
+  console.error("فشل تحميل صورة من الخريطة:", event);
+});
 
+layers.street.on("tileload", function () {
+  console.log("تم تحميل صورة من خريطة الشوارع");
+});
+
+layers.street.on("load", function () {
+  console.log("اكتمل تحميل طبقة الشوارع");
+});
     let activeLayer = "street";
     layers[activeLayer].addTo(map);
+layers.street.on("tileerror", function () {
+  console.log("فشل تحميل صور خريطة الشوارع");
+});
 
+layers.street.on("tileload", function () {
+  console.log("تم تحميل صورة من خريطة الشوارع");
+});
     let startPoint = null;
     let destinationPoint = null;
     let startMarker = null;
