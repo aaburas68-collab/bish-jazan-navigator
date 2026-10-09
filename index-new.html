@@ -5,53 +5,59 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ملاح خرائط بيش وجازان</title>
 
-  <!-- Leaflet -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  >
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
-  <!-- Search control -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet-control-geocoder@2.4.0/dist/Control.Geocoder.css"
-  >
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet-control-geocoder@2.4.0/dist/Control.Geocoder.css">
 
   <style>
     html, body {
       margin: 0;
       padding: 0;
+      width: 100%;
       height: 100%;
       font-family: Arial, sans-serif;
     }
 
     #map {
-      height: 100%;
       width: 100%;
+      height: 100%;
     }
 
+    /* لوحة الموقع: أصغر ولا تحجب مساحة كبيرة من الخريطة */
     .gps-panel {
       position: absolute;
-      top: 100px;
+      top: 115px;
       right: 10px;
       z-index: 1000;
-      background: white;
-      padding: 12px;
+      width: 155px;
+      box-sizing: border-box;
+      padding: 9px;
       border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-      width: 190px;
-      font-size: 14px;
-      line-height: 1.7;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+      font-size: 12px;
+    }
+
+    .gps-heading {
+      margin-bottom: 6px;
+      font-weight: bold;
+      font-size: 13px;
+      text-align: center;
     }
 
     .gps-panel button {
+      display: block;
       width: 100%;
-      margin-top: 6px;
-      padding: 9px 5px;
+      box-sizing: border-box;
+      margin-top: 5px;
+      padding: 8px 5px;
       border: none;
       border-radius: 6px;
+      font-family: inherit;
+      font-size: 12px;
       cursor: pointer;
-      font-size: 14px;
     }
 
     #startGps {
@@ -66,6 +72,7 @@
 
     #gpsStatus {
       margin-top: 7px;
+      line-height: 1.6;
       overflow-wrap: anywhere;
     }
 
@@ -74,7 +81,16 @@
     }
 
     .leaflet-control-geocoder-form input {
-      max-width: 190px;
+      max-width: 180px;
+    }
+
+    @media (max-width: 480px) {
+      .gps-panel {
+        top: 105px;
+        right: 8px;
+        width: 145px;
+        padding: 7px;
+      }
     }
   </style>
 </head>
@@ -83,25 +99,20 @@
   <div id="map"></div>
 
   <div class="gps-panel">
-    <strong>تحديد موقعي</strong>
+    <div class="gps-heading">📍 موقعي</div>
 
-    <button id="startGps">ابدأ تحديد الموقع</button>
+    <button id="startGps">تحديد موقعي</button>
     <button id="stopGps">إيقاف التتبع</button>
 
-    <div id="gpsStatus">لم يبدأ تحديد الموقع بعد.</div>
+    <div id="gpsStatus">اضغط لتحديد موقعك.</div>
   </div>
 
-  <!-- Leaflet -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-  <!-- Search control -->
   <script src="https://unpkg.com/leaflet-control-geocoder@2.4.0/dist/Control.Geocoder.js"></script>
 
   <script>
     // إنشاء الخريطة
-    const map = L.map('map', {
-      zoomControl: true
-    }).setView([17.3, 42.7], 10);
+    const map = L.map('map').setView([17.3, 42.7], 10);
 
     // الخريطة العادية
     const standardMap = L.tileLayer(
@@ -112,7 +123,7 @@
       }
     );
 
-    // خريطة التضاريس والارتفاعات
+    // التضاريس والارتفاعات
     const terrainMap = L.tileLayer(
       'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
       {
@@ -122,7 +133,6 @@
     );
 
     // صور الأقمار الصناعية
-    // التحديث: منع التكبير لأكثر من المستوى 19
     const satelliteMap = L.tileLayer(
       'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
       {
@@ -131,17 +141,14 @@
       }
     );
 
-    // الطبقة الافتراضية
     standardMap.addTo(map);
 
     // اختيار نوع الخريطة
-    const baseMaps = {
+    L.control.layers({
       'الخريطة العادية': standardMap,
       'التضاريس والارتفاعات': terrainMap,
       'صور الأقمار الصناعية': satelliteMap
-    };
-
-    L.control.layers(baseMaps, null, {
+    }, null, {
       collapsed: false
     }).addTo(map);
 
@@ -157,6 +164,8 @@
       })
     }).addTo(map);
 
+    let searchMarker = null;
+
     geocoder.on('markgeocode', function(event) {
       const result = event.geocode;
       const bounds = result.bbox;
@@ -167,34 +176,48 @@
         map.setView(result.center, 16);
       }
 
-      L.marker(result.center)
+      if (searchMarker) {
+        map.removeLayer(searchMarker);
+      }
+
+      searchMarker = L.marker(result.center)
         .addTo(map)
         .bindPopup(result.name)
         .openPopup();
     });
 
-    // متغيرات تحديد الموقع
+    // متغيرات GPS
     let gpsWatchId = null;
     let gpsMarker = null;
     let accuracyCircle = null;
+    let currentLocation = null;
     let bestAccuracy = Infinity;
+    let firstFixPending = false;
 
     const gpsStatus = document.getElementById('gpsStatus');
     const startGpsButton = document.getElementById('startGps');
     const stopGpsButton = document.getElementById('stopGps');
 
-    // بدء تحديد الموقع المباشر
+    // تحديد الموقع أو الرجوع إليه عند الضغط مرة أخرى
     startGpsButton.addEventListener('click', function() {
       if (!('geolocation' in navigator)) {
         gpsStatus.textContent = 'جهازك لا يدعم تحديد الموقع.';
         return;
       }
 
+      // إذا كان التتبع يعمل، أعد الخريطة لموقعك عند طلبك فقط
       if (gpsWatchId !== null) {
-        gpsStatus.textContent = 'تحديد الموقع يعمل بالفعل.';
+        if (currentLocation) {
+          map.setView(currentLocation, Math.max(map.getZoom(), 17));
+          gpsMarker.openPopup();
+        } else {
+          gpsStatus.textContent = 'جارٍ الحصول على موقعك...';
+        }
         return;
       }
 
+      firstFixPending = true;
+      bestAccuracy = Infinity;
       gpsStatus.textContent = 'جارٍ تحديد موقعك...';
 
       gpsWatchId = navigator.geolocation.watchPosition(
@@ -203,12 +226,13 @@
           const longitude = position.coords.longitude;
           const accuracy = position.coords.accuracy;
 
-          const currentLocation = [latitude, longitude];
+          currentLocation = [latitude, longitude];
 
           if (accuracy < bestAccuracy) {
             bestAccuracy = accuracy;
           }
 
+          // إنشاء علامة الموقع أو تحديثها
           if (!gpsMarker) {
             gpsMarker = L.marker(currentLocation).addTo(map);
           } else {
@@ -220,6 +244,7 @@
             'دقة الموقع الحالية: ' + Math.round(accuracy) + ' متر'
           );
 
+          // إنشاء دائرة دقة الموقع أو تحديثها
           if (!accuracyCircle) {
             accuracyCircle = L.circle(currentLocation, {
               radius: accuracy,
@@ -233,20 +258,25 @@
             accuracyCircle.setRadius(accuracy);
           }
 
-          map.setView(currentLocation, Math.max(map.getZoom(), 17));
+          // تحريك الخريطة مرة واحدة فقط عند الحصول على أول موقع
+          // لا تعيد الخريطة تلقائيًا أثناء استكشاف الأماكن
+          if (firstFixPending) {
+            map.setView(currentLocation, 17);
+            firstFixPending = false;
+          }
 
           gpsStatus.innerHTML =
-            'أنت هنا<br>' +
-            'دقة الموقع الحالية: ' + Math.round(accuracy) + ' متر<br>' +
-            'أفضل دقة وصلت إليها: ' + Math.round(bestAccuracy) + ' متر';
+            'دقة الموقع: ' + Math.round(accuracy) + ' متر<br>' +
+            'أفضل دقة: ' + Math.round(bestAccuracy) + ' متر<br>' +
+            'التتبع يعمل';
         },
         function(error) {
           let message = 'تعذر تحديد الموقع.';
 
           if (error.code === 1) {
-            message = 'تم رفض إذن الموقع. اسمح للصفحة باستخدام موقعك.';
+            message = 'اسمح للصفحة باستخدام موقعك من إعدادات المتصفح.';
           } else if (error.code === 2) {
-            message = 'موقعك غير متاح حاليًا. حاول مرة أخرى.';
+            message = 'الموقع غير متاح حاليًا. حاول مرة أخرى.';
           } else if (error.code === 3) {
             message = 'انتهت مهلة تحديد الموقع. حاول مرة أخرى.';
           }
@@ -257,6 +287,8 @@
             navigator.geolocation.clearWatch(gpsWatchId);
             gpsWatchId = null;
           }
+
+          firstFixPending = false;
         },
         {
           enableHighAccuracy: true,
@@ -266,11 +298,12 @@
       );
     });
 
-    // إيقاف التتبع المباشر
+    // إيقاف التتبع
     stopGpsButton.addEventListener('click', function() {
       if (gpsWatchId !== null) {
         navigator.geolocation.clearWatch(gpsWatchId);
         gpsWatchId = null;
+        firstFixPending = false;
         gpsStatus.textContent = 'تم إيقاف التتبع.';
       } else {
         gpsStatus.textContent = 'التتبع متوقف بالفعل.';
