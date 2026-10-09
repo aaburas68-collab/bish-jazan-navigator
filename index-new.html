@@ -599,11 +599,45 @@ function updateProgress(p){
  p=Math.min(1,Math.max(0,p));
  $("progressBar").style.width=p*100+"%";
 
- const remaining=state.routeDistance*(1-p);
-console.log("المسافة المتبقية:", remaining.toFixed(2), "كم");
- $("progressText").textContent=p>=1
-  ?"انتهت محاكاة المسار"
-  :"محاكاة: "+Math.round(p*100)+"٪ • المتبقي "+fmtDist(remaining);
+const remaining = state.routeDistance * (1 - p);
+
+let pinColor;
+if (remaining > 5) {
+  pinColor = "#ef4444";
+} else if (remaining > 2) {
+  pinColor = "#facc15";
+} else {
+  pinColor = "#22c55e";
+}
+
+const pinHtml = `
+  <div class="moving-location-pin" style="--pin-color:${pinColor}; background-color:${pinColor};">
+    <div class="pin-inner" style="background-color:${pinColor};">
+      <svg viewBox="0 0 24 24" width="23" height="23"
+           fill="none" stroke="white" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="10" r="3"></circle>
+        <path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z"></path>
+      </svg>
+    </div>
+  </div>`;
+
+const icon = L.divIcon({
+  className: "",
+  html: pinHtml,
+  iconSize: [42, 48],
+  iconAnchor: [21, 44]
+});
+
+if (!state.carMarker) {
+  state.carMarker = L.marker(ll, {
+    icon: icon,
+    zIndexOffset: 1000
+  }).addTo(map);
+} else {
+  state.carMarker.setLatLng(ll);
+  state.carMarker.setIcon(icon);
+}
 
  const ll=pointAlong(state.routeCoords,p);
 
