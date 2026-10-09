@@ -1,601 +1,516 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<meta name="theme-color" content="#101827">
-<title>ساهر | الملاحة الذكية</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <title>ساهر | الملاحة الذكية</title>
 
-<style>
-:root {
-  --bg:#101827;--panel:#182336;--panel2:#202e43;
-  --text:#f4f7fb;--muted:#9eacc0;--accent:#47d7a0;
-  --border:rgba(255,255,255,.1);--blue:#1976d2;
-  --yellow:#facc15;--red:#e53935;--green:#16a34a;
-}
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,Tahoma,sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
-button,input{font:inherit}button{cursor:pointer}
-button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.app{height:100dvh;display:flex;flex-direction:column;position:relative;overflow:hidden}
-.topbar{z-index:1200;min-height:62px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#101827;border-bottom:1px solid var(--border)}
-.brand{display:flex;align-items:center;gap:10px}
-.brand-icon{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:#163f36;font-size:22px}
-.brand-name{font-size:17px;font-weight:800}.brand-sub{color:var(--muted);font-size:11px;margin-top:3px}
-.gps-status{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px}
-.status-dot{width:7px;height:7px;border-radius:50%;background:#8793a6}.status-dot.active{background:var(--accent)}
-.search-wrap{position:absolute;z-index:1100;top:76px;right:14px;left:14px;max-width:570px;margin:auto}
-.search-box{display:flex;align-items:center;gap:8px;padding:6px;border-radius:16px;background:white;color:#182336;box-shadow:0 8px 30px #0003}
-.search-box input{min-width:0;width:100%;border:0;outline:none;color:#182336;background:transparent;padding:10px 0;font-size:14px}
-.search-btn{border:0;background:#182336;color:white;padding:10px 15px;border-radius:11px;font-weight:bold}
-.search-results{display:none;margin-top:8px;background:white;color:#182336;border-radius:15px;overflow:auto;max-height:35vh;box-shadow:0 10px 30px #0004}
-.search-results.open{display:block}
-.result-item{width:100%;text-align:right;padding:12px 14px;background:white;color:#182336;border:0;border-bottom:1px solid #e9edf2;display:block}
-.result-title{font-weight:bold;font-size:13px}.result-sub{color:#64748b;font-size:11px;margin-top:5px;line-height:1.6}
-.search-message{padding:14px;color:#64748b;font-size:13px}
-.map-area{position:relative;flex:1;min-height:0;background:#dce4e8}
-#map{width:100%;height:100%}
-.map-tools{position:absolute;z-index:900;top:145px;left:13px;display:flex;flex-direction:column;gap:9px}
-.map-btn{width:44px;height:44px;border:1px solid #0002;border-radius:14px;background:white;color:#182336;box-shadow:0 3px 12px #0003;font-size:20px;display:grid;place-items:center}
-.layer-menu{display:none;position:absolute;left:52px;top:53px;width:165px;background:white;color:#182336;border-radius:14px;padding:7px;box-shadow:0 5px 20px #0003}
-.layer-menu.open{display:block}
-.layer-option{display:block;width:100%;border:0;padding:11px 9px;text-align:right;background:transparent;color:#182336;border-radius:9px;font-size:13px}
-.layer-option.selected{background:#e2f8ef;color:#08754d;font-weight:bold}
-.map-hint{position:absolute;z-index:700;bottom:12px;left:12px;padding:8px 11px;border-radius:11px;background:#101827df;color:white;font-size:11px;pointer-events:none}
-.bottom-panel{z-index:1000;flex-shrink:0;max-height:54%;overflow-y:auto;background:var(--bg);border-top:1px solid var(--border);border-radius:22px 22px 0 0;box-shadow:0 -8px 30px #0002;padding:9px 16px calc(13px + env(safe-area-inset-bottom))}
-.grabber{width:38px;height:4px;border-radius:5px;background:#465369;margin:0 auto 12px}
-.panel-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}
-.panel-title{font-size:16px;font-weight:bold}.panel-subtitle{color:var(--muted);font-size:11px;margin-top:4px}
-.text-btn{color:var(--muted);background:transparent;border:0;padding:8px;font-size:12px}
-.fields{display:grid;gap:9px}
-.route-field{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:0 12px;min-height:48px}
-.field-icon{width:25px;text-align:center;font-size:17px;flex-shrink:0}
-.field-body{min-width:0;flex:1}.field-label{font-size:10px;color:var(--muted);margin-bottom:3px}
-.route-field input{width:100%;min-width:0;background:transparent;color:var(--text);border:0;outline:0;padding:0 0 2px;font-size:13px}
-.route-field input::placeholder{color:#7e8ca1}
-.small-field-btn{background:var(--panel2);border:0;color:var(--text);padding:8px 9px;border-radius:9px;font-size:11px;white-space:nowrap}
-.main-actions{display:grid;grid-template-columns:1fr auto;gap:9px;margin-top:12px}
-.primary-btn{min-height:47px;border:0;border-radius:14px;background:var(--accent);color:#10251f;font-weight:850;padding:12px 16px}
-.secondary-btn{min-height:43px;border:1px solid var(--border);border-radius:13px;background:var(--panel2);color:var(--text);padding:10px 14px;font-weight:650}
-button:disabled{opacity:.5;cursor:not-allowed}
-.route-summary{display:none;background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:13px;margin-top:12px}
-.route-summary.show{display:block}
-.summary-top{display:flex;justify-content:space-between;gap:12px;align-items:center}
-.summary-destination{font-weight:bold;font-size:13px}.summary-note{color:var(--muted);font-size:11px;margin-top:4px}
-.summary-stats{display:flex;gap:18px;margin-top:13px}
-.stat-label{color:var(--muted);font-size:10px}.stat-value{font-size:18px;font-weight:850;margin-top:4px}
-.trip-progress{height:5px;background:#344259;border-radius:5px;overflow:hidden;margin-top:13px}
-.trip-progress>div{width:0;height:100%;background:var(--accent)}
-.trip-actions{display:none;gap:8px;margin-top:12px}.trip-actions.show{display:grid;grid-template-columns:1fr 1fr}
-.more-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;padding:13px 2px 4px;border:0;background:transparent;color:var(--muted);font-size:12px}
-.more-content{display:none;padding-top:10px}.more-content.open{display:block}
-.more-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.more-grid button{min-height:41px;border:1px solid var(--border);border-radius:11px;background:var(--panel);color:var(--text);padding:9px;font-size:12px}
-.place-info{display:none;background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:12px;margin-top:10px;font-size:12px;line-height:1.9;overflow-wrap:anywhere}
-.place-info.show{display:block}.place-info a{color:var(--accent)}
-.road-info{color:var(--muted);font-size:11px;line-height:1.8;margin-top:10px}
-.toast{position:absolute;z-index:2000;top:128px;left:50%;transform:translateX(-50%);max-width:calc(100% - 32px);padding:11px 15px;background:#182336;color:white;border:1px solid var(--border);border-radius:12px;box-shadow:0 5px 25px #0004;font-size:12px;display:none;text-align:center}
-.toast.show{display:block}
-.leaflet-control-attribution{font-size:9px!important}
-.modern-pin{position:relative;width:42px;height:50px;filter:drop-shadow(0 4px 4px #0004)}
-.modern-pin .pin-head{position:absolute;top:0;left:3px;width:36px;height:36px;border:3px solid white;border-radius:50% 50% 50% 10%;transform:rotate(-45deg);background:var(--pin-color);box-shadow:inset 0 0 0 1px #0001}
-.modern-pin .pin-center{position:absolute;top:10px;left:13px;width:16px;height:16px;border:3px solid white;border-radius:50%;background:#ffffff40}
-.modern-pin .pin-label{position:absolute;top:38px;left:0;width:42px;text-align:center;font-size:9px;font-weight:900;color:white;text-shadow:0 1px 3px #000;background:#152238e8;border-radius:5px;padding:2px 1px}
-.pin-blue{--pin-color:#1976d2}.pin-yellow{--pin-color:#facc15}.pin-red{--pin-color:#e53935}.pin-green{--pin-color:#16a34a}
-.car-marker{width:37px;height:37px;display:grid;place-items:center;border:3px solid white;border-radius:50%;background:#172a40;box-shadow:0 2px 10px #0006;font-size:20px}
-@media(min-width:850px){
- .topbar{min-height:70px;padding-inline:24px}
- .search-wrap{top:86px;right:24px;left:auto;width:430px;margin:0}
- .bottom-panel{position:absolute;top:165px;bottom:18px;right:18px;width:370px;max-height:none;border:1px solid var(--border);border-radius:22px;padding:18px}
- .map-tools{top:88px;left:20px}.map-hint{bottom:20px;left:20px}
-}
-@media(max-width:420px){
- .topbar{padding-inline:12px}.brand-name{font-size:15px}.gps-status{font-size:10px}
- .search-wrap{right:10px;left:10px}.bottom-panel{padding-inline:12px}
- .primary-btn{padding-inline:10px;font-size:13px}.secondary-btn{padding-inline:10px}
-}
-</style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/perliedman-leaflet-control-geocoder/2.4.0/Control.Geocoder.min.css">
+
+  <style>
+    * { box-sizing: border-box; }
+    html, body, #map { width:100%; height:100%; margin:0; }
+    body {
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif;
+      overflow:hidden;
+      background:#e9edf2;
+    }
+    #map { position:absolute; inset:0; }
+
+    .panel {
+      position:absolute; z-index:1000; top:12px; right:12px; left:12px;
+      max-width:540px; margin:auto; padding:14px;
+      border:1px solid rgba(255,255,255,.5);
+      border-radius:20px; background:rgba(255,255,255,.96);
+      box-shadow:0 8px 30px rgba(0,0,0,.16);
+      backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+      direction:rtl;
+    }
+    .brand { display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+    .brand-icon {
+      width:42px; height:42px; display:grid; place-items:center;
+      border-radius:14px; color:white; background:#2563eb; font-size:24px;
+    }
+    .brand h1 { font-size:19px; margin:0; font-weight:850; }
+    .subtitle { color:#64748b; font-size:12px; margin-top:3px; }
+    .search { margin-top:12px; }
+    .search .leaflet-control-geocoder {
+      width:100%; max-width:none; border:1px solid #e2e8f0;
+      border-radius:12px; box-shadow:none; display:flex;
+    }
+    .leaflet-control-geocoder-form { flex:1; min-width:0; }
+    .leaflet-control-geocoder input {
+      width:100%; min-width:0; font-family:inherit;
+      font-size:14px; text-align:right; direction:rtl;
+    }
+    .leaflet-control-geocoder-alternatives {
+      direction:rtl; text-align:right; max-width:calc(100vw - 65px);
+    }
+    .actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    button {
+      border:0; border-radius:12px; padding:11px 13px;
+      font:inherit; font-size:13px; font-weight:750; cursor:pointer;
+      min-height:42px; -webkit-tap-highlight-color:transparent;
+    }
+    button:disabled { opacity:.55; cursor:default; }
+    .primary { background:#2563eb; color:white; }
+    .dark { background:#172033; color:white; }
+    .light { background:#eef2f7; color:#243044; }
+    .danger { background:#fee2e2; color:#b91c1c; }
+
+    .summary {
+      margin-top:11px; border-radius:14px; background:#f8fafc;
+      border:1px solid #e8edf4; padding:11px;
+    }
+    .summary-title { font-size:12px; color:#64748b; }
+    .numbers { display:flex; gap:10px; margin-top:7px; }
+    .metric {
+      flex:1; min-width:0; background:white; border:1px solid #edf0f5;
+      border-radius:11px; padding:9px;
+    }
+    .metric strong { display:block; font-size:19px; color:#172033; }
+    .metric span { display:block; margin-top:3px; color:#64748b; font-size:11px; }
+    #status { font-size:12px; line-height:1.7; color:#475569; margin-top:9px; }
+    .legend { display:flex; gap:10px; flex-wrap:wrap; margin-top:9px; }
+    .legend-item { display:flex; align-items:center; gap:5px; font-size:11px; color:#475569; }
+    .dot { width:10px; height:10px; border-radius:50%; }
+    .blue { background:#2563eb; }
+    .red { background:#dc2626; }
+    .yellow { background:#eab308; }
+    .green { background:#16a34a; }
+
+    .pin-wrap { background:transparent; border:0; }
+    .nav-pin {
+      --pin:#dc2626;
+      width:38px; height:38px; position:relative;
+      display:flex; align-items:center; justify-content:center;
+      background:var(--pin); color:white;
+      border:3px solid white; border-radius:50% 50% 50% 7px;
+      transform:rotate(-45deg);
+      box-shadow:0 3px 12px rgba(0,0,0,.3);
+      transition:background .2s ease;
+    }
+    .nav-pin::after {
+      content:""; position:absolute; width:10px; height:10px;
+      border:2px solid white; border-radius:50%;
+      background:rgba(255,255,255,.2);
+    }
+    .nav-pin.start { --pin:#2563eb; }
+    .nav-pin.redpin { --pin:#dc2626; }
+    .nav-pin.yellowpin { --pin:#eab308; }
+    .nav-pin.greenpin { --pin:#16a34a; }
+    .nav-pin.greenpin::before {
+      content:"✓"; position:absolute; z-index:2; font-size:17px;
+      font-weight:900; transform:rotate(45deg);
+    }
+    .pin-label {
+      position:absolute; top:43px; left:50%; transform:translateX(-50%);
+      white-space:nowrap; border-radius:8px; padding:4px 7px;
+      color:#172033; background:white; border:1px solid #e2e8f0;
+      box-shadow:0 2px 8px rgba(0,0,0,.15); font-size:11px; font-weight:800;
+    }
+    .leaflet-popup-content { font-family:inherit; direction:rtl; text-align:right; line-height:1.8; }
+    .leaflet-control-layers {
+      border:1px solid #dbe2eb!important; border-radius:12px!important;
+      box-shadow:0 3px 14px rgba(0,0,0,.15)!important;
+      font-family:inherit; direction:rtl;
+    }
+    .leaflet-top.leaflet-left { top:10px; left:8px; }
+    .leaflet-control-zoom {
+      border:1px solid #dbe2eb!important; border-radius:12px!important;
+      overflow:hidden; box-shadow:0 3px 14px rgba(0,0,0,.15)!important;
+    }
+    .leaflet-control-zoom a {
+      width:40px!important; height:40px!important; line-height:40px!important;
+    }
+
+    @media(max-width:420px) {
+      .panel { top:7px; right:7px; left:7px; padding:11px; border-radius:17px; }
+      .brand-icon { width:37px; height:37px; }
+      .brand h1 { font-size:17px; }
+      .numbers { gap:6px; }
+      .metric { padding:8px 6px; }
+      .metric strong { font-size:17px; }
+      button { padding:10px; }
+    }
+  </style>
 </head>
-
 <body>
-<div class="app">
-<header class="topbar">
- <div class="brand">
-  <div class="brand-icon">🧭</div>
-  <div><div class="brand-name">ساهر</div><div class="brand-sub">مساعدك الذكي للوصول</div></div>
- </div>
- <div class="gps-status"><span id="gpsDot" class="status-dot"></span><span id="gpsStatus">الموقع غير محدد</span></div>
-</header>
+<div id="map" aria-label="خريطة ساهر للملاحة"></div>
 
-<div class="search-wrap">
- <form id="searchForm" class="search-box">
-  <span style="font-size:19px;padding:0 6px">⌕</span>
-  <input id="searchInput" type="search" placeholder="ابحث عن مدينة أو حي أو مكان..." autocomplete="off">
-  <button class="search-btn" type="submit">بحث</button>
- </form>
- <div id="searchResults" class="search-results"></div>
-</div>
+<section class="panel">
+  <div class="brand">
+    <div class="brand-icon">📍</div>
+    <div>
+      <h1>ساهر | الملاحة الذكية</h1>
+      <div class="subtitle">حدد موقعك ووجهتك، وتابع المسافة المتبقية</div>
+    </div>
+  </div>
 
-<main class="map-area">
- <div id="map"></div>
- <div class="map-tools">
-  <button id="gpsBtn" class="map-btn" title="موقعي الحالي">◎</button>
-  <button id="layersBtn" class="map-btn" title="طبقات الخريطة">▦</button>
-  <div id="layerMenu" class="layer-menu">
-   <button class="layer-option selected" data-layer="streets">🗺️ الشوارع</button>
-   <button class="layer-option" data-layer="satellite">🛰️ الأقمار الصناعية</button>
-   <button class="layer-option" data-layer="terrain">⛰️ التضاريس</button>
-  </div>
- </div>
- <div id="mapHint" class="map-hint">اختر نقطة بداية أو وجهة من «المزيد»</div>
-</main>
+  <div class="search" id="searchArea"></div>
 
-<section id="bottomPanel" class="bottom-panel">
- <div class="grabber"></div>
- <div class="panel-heading">
-  <div><div class="panel-title" id="panelTitle">وين وجهتك؟</div><div class="panel-subtitle" id="panelSubtitle">حدد البداية والوجهة لعرض المسار</div></div>
-  <button id="collapseBtn" class="text-btn">تصغير⌄</button>
- </div>
+  <div class="actions">
+    <button class="primary" id="locateBtn">📍 موقعي ونقطة البداية</button>
+    <button class="dark" id="routeBtn">🧭 احسب المسار</button>
+    <button class="light" id="pickBtn">📌 تحديد الوجهة من الخريطة</button>
+    <button class="danger" id="stopBtn">إيقاف التتبع</button>
+    <button class="light" id="clearBtn">مسح المسار</button>
+  </div>
 
- <div id="planner">
-  <div class="fields">
-   <div class="route-field">
-    <div class="field-icon">🟢</div>
-    <div class="field-body"><div class="field-label">نقطة البداية</div><input id="startInput" placeholder="موقعي الحالي أو اختر نقطة"></div>
-    <button id="startGpsBtn" class="small-field-btn" type="button">موقعي</button>
-   </div>
-   <div class="route-field">
-    <div class="field-icon">🔴</div>
-    <div class="field-body"><div class="field-label">الوجهة</div><input id="endInput" placeholder="اكتب وجهتك أو اخترها من الخريطة"></div>
-    <button id="pickEndBtn" class="small-field-btn" type="button">من الخريطة</button>
-   </div>
+  <div class="summary">
+    <div class="summary-title" id="destinationTitle">الوجهة: لم تحدد بعد</div>
+    <div class="numbers">
+      <div class="metric">
+        <strong id="remaining">—</strong>
+        <span>المسافة المتبقية</span>
+      </div>
+      <div class="metric">
+        <strong id="total">—</strong>
+        <span>طول المسار الكامل</span>
+      </div>
+      <div class="metric">
+        <strong id="eta">—</strong>
+        <span>وقت القيادة التقديري</span>
+      </div>
+    </div>
+    <div id="status" role="status" aria-live="polite">حدد موقعك ثم ابحث عن وجهتك أو اخترها من الخريطة.</div>
+    <div class="legend">
+      <div class="legend-item"><span class="dot blue"></span> البداية — 0 كم</div>
+      <div class="legend-item"><span class="dot red"></span> أكثر من 5 كم</div>
+      <div class="legend-item"><span class="dot yellow"></span> 5 كم أو أقل</div>
+      <div class="legend-item"><span class="dot green"></span> وصول ضمن 100 م</div>
+    </div>
   </div>
-  <div class="main-actions">
-   <button id="routeBtn" class="primary-btn">ارسم المسار ←</button>
-   <button id="swapBtn" class="secondary-btn">⇅ تبديل</button>
-  </div>
- </div>
-
- <div id="routeSummary" class="route-summary">
-  <div class="summary-top"><div><div class="summary-destination" id="summaryDestination">الوجهة</div><div class="summary-note" id="summaryNote">المسافة حسب مسار الطرق</div></div><button id="clearRouteBtn" class="text-btn">مسح</button></div>
-  <div class="summary-stats">
-   <div><div class="stat-label">المسافة</div><div class="stat-value" id="distanceValue">—</div></div>
-   <div><div class="stat-label">الوقت المتوقع</div><div class="stat-value" id="durationValue">—</div></div>
-  </div>
-  <div id="progressWrap" style="display:none">
-   <div class="trip-progress"><div id="progressBar"></div></div>
-   <div class="summary-note" id="progressText">جاهز للانطلاق</div>
-  </div>
-  <button id="startTripBtn" class="primary-btn" style="width:100%;margin-top:13px">🚗 انطلق</button>
-  <div id="tripActions" class="trip-actions">
-   <button id="pauseTripBtn" class="secondary-btn">⏸ إيقاف مؤقت</button>
-   <button id="finishTripBtn" class="secondary-btn">إنهاء الرحلة</button>
-  </div>
- </div>
-
- <button id="moreToggle" class="more-toggle" aria-expanded="false"><span>⚙️ المزيد من الخيارات</span><span id="moreArrow">⌄</span></button>
- <div id="moreContent" class="more-content">
-  <div class="more-grid">
-   <button id="pickStartBtn">📍 تحديد البداية من الخريطة</button>
-   <button id="mapDestinationBtn">🎯 تحديد الوجهة من الخريطة</button>
-   <button id="fitRouteBtn">↗ عرض المسار كاملًا</button>
-   <button id="stopGpsBtn">⏹ إيقاف تتبع GPS</button>
-   <button id="clearAllBtn">🧹 مسح جميع البيانات</button>
-   <button id="locationDetailsBtn">ℹ️ معلومات الموقع</button>
-  </div>
-  <div id="placeInfo" class="place-info"></div>
-  <div id="roadInfo" class="road-info"></div>
- </div>
 </section>
-<div id="toast" class="toast" role="status" aria-live="polite"></div>
-</div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/perliedman-leaflet-control-geocoder/2.4.0/Control.Geocoder.min.js"></script>
 <script>
 (() => {
-"use strict";
-const $ = id => document.getElementById(id);
-const COLORS = {blue:"#1976d2",yellow:"#facc15",red:"#e53935",green:"#16a34a"};
-const state = {
- start:null,end:null,startLabel:"",endLabel:"",
- pickMode:null,gpsWatchId:null,userMarker:null,accuracyCircle:null,
- routeLine:null,routeCoords:[],routeDistance:0,routeDuration:0,
- carMarker:null,tripState:"idle",tripElapsedMs:0,lastFrameTime:null,animationId:null,
- activeLayer:"streets",lastPlace:null,expanded:true,arrivalAnnounced:false,
- startStatus:"blue",endStatus:"red",lastGPS:null
-};
-let startMarker=null,endMarker=null,toastTimer=null;
-const map=L.map("map",{zoomControl:false}).setView([17.15,42.63],10);
-L.control.zoom({position:"topleft"}).addTo(map);
-state.layers={
- streets:L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}),
- satellite:L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,attribution:"Tiles &copy; Esri"}),
- terrain:L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",{maxZoom:17,attribution:'Map data: &copy; OpenStreetMap contributors, SRTM | &copy; OpenTopoMap'})
-};
-state.layers.streets.addTo(map);
+  "use strict";
 
-function toast(msg){
- $("toast").textContent=msg;$("toast").classList.add("show");
- clearTimeout(toastTimer);toastTimer=setTimeout(()=>$("toast").classList.remove("show"),3500);
-}
-function setGpsStatus(msg,active=false){
- $("gpsStatus").textContent=msg;$("gpsDot").classList.toggle("active",active);
-}
-function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-function valid(p){return p&&Number.isFinite(p.lat)&&Number.isFinite(p.lng);}
-function fmtDist(m){return m>=1000?(m/1000).toLocaleString("ar-SA",{maximumFractionDigits:2})+" كم":Math.round(m)+" م";}
-function fmtTime(s){let m=Math.max(1,Math.round(s/60));return m<60?m+" دقيقة":Math.floor(m/60)+" س"+(m%60?" "+m%60+" د":"");}
-function haversine(a,b){
- const R=6371000,rad=x=>x*Math.PI/180;
- const dLat=rad(b.lat-a.lat),dLng=rad(b.lng-a.lng);
- const h=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLng/2)**2;
- return 2*R*Math.asin(Math.sqrt(Math.min(1,h)));
-}
-function pinIcon(color,label){
- return L.divIcon({
-  className:"",
-  html:`<div class="modern-pin pin-${color}"><div class="pin-head"></div><div class="pin-center"></div><div class="pin-label">${esc(label)}</div></div>`,
-  iconSize:[42,50],iconAnchor:[21,44],tooltipAnchor:[0,-40]
- });
-}
-function markerFor(point,color,label){
- return L.marker(point,{icon:pinIcon(color,label),zIndexOffset:500})
-  .bindTooltip(label,{direction:"top",offset:[0,-30]});
-}
-function refreshMarkers(){
- if(startMarker)map.removeLayer(startMarker);
- if(endMarker)map.removeLayer(endMarker);
- if(state.start){
-  startMarker=markerFor(state.start,state.startStatus,"البداية").addTo(map);
-  startMarker.bindPopup(()=>popupHTML("start"));
- }
- if(state.end){
-  endMarker=markerFor(state.end,state.endStatus,"الوجهة").addTo(map);
-  endMarker.bindPopup(()=>popupHTML("end"));
- }
-}
-function popupHTML(which){
- const p=state[which],label=which==="start"?"نقطة البداية":"الوجهة";
- if(!p)return "";
- const distance=state.lastGPS?haversine(state.lastGPS,p):null;
- const color=which==="start"?state.startStatus:state.endStatus;
- return `<div dir="rtl" style="min-width:170px;font-family:Arial;line-height:1.8">
- <b>${label}</b><br><span style="color:${COLORS[color]}">● ${statusText(which,color)}</span><br>
- ${distance===null?"المسافة من GPS غير متاحة":"المسافة المباشرة: "+fmtDist(distance)}<br>
- <button onclick="window.sahirDetails('${which}')" style="padding:6px 10px;margin-top:5px">تفاصيل الموقع</button>
- </div>`;
-}
-function statusText(which,color){
- if(which==="start")return color==="green"?"أنت عند نقطة البداية":color==="yellow"?"ابتعدت عن نقطة البداية":"نقطة الانطلاق";
- return color==="green"?"وصلت إلى الوجهة":color==="yellow"?"تبقّى 5 كم أو أقل":color==="red"?"تبقّى 15 كم أو أقل":"الوجهة المحددة";
-}
-function setStart(p,label){
- state.start={lat:p.lat,lng:p.lng};state.startLabel=label||`${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}`;
- state.startStatus="blue";syncFields();refreshMarkers();clearRouteOnly();
-}
-function setEnd(p,label){
- state.end={lat:p.lat,lng:p.lng};state.endLabel=label||`${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}`;
- state.endStatus="red";syncFields();refreshMarkers();clearRouteOnly();
-}
-function syncFields(){$("startInput").value=state.startLabel;$("endInput").value=state.endLabel;}
-function clearRouteOnly(){
- stopAnimation();
- if(state.routeLine)map.removeLayer(state.routeLine);state.routeLine=null;
- state.routeCoords=[];state.routeDistance=0;state.routeDuration=0;
- if(state.carMarker)map.removeLayer(state.carMarker);state.carMarker=null;
- state.tripState="idle";state.tripElapsedMs=0;state.lastFrameTime=null;state.arrivalAnnounced=false;
- $("routeSummary").classList.remove("show");$("tripActions").classList.remove("show");
- $("progressWrap").style.display="none";$("routeBtn").disabled=false;
- $("routeBtn").textContent="ارسم المسار ←";
-}
-function clearAll(){
- clearRouteOnly();state.start=null;state.end=null;state.startLabel="";state.endLabel="";
- state.pickMode=null;state.lastPlace=null;state.lastGPS=null;
- syncFields();refreshMarkers();$("placeInfo").classList.remove("show");$("placeInfo").innerHTML="";
- $("searchInput").value="";closeResults();
- if(state.userMarker)map.removeLayer(state.userMarker);
- if(state.accuracyCircle)map.removeLayer(state.accuracyCircle);
- state.userMarker=null;state.accuracyCircle=null;
- setGpsStatus("الموقع غير محدد",false);
- $("mapHint").textContent="اختر نقطة بداية أو وجهة من «المزيد»";
- toast("تم مسح البيانات");
-}
-function closeResults(){$("searchResults").classList.remove("open");$("searchResults").innerHTML="";}
-function searchMessage(m){$("searchResults").innerHTML=`<div class="search-message">${esc(m)}</div>`;$("searchResults").classList.add("open");}
+  const $ = id => document.getElementById(id);
+  const map = L.map("map", { zoomControl:true }).setView([17.38,42.54],11);
 
-async function searchPlaces(query){
- if(query.trim().length<2){searchMessage("اكتب اسم مكان للبحث");return;}
- searchMessage("جارٍ البحث…");
- try{
-  const u=new URL("https://nominatim.openstreetmap.org/search");
-  u.searchParams.set("q",query.trim());u.searchParams.set("format","jsonv2");
-  u.searchParams.set("limit","7");u.searchParams.set("addressdetails","1");u.searchParams.set("accept-language","ar");
-  const res=await fetch(u);if(!res.ok)throw Error();
-  const results=await res.json();if(!results.length){searchMessage("لم نعثر على نتائج مناسبة");return;}
-  const box=$("searchResults");box.innerHTML="";
-  results.forEach(item=>{
-   const b=document.createElement("button");b.type="button";b.className="result-item";
-   const title=item.name||(item.display_name||"").split(",")[0]||"موقع";
-   b.innerHTML=`<div class="result-title">${esc(title)}</div><div class="result-sub">${esc(item.display_name)}</div>`;
-   b.addEventListener("click",()=>{
-    const p={lat:+item.lat,lng:+item.lon};
-    if(state.pickMode==="start")setStart(p,title);else setEnd(p,title);
-    state.pickMode=null;map.setView(p,16);closeResults();$("searchInput").value="";
-    showPlaceInfo(item,p);toast("تم تحديد "+title);
-   });
-   box.appendChild(b);
-  });box.classList.add("open");
- }catch{searchMessage("تعذر البحث؛ تحقق من الاتصال وحاول مجددًا");}
-}
-$("searchForm").addEventListener("submit",e=>{e.preventDefault();searchPlaces($("searchInput").value);});
-document.addEventListener("click",e=>{
- if(!$("searchForm").contains(e.target)&&!$("searchResults").contains(e.target))closeResults();
- if(!$("layersBtn").contains(e.target)&&!$("layerMenu").contains(e.target))$("layerMenu").classList.remove("open");
-});
+  const street = L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    { maxZoom:19, attribution:"&copy; OpenStreetMap contributors" }
+  ).addTo(map);
 
-function addressLines(address={}){
- const fields=[
-  ["الدولة",address.country],["المنطقة",address.state||address.region],
-  ["المحافظة",address.county||address.state_district],
-  ["المدينة",address.city||address.town||address.village||address.municipality],
-  ["الحي",address.suburb||address.neighbourhood||address.quarter],
-  ["الشارع",address.road||address.pedestrian],
-  ["رقم المبنى",address.house_number],["الرمز البريدي",address.postcode],
-  ["المنطقة البريدية",address.postal_code]
- ];
- return fields.filter(x=>x[1]).map(x=>`<div><span style="color:var(--muted)">${x[0]}:</span> ${esc(x[1])}</div>`).join("");
-}
-function showPlaceInfo(item,p){
- state.lastPlace={item,point:p};
- const google=`https://www.google.com/maps?q=${p.lat},${p.lng}`;
- $("placeInfo").innerHTML=`
- <div style="font-weight:bold;font-size:14px;margin-bottom:6px">${esc(item.name||"الموقع المحدد")}</div>
- <div>${esc(item.display_name||"")}</div><hr style="border-color:var(--border)">
- ${addressLines(item.address)}
- <div style="margin-top:7px"><span style="color:var(--muted)">خط العرض:</span> ${p.lat.toFixed(7)}</div>
- <div><span style="color:var(--muted)">خط الطول:</span> ${p.lng.toFixed(7)}</div>
- <div><span style="color:var(--muted)">مصدر البيانات:</span> OpenStreetMap / Nominatim</div>
- <div style="margin-top:7px"><a href="${google}" target="_blank" rel="noopener noreferrer">فتح في خرائط Google ↗</a></div>
- <button id="copyCoordsBtn" class="secondary-btn" style="margin-top:9px;width:100%">نسخ الإحداثيات</button>
- <div class="summary-note" style="margin-top:8px">قد لا تتوفر بيانات الحي أو الشارع أو المبنى لكل المواقع.</div>`;
- $("placeInfo").classList.add("show");
- $("copyCoordsBtn").addEventListener("click",async()=>{
-  const text=`${p.lat.toFixed(7)}, ${p.lng.toFixed(7)}`;
-  try{await navigator.clipboard.writeText(text);toast("تم نسخ الإحداثيات");}
-  catch{toast("تعذر النسخ تلقائيًا؛ حدد الإحداثيات وانسخها يدويًا");}
- });
-}
-async function reverseGeocode(p){
- try{
-  const u=new URL("https://nominatim.openstreetmap.org/reverse");
-  u.searchParams.set("lat",p.lat);u.searchParams.set("lon",p.lng);
-  u.searchParams.set("format","jsonv2");u.searchParams.set("addressdetails","1");
-  u.searchParams.set("zoom","18");u.searchParams.set("accept-language","ar");
-  const r=await fetch(u);if(!r.ok)throw Error();const data=await r.json();
-  showPlaceInfo(data,p);
- }catch{
-  showPlaceInfo({name:"موقع محدد",display_name:"لم تتوفر تفاصيل العنوان من الخدمة",address:{}},p);
- }
-}
+  const satellite = L.tileLayer(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    { maxZoom:22, maxNativeZoom:19, attribution:"Tiles &copy; Esri" }
+  );
 
-map.on("click",e=>{
- if(!state.pickMode){$("mapHint").textContent="افتح «المزيد» لاختيار البداية أو الوجهة";return;}
- const p={lat:e.latlng.lat,lng:e.latlng.lng};
- if(state.pickMode==="start")setStart(p,"بداية محددة على الخريطة");
- else setEnd(p,"وجهة محددة على الخريطة");
- state.pickMode=null;$("mapHint").textContent="تم اختيار الموقع";
- reverseGeocode(p);toast("تم تحديد النقطة");
-});
-function pickMode(mode){
- state.pickMode=mode;
- $("mapHint").textContent=mode==="start"?"اضغط على الخريطة لاختيار البداية":"اضغط على الخريطة لاختيار الوجهة";
- toast("اضغط على النقطة المطلوبة في الخريطة");
-}
-$("pickStartBtn").addEventListener("click",()=>pickMode("start"));
-$("pickEndBtn").addEventListener("click",()=>pickMode("end"));
-$("mapDestinationBtn").addEventListener("click",()=>pickMode("end"));
-$("layersBtn").addEventListener("click",()=>$("layerMenu").classList.toggle("open"));
-document.querySelectorAll(".layer-option").forEach(b=>b.addEventListener("click",()=>{
- Object.values(state.layers).forEach(l=>{if(map.hasLayer(l))map.removeLayer(l);});
- state.layers[b.dataset.layer].addTo(map);state.activeLayer=b.dataset.layer;
- document.querySelectorAll(".layer-option").forEach(x=>x.classList.toggle("selected",x===b));
- $("layerMenu").classList.remove("open");
-}));
+  const terrain = L.tileLayer(
+    "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+    { maxZoom:17, attribution:"&copy; OpenTopoMap contributors" }
+  );
 
-function updatePinColors(){
- if(!state.lastGPS)return;
- const dStart=state.start?haversine(state.lastGPS,state.start):Infinity;
- const dEnd=state.end?haversine(state.lastGPS,state.end):Infinity;
- // البداية: أزرق أولًا، أصفر بعد الابتعاد، وأخضر عند الرجوع لنطاق الوصول.
- if(state.start){
-  state.startStatus=dStart<=100?"green":dStart>500?"yellow":"blue";
- }
- // الوجهة: أحمر عند 5–15 كم، أصفر ضمن 5 كم، أخضر عند الوصول.
- // أكثر من 15 كم تبقى بلون البداية الأزرق.
- if(state.end){
-  state.endStatus=dEnd<=100?"green":dEnd<=5000?"yellow":dEnd<=15000?"red":"blue";
- }
- refreshMarkers();
- if(state.end&&dEnd<=100&&!state.arrivalAnnounced){
-  state.arrivalAnnounced=true;
-  toast("وصلت إلى نطاق الوجهة المحدد");
-  $("panelTitle").textContent="وصلت إلى وجهتك";
-  $("panelSubtitle").textContent="أنت ضمن 100 متر من النقطة المحددة";
- }
- if(state.end&&dEnd>150&&state.arrivalAnnounced){
-  state.arrivalAnnounced=false;
- }
-}
-function locateUser(setAsStart=true){
- if(!navigator.geolocation){toast("المتصفح لا يدعم GPS");return;}
- setGpsStatus("جارٍ تحديد الموقع…");
- navigator.geolocation.getCurrentPosition(pos=>{
-  const p={lat:pos.coords.latitude,lng:pos.coords.longitude};
-  state.lastGPS=p;updatePinColors();
-  if(state.userMarker)map.removeLayer(state.userMarker);
-  if(state.accuracyCircle)map.removeLayer(state.accuracyCircle);
-  state.userMarker=L.circleMarker(p,{radius:8,color:"#fff",weight:3,fillColor:"#1689ff",fillOpacity:1}).addTo(map).bindTooltip("موقع GPS الحالي");
-  state.accuracyCircle=L.circle(p,{radius:pos.coords.accuracy||0,color:"#1689ff",fillColor:"#1689ff",fillOpacity:.1,weight:1}).addTo(map);
-  map.setView(p,16);setGpsStatus("تم تحديد موقعك",true);
-  if(setAsStart)setStart(p,"موقعي الحالي");
-  updatePinColors();
-  toast("دقة GPS التقريبية: "+Math.round(pos.coords.accuracy||0)+" متر");
- },err=>{
-  setGpsStatus("تعذر تحديد الموقع");
-  toast(err.code===1?"اسمح بالوصول للموقع من إعدادات الجهاز":"تعذر تحديد GPS؛ حاول في مكان مفتوح");
- },{enableHighAccuracy:true,timeout:15000,maximumAge:3000});
-}
-function startGpsTracking(){
- if(!navigator.geolocation){toast("GPS غير مدعوم");return;}
- if(state.gpsWatchId!==null){toast("تتبع GPS نشط بالفعل");return;}
- setGpsStatus("جارٍ تتبع GPS…");
- state.gpsWatchId=navigator.geolocation.watchPosition(pos=>{
-  const p={lat:pos.coords.latitude,lng:pos.coords.longitude};
-  state.lastGPS=p;
-  if(state.userMarker)map.removeLayer(state.userMarker);
-  if(state.accuracyCircle)map.removeLayer(state.accuracyCircle);
-  state.userMarker=L.circleMarker(p,{radius:8,color:"#fff",weight:3,fillColor:"#1689ff",fillOpacity:1}).addTo(map);
-  state.accuracyCircle=L.circle(p,{radius:pos.coords.accuracy||0,color:"#1689ff",fillColor:"#1689ff",fillOpacity:.08,weight:1}).addTo(map);
-  setGpsStatus("GPS نشط",true);updatePinColors();
- },()=>{setGpsStatus("تعذر تحديث GPS");toast("تعذر تحديث الموقع؛ تحقق من الأذونات");},
- {enableHighAccuracy:true,maximumAge:2000,timeout:15000});
-}
-function stopGps(){
- if(state.gpsWatchId!==null){
-  navigator.geolocation.clearWatch(state.gpsWatchId);state.gpsWatchId=null;
-  setGpsStatus("تم إيقاف GPS");toast("تم إيقاف تتبع GPS");
- }else toast("تتبع GPS غير نشط");
-}
-$("gpsBtn").addEventListener("click",()=>locateUser(true));
-$("startGpsBtn").addEventListener("click",()=>{locateUser(true);startGpsTracking();});
-$("stopGpsBtn").addEventListener("click",stopGps);
-window.sahirDetails=which=>{
- const p=state[which];if(p)reverseGeocode(p);
-};
+  L.control.layers({
+    "الخريطة العادية":street,
+    "الأقمار الصناعية":satellite,
+    "التضاريس":terrain
+  },null,{position:"topleft",collapsed:true}).addTo(map);
 
-$("startInput").addEventListener("change",()=>{
- const q=$("startInput").value.trim();if(q){state.pickMode="start";$("searchInput").value=q;searchPlaces(q);}
-});
-$("endInput").addEventListener("change",()=>{
- const q=$("endInput").value.trim();if(q){state.pickMode="end";$("searchInput").value=q;searchPlaces(q);}
-});
-$("swapBtn").addEventListener("click",()=>{
- if(!state.start||!state.end){toast("حدد البداية والوجهة أولًا");return;}
- const p={...state.start},label=state.startLabel;
- state.start={...state.end};state.startLabel=state.endLabel;
- state.end=p;state.endLabel=label;syncFields();clearRouteOnly();refreshMarkers();
- map.fitBounds(L.latLngBounds([state.start,state.end]),{padding:[45,45]});
-});
+  const geocoder = L.Control.geocoder({
+    defaultMarkGeocode:false,
+    placeholder:"ابحث عن مدينة أو حي أو مكان",
+    errorMessage:"لم يتم العثور على المكان",
+    showResultIcons:false,
+    geocoder:L.Control.Geocoder.nominatim({
+      geocodingQueryParams:{"accept-language":"ar,en"}
+    })
+  }).addTo(map);
+  $("searchArea").appendChild(geocoder.getContainer());
 
-async function calculateRoute(){
- if(!valid(state.start)||!valid(state.end)){toast("حدد البداية والوجهة أولًا");return;}
- if(haversine(state.start,state.end)<2){toast("اختر نقطتين مختلفتين");return;}
- clearRouteOnly();$("routeBtn").disabled=true;$("routeBtn").textContent="جارٍ حساب المسار…";
- try{
-  const c=`${state.start.lng},${state.start.lat};${state.end.lng},${state.end.lat}`;
-  const r=await fetch(`https://router.project-osrm.org/route/v1/driving/${c}?overview=full&geometries=geojson&steps=true`);
-  if(!r.ok)throw Error();
-  const data=await r.json();if(data.code!=="Ok"||!data.routes?.length)throw Error("no-route");
-  const route=data.routes[0];state.routeDistance=route.distance;state.routeDuration=route.duration;
-  state.routeCoords=route.geometry.coordinates.map(x=>[x[1],x[0]]);
-  state.routeLine=L.polyline(state.routeCoords,{color:"#16a878",weight:6,opacity:.9,lineCap:"round",lineJoin:"round"}).addTo(map);
-  map.fitBounds(state.routeLine.getBounds(),{padding:[55,55]});
-  $("distanceValue").textContent=fmtDist(route.distance);
-  $("durationValue").textContent=fmtTime(route.duration);
-  $("summaryDestination").textContent=state.endLabel||"الوجهة المحددة";
-  $("summaryNote").textContent="الوقت تقديري ولا يتضمن حركة المرور الحية";
-  $("routeSummary").classList.add("show");$("progressWrap").style.display="none";
-  $("tripActions").classList.remove("show");$("startTripBtn").style.display="block";
-  $("startTripBtn").textContent="🚗 انطلق";$("panelTitle").textContent="المسار جاهز";
-  $("panelSubtitle").textContent="راجع التفاصيل ثم ابدأ الرحلة";
-  const roads=[];
-  (route.legs?.[0]?.steps||[]).forEach(s=>{if(s.name&&!roads.includes(s.name))roads.push(s.name);});
-  $("roadInfo").textContent=roads.length?"الطرق في المسار: "+roads.slice(0,10).join("، "):"لم تتوفر أسماء الطرق.";
-  $("routeBtn").textContent="إعادة حساب المسار";toast("تم حساب المسار");
- }catch(err){toast(err.message==="no-route"?"لم يُعثر على مسار قيادة بين النقطتين":"تعذر حساب المسار؛ تحقق من الإنترنت");$("routeBtn").textContent="حاول مجددًا";}
- finally{$("routeBtn").disabled=false;}
-}
-$("routeBtn").addEventListener("click",calculateRoute);
-$("fitRouteBtn").addEventListener("click",()=>{
- if(state.routeLine)map.fitBounds(state.routeLine.getBounds(),{padding:[45,45]});
- else toast("احسب المسار أولًا");
-});
-function stopAnimation(){if(state.animationId!==null)cancelAnimationFrame(state.animationId);state.animationId=null;state.lastFrameTime=null;}
-function pointAlong(coords,progress){
- let total=0,ds=[];
- for(let i=1;i<coords.length;i++){const d=L.latLng(coords[i-1]).distanceTo(L.latLng(coords[i]));ds.push(d);total+=d;}
- if(!total)return coords[0];let target=total*progress;
- for(let i=0;i<ds.length;i++){if(target<=ds[i]){const f=ds[i]?target/ds[i]:0,a=coords[i],b=coords[i+1];return[a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f];}target-=ds[i];}
- return coords[coords.length-1];
-}
-function updateProgress(p){
- p=Math.min(1,Math.max(0,p));$("progressBar").style.width=p*100+"%";
- $("progressText").textContent=p>=1?"انتهت محاكاة المسار":"محاكاة: "+Math.round(p*100)+"٪ • المتبقي "+fmtDist(state.routeDistance*(1-p));
- const ll=pointAlong(state.routeCoords,p);
- if(!state.carMarker){
-  const icon=L.divIcon({className:"",html:'<div class="car-marker">🚗</div>',iconSize:[37,37],iconAnchor:[18,18]});
-  state.carMarker=L.marker(ll,{icon,zIndexOffset:1000}).addTo(map);
- }else state.carMarker.setLatLng(ll);
-}
-function animate(t){
- if(state.tripState!=="running")return;
- if(state.lastFrameTime!==null)state.tripElapsedMs+=t-state.lastFrameTime;
- state.lastFrameTime=t;
- const duration=Math.max(20000,Math.min(60000,state.routeDuration*1000));
- const p=state.tripElapsedMs/duration;updateProgress(p);
- if(p>=1){state.tripState="arrived";stopAnimation();$("panelTitle").textContent="انتهت المحاكاة";$("panelSubtitle").textContent="هذا ليس إثبات وصول GPS";$("pauseTripBtn").disabled=true;$("startTripBtn").style.display="block";$("startTripBtn").textContent="إعادة المحاكاة";toast("انتهت محاكاة حركة السيارة");return;}
- state.animationId=requestAnimationFrame(animate);
-}
-function startTrip(){
- if(!state.routeLine||!state.routeCoords.length){toast("احسب المسار أولًا");return;}
- state.tripState="running";state.tripElapsedMs=0;state.lastFrameTime=null;
- $("tripActions").classList.add("show");$("progressWrap").style.display="block";
- $("pauseTripBtn").textContent="⏸ إيقاف مؤقت";$("pauseTripBtn").disabled=false;
- $("startTripBtn").style.display="none";$("panelTitle").textContent="محاكاة الرحلة";
- $("panelSubtitle").textContent="الألوان الذكية تعتمد على GPS الفعلي، لا المحاكاة";
- updateProgress(0);state.animationId=requestAnimationFrame(animate);
-}
-function pauseTrip(){
- if(state.tripState==="running"){
-  state.tripState="paused";stopAnimation();$("pauseTripBtn").textContent="▶ متابعة";
-  $("panelTitle").textContent="المحاكاة متوقفة مؤقتًا";
- }else if(state.tripState==="paused"){
-  state.tripState="running";state.lastFrameTime=null;$("pauseTripBtn").textContent="⏸ إيقاف مؤقت";
-  state.animationId=requestAnimationFrame(animate);
- }
-}
-function finishTrip(){
- stopAnimation();state.tripState="idle";state.tripElapsedMs=0;
- if(state.carMarker)map.removeLayer(state.carMarker);state.carMarker=null;
- $("tripActions").classList.remove("show");$("startTripBtn").style.display="block";
- $("startTripBtn").textContent="🚗 ابدأ المحاكاة من جديد";
- $("progressBar").style.width="0%";$("progressText").textContent="جاهز للانطلاق";
- $("panelTitle").textContent="المسار جاهز";
-}
-$("startTripBtn").addEventListener("click",startTrip);
-$("pauseTripBtn").addEventListener("click",pauseTrip);
-$("finishTripBtn").addEventListener("click",finishTrip);
-$("clearRouteBtn").addEventListener("click",()=>{
- clearRouteOnly();$("panelTitle").textContent="وين وجهتك؟";$("panelSubtitle").textContent="حدد البداية والوجهة لعرض المسار";
-});
-$("clearAllBtn").addEventListener("click",clearAll);
-$("locationDetailsBtn").addEventListener("click",()=>{
- const p=state.lastPlace?.point||state.end||state.start;
- if(p)reverseGeocode(p);else toast("حدد موقعًا أولًا");
-});
-$("moreToggle").addEventListener("click",()=>{
- const open=$("moreContent").classList.toggle("open");
- $("moreToggle").setAttribute("aria-expanded",String(open));$("moreArrow").textContent=open?"⌃":"⌄";
-});
-$("collapseBtn").addEventListener("click",()=>{
- state.expanded=!state.expanded;$("planner").style.display=state.expanded?"block":"none";
- $("moreToggle").style.display=state.expanded?"flex":"none";
- $("routeSummary").style.display=state.expanded?"":"none";
- $("collapseBtn").textContent=state.expanded?"تصغير⌄":"تخطيط⌃";
-});
-window.addEventListener("resize",()=>setTimeout(()=>map.invalidateSize(),150));
-setTimeout(()=>map.invalidateSize(),250);
+  const state = {
+    start:null, destination:null, current:null,
+    startMarker:null, destinationMarker:null, movingMarker:null,
+    routeLine:null, routeCoords:[], routeCumulative:[],
+    totalMeters:0, remainingMeters:null, watchId:null,
+    pickDestination:false, routeName:""
+  };
+
+  function setStatus(message) { $("status").textContent=message; }
+  function formatDistance(m) {
+    if (!Number.isFinite(m)) return "—";
+    if (m < 1000) return Math.max(0,Math.round(m))+" م";
+    return (m/1000).toLocaleString("ar-SA",{maximumFractionDigits:1})+" كم";
+  }
+  function formatTime(seconds) {
+    if (!Number.isFinite(seconds)) return "—";
+    const mins=Math.max(1,Math.round(seconds/60));
+    if(mins<60) return mins+" دقيقة";
+    const h=Math.floor(mins/60),m=mins%60;
+    return h+" س"+(m ? " "+m+" د":"");
+  }
+  function pinIcon(type,label) {
+    const safeLabel=String(label).replace(/[&<>"']/g,c=>({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+    return L.divIcon({
+      className:"pin-wrap",
+      html:`<div class="nav-pin ${type}"><span class="pin-label">${safeLabel}</span></div>`,
+      iconSize:[38,56], iconAnchor:[19,19], popupAnchor:[0,-20]
+    });
+  }
+  function placeStartMarker() {
+    if(!state.start) return;
+    if(state.startMarker) map.removeLayer(state.startMarker);
+    state.startMarker=L.marker(state.start,{
+      icon:pinIcon("start","البداية · 0 كم"),
+      title:"نقطة البداية"
+    }).addTo(map);
+    state.startMarker.bindPopup("🔵 نقطة البداية<br>المسافة عند الانطلاق: 0 كم");
+  }
+  function placeDestinationMarker() {
+    if(!state.destination) return;
+    if(state.destinationMarker) map.removeLayer(state.destinationMarker);
+    state.destinationMarker=L.marker(state.destination,{
+      icon:pinIcon("greenpin","الوجهة"),
+      title:"الوجهة"
+    }).addTo(map);
+    state.destinationMarker.bindPopup("📍 وجهتك المحددة");
+  }
+  function placeMovingMarker(position,color,label) {
+    if(state.movingMarker) {
+      state.movingMarker.setLatLng(position);
+      state.movingMarker.setIcon(pinIcon(color,label));
+    } else {
+      state.movingMarker=L.marker(position,{
+        icon:pinIcon(color,label), title:"موقعك أثناء الملاحة", zIndexOffset:1000
+      }).addTo(map);
+    }
+  }
+  function haversine(a,b) {
+    const R=6371000, rad=Math.PI/180;
+    const lat1=a[0]*rad,lat2=b[0]*rad;
+    const dLat=(b[0]-a[0])*rad,dLon=(b[1]-a[1])*rad;
+    const q=Math.sin(dLat/2)**2+
+      Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLon/2)**2;
+    return 2*R*Math.asin(Math.sqrt(Math.min(1,q)));
+  }
+  function clearRoute() {
+    if(state.routeLine) map.removeLayer(state.routeLine);
+    state.routeLine=null;
+    state.routeCoords=[];
+    state.routeCumulative=[];
+    state.totalMeters=0;
+    state.remainingMeters=null;
+    $("remaining").textContent="—";
+    $("total").textContent="—";
+    $("eta").textContent="—";
+  }
+  function clearAllRouteData() {
+    clearRoute();
+    if(state.movingMarker) map.removeLayer(state.movingMarker);
+    state.movingMarker=null;
+  }
+
+  geocoder.on("markgeocode",e=>{
+    const c=e.geocode.center;
+    state.destination=[c.lat,c.lng];
+    state.routeName=e.geocode.name || "الوجهة المحددة";
+    $("destinationTitle").textContent="الوجهة: "+state.routeName;
+    placeDestinationMarker();
+    map.setView(c,15);
+    clearAllRouteData();
+    setStatus("تم تحديد الوجهة. اضغط «احسب المسار» بعد تحديد موقع البداية.");
+  });
+
+  $("locateBtn").addEventListener("click",()=>{
+    if(!navigator.geolocation) {
+      setStatus("المتصفح لا يدعم تحديد الموقع.");
+      return;
+    }
+    setStatus("جارٍ تحديد موقعك… اسمح للمتصفح بالوصول إلى الموقع.");
+    navigator.geolocation.getCurrentPosition(pos=>{
+      const p=[pos.coords.latitude,pos.coords.longitude];
+      state.current=p;
+      state.start=p;
+      placeStartMarker();
+      if(state.movingMarker) state.movingMarker.setLatLng(p);
+      map.setView(p,16);
+      setStatus("تم تحديد نقطة البداية باللون الأزرق. اختر وجهتك ثم احسب المسار.");
+      startTracking();
+    },err=>{
+      setStatus(err.code===1
+        ?"إذن الموقع مرفوض. فعّل إذن الموقع للمتصفح."
+        :"تعذر تحديد الموقع. تأكد من تشغيل خدمات الموقع وحاول مجددًا.");
+    },{enableHighAccuracy:true,timeout:20000,maximumAge:0});
+  });
+
+  $("pickBtn").addEventListener("click",()=>{
+    state.pickDestination=true;
+    setStatus("اضغط على المكان المطلوب في الخريطة لتحديد الوجهة.");
+  });
+
+  map.on("click",e=>{
+    if(!state.pickDestination) return;
+    state.pickDestination=false;
+    state.destination=[e.latlng.lat,e.latlng.lng];
+    state.routeName="الوجهة المحددة على الخريطة";
+    $("destinationTitle").textContent="الوجهة: محددة على الخريطة";
+    placeDestinationMarker();
+    clearAllRouteData();
+    setStatus("تم اختيار الوجهة. اضغط «احسب المسار».");
+  });
+
+  $("routeBtn").addEventListener("click",calculateRoute);
+
+  async function calculateRoute() {
+    if(!state.start) {
+      setStatus("حدد نقطة البداية أولًا بالضغط على «موقعي ونقطة البداية».");
+      return;
+    }
+    if(!state.destination) {
+      setStatus("ابحث عن وجهتك أو اخترها من الخريطة أولًا.");
+      return;
+    }
+    $("routeBtn").disabled=true;
+    setStatus("جارٍ حساب مسار القيادة…");
+    try {
+      const [aLat,aLon]=state.start;
+      const [bLat,bLon]=state.destination;
+      const url=`https://router.project-osrm.org/route/v1/driving/${aLon},${aLat};${bLon},${bLat}?overview=full&geometries=geojson&steps=true`;
+      const response=await fetch(url);
+      if(!response.ok) throw new Error("تعذر الوصول إلى خدمة المسارات.");
+      const data=await response.json();
+      if(data.code!=="Ok"||!data.routes||!data.routes.length) {
+        throw new Error("لم يتم العثور على مسار قيادة مناسب.");
+      }
+      const route=data.routes[0];
+      clearAllRouteData();
+
+      state.routeCoords=route.geometry.coordinates.map(c=>[c[1],c[0]]);
+      state.routeCumulative=[0];
+      for(let i=1;i<state.routeCoords.length;i++) {
+        state.routeCumulative[i]=state.routeCumulative[i-1]+
+          haversine(state.routeCoords[i-1],state.routeCoords[i]);
+      }
+      state.totalMeters=route.distance;
+      state.remainingMeters=route.distance;
+
+      state.routeLine=L.polyline(state.routeCoords,{
+        color:"#2563eb",weight:6,opacity:.88,lineCap:"round",lineJoin:"round"
+      }).addTo(map);
+
+      $("total").textContent=formatDistance(route.distance);
+      $("remaining").textContent=formatDistance(route.distance);
+      $("eta").textContent=formatTime(route.duration);
+      placeStartMarker();
+      placeDestinationMarker();
+
+      if(state.current) updateMovingPin(state.current);
+      else placeMovingMarker(state.start,"redpin",formatDistance(route.distance));
+
+      map.fitBounds(state.routeLine.getBounds(),{paddingTopLeft:[25,240],paddingBottomRight:[25,45]});
+      setStatus("تم حساب مسار القيادة. فعّل تتبع الموقع وراقب لون الدبوس والمسافة المتبقية.");
+      const roads=(route.legs||[]).flatMap(leg=>(leg.steps||[]).map(s=>s.name).filter(Boolean));
+      if(roads.length) {
+        const unique=[...new Set(roads)].slice(0,5);
+        state.routeLine.bindPopup("أبرز الطرق في المسار:<br>"+unique.join("<br>"));
+      }
+    } catch(err) {
+      setStatus((err&&err.message?err.message:"حدث خطأ أثناء حساب المسار")+
+        " قد تكون خدمة المسارات مشغولة؛ حاول مرة أخرى.");
+    } finally {
+      $("routeBtn").disabled=false;
+    }
+  }
+
+  // إيجاد أقرب نقطة على المسار لتقدير المسافة المتبقية.
+  // تعتمد هذه الطريقة على هندسة المسار وموقع GPS، وليست قياسًا رسميًا للمسافة المقطوعة.
+  function distanceAlongRoute(point) {
+    if(state.routeCoords.length<2) return null;
+    let best={distance:Infinity,remaining:state.totalMeters};
+    for(let i=0;i<state.routeCoords.length-1;i++) {
+      const a=state.routeCoords[i],b=state.routeCoords[i+1];
+      const midLat=(a[0]+b[0]+point[0])/3*Math.PI/180;
+      const scaleX=111320*Math.cos(midLat),scaleY=110540;
+      const ax=a[1]*scaleX,ay=a[0]*scaleY;
+      const bx=b[1]*scaleX,by=b[0]*scaleY;
+      const px=point[1]*scaleX,py=point[0]*scaleY;
+      const dx=bx-ax,dy=by-ay;
+      const denom=dx*dx+dy*dy;
+      let t=denom ? ((px-ax)*dx+(py-ay)*dy)/denom : 0;
+      t=Math.max(0,Math.min(1,t));
+      const nearest=[a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1])];
+      const d=haversine(point,nearest);
+      if(d<best.distance) {
+        const segment=state.routeCumulative[i+1]-state.routeCumulative[i];
+        best={distance:d,remaining:Math.max(0,state.totalMeters-(state.routeCumulative[i]+segment*t))};
+      }
+    }
+    return best;
+  }
+
+  function updateMovingPin(position) {
+    if(!state.destination) {
+      placeMovingMarker(position,"redpin","موقعك الحالي");
+      return;
+    }
+    const direct=haversine(position,state.destination);
+    let remaining=direct;
+    if(state.routeCoords.length>1) {
+      const projected=distanceAlongRoute(position);
+      if(projected && projected.distance<3000) remaining=projected.remaining;
+    }
+    state.remainingMeters=remaining;
+    $("remaining").textContent=formatDistance(remaining);
+
+    let color="redpin",message="ما زلت في الطريق إلى وجهتك.";
+    if(direct<=100) {
+      color="greenpin";
+      message="وصلت إلى نطاق الوجهة: تبعد 100 متر أو أقل.";
+    } else if(remaining<=5000) {
+      color="yellowpin";
+      message="اقتربت من الوجهة؛ المتبقي نحو "+formatDistance(remaining)+".";
+    }
+    placeMovingMarker(position,color,formatDistance(remaining));
+    setStatus(message);
+  }
+
+  function startTracking() {
+    if(!navigator.geolocation || state.watchId!==null) return;
+    state.watchId=navigator.geolocation.watchPosition(pos=>{
+      const p=[pos.coords.latitude,pos.coords.longitude];
+      state.current=p;
+      if(!state.start) {
+        state.start=p;
+        placeStartMarker();
+      }
+      updateMovingPin(p);
+    },err=>{
+      if(err.code===1) setStatus("تم رفض إذن الموقع. فعّل إذن الموقع للمتصفح.");
+      else setStatus("تعذر تحديث GPS حاليًا. تحقق من إعدادات الموقع.");
+    },{enableHighAccuracy:true,maximumAge:1000,timeout:20000});
+  }
+
+  $("stopBtn").addEventListener("click",()=>{
+    if(state.watchId!==null) {
+      navigator.geolocation.clearWatch(state.watchId);
+      state.watchId=null;
+    }
+    setStatus("تم إيقاف تتبع GPS. آخر موقع ما زال ظاهرًا على الخريطة.");
+  });
+
+  $("clearBtn").addEventListener("click",()=>{
+    clearAllRouteData();
+    state.destination=null;
+    state.routeName="";
+    $("destinationTitle").textContent="الوجهة: لم تحدد بعد";
+    if(state.destinationMarker) map.removeLayer(state.destinationMarker);
+    state.destinationMarker=null;
+    setStatus("تم مسح المسار والوجهة. نقطة البداية ما زالت محفوظة.");
+  });
+
+  // إظهار بداية زرقاء حتى بعد تحديث الصفحة غير مطلوب؛ يبدأ التحديد عند طلب GPS.
+  window.addEventListener("pagehide",()=>{
+    if(state.watchId!==null) navigator.geolocation.clearWatch(state.watchId);
+  });
 })();
 </script>
 </body>
