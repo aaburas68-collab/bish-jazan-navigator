@@ -600,7 +600,7 @@ function updateProgress(p){
  $("progressBar").style.width=p*100+"%";
 
  const remaining=state.routeDistance*(1-p);
-
+console.log("المسافة المتبقية:", remaining.toFixed(2), "كم");
  $("progressText").textContent=p>=1
   ?"انتهت محاكاة المسار"
   :"محاكاة: "+Math.round(p*100)+"٪ • المتبقي "+fmtDist(remaining);
