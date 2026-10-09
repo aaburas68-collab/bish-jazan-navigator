@@ -5,14 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ملاح خرائط بيش وجازان</title>
 
-  <link rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet"
-        href="https://unpkg.com/leaflet-control-geocoder@2.4.0/dist/Control.Geocoder.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder@2.4.0/dist/Control.Geocoder.css">
 
   <style>
     :root {
-      --panel-bg: #ffffff;
+      --panel-bg: #fff;
       --panel-border: #d6dbe1;
       --panel-text: #263442;
       --shadow: 0 2px 6px rgba(25, 40, 55, 0.16);
@@ -31,7 +29,6 @@
       height: 100%;
     }
 
-    /* أدوات التحكم في أعلى يمين الخريطة */
     .leaflet-top.leaflet-right {
       top: 7px;
       right: 7px;
@@ -60,7 +57,7 @@
       box-sizing: border-box;
       padding: 8px 9px;
       color: var(--panel-text) !important;
-      background: var(--panel-bg) !important;
+      background: #fff !important;
       border: none !important;
       outline: none;
       font-family: Arial, sans-serif;
@@ -73,7 +70,7 @@
     }
 
     .leaflet-control-geocoder-icon {
-      background-color: var(--panel-bg) !important;
+      background-color: #fff !important;
       border: none !important;
     }
 
@@ -81,7 +78,7 @@
       color: var(--panel-text) !important;
     }
 
-    /* تظهر نتائج البحث فوق مربع البحث لتجنب صندوق موقعي */
+    /* نتائج البحث فوق صندوق البحث حتى لا يحجبها صندوق موقعي */
     .leaflet-control-geocoder .leaflet-control-geocoder-alternatives {
       position: absolute !important;
       top: auto !important;
@@ -94,7 +91,7 @@
       max-height: 40vh;
       overflow-y: auto;
       z-index: 2000 !important;
-      background: var(--panel-bg) !important;
+      background: #fff !important;
       border: 1px solid var(--panel-border) !important;
       border-radius: 8px !important;
       box-shadow: var(--shadow) !important;
@@ -106,11 +103,11 @@
       line-height: 1.5;
     }
 
-    /* صندوق اختيار نوع الخريطة */
+    /* الطبقات */
     .leaflet-control-layers {
       padding: 6px 8px !important;
       color: var(--panel-text) !important;
-      background: var(--panel-bg) !important;
+      background: #fff !important;
       border: 1px solid var(--panel-border) !important;
       border-radius: 8px !important;
       box-shadow: var(--shadow) !important;
@@ -130,12 +127,12 @@
     .leaflet-control-layers-toggle {
       width: 32px !important;
       height: 32px !important;
-      background-color: var(--panel-bg) !important;
+      background-color: #fff !important;
       border: 1px solid var(--panel-border) !important;
       border-radius: 7px !important;
     }
 
-    /* صندوق موقعي أسفل البحث والطبقات بمسافة صغيرة */
+    /* صندوق موقعي */
     .gps-panel {
       position: absolute;
       top: 0;
@@ -145,7 +142,7 @@
       box-sizing: border-box;
       padding: 6px;
       color: var(--panel-text);
-      background: var(--panel-bg);
+      background: #fff;
       border: 1px solid var(--panel-border);
       border-radius: 8px;
       box-shadow: var(--shadow);
@@ -190,7 +187,7 @@
       text-align: center;
     }
 
-    /* أزرار التكبير والتصغير في اليسار */
+    /* التكبير والتصغير يسار الخريطة */
     .leaflet-top.leaflet-left {
       left: 7px;
     }
@@ -208,7 +205,7 @@
       line-height: 31px !important;
       margin-bottom: 5px;
       color: var(--panel-text) !important;
-      background: var(--panel-bg) !important;
+      background: #fff !important;
       border: 1px solid var(--panel-border) !important;
       border-radius: 8px !important;
       box-shadow: var(--shadow) !important;
@@ -225,10 +222,7 @@
         font-size: 12px;
       }
 
-      .leaflet-control-layers {
-        font-size: 11px;
-      }
-
+      .leaflet-control-layers,
       .leaflet-control-layers label {
         font-size: 11px;
       }
@@ -342,7 +336,7 @@
         .openPopup();
     });
 
-    // صندوق موقعي داخل الخريطة
+    // صندوق موقعي
     const gpsPanel = document.createElement('div');
     gpsPanel.className = 'gps-panel';
     gpsPanel.innerHTML = `
@@ -355,8 +349,10 @@
     map.getContainer().appendChild(gpsPanel);
 
     /*
-      تحديد مكان صندوق موقعي أسفل أدوات البحث والطبقات.
-      لا نستخدم قيمة top ثابتة؛ نقرأ الموضع الحقيقي للصناديق.
+      الترتيب الجديد:
+      أدوات الطبقات والبحث في الأعلى،
+      ثم صندوق موقعي،
+      مع مسافة بسيطة تفصل بين الصناديق.
     */
     function positionGpsPanel() {
       const searchElement = geocoder.getContainer();
