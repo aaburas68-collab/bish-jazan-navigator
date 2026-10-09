@@ -786,7 +786,38 @@
     if (startMarker) map.removeLayer(startMarker);
     if (endMarker) map.removeLayer(endMarker);
 
-   if (state.start) {
+  if (state.start) {
+  const startIcon = L.divIcon({
+    className: "",
+    html: `
+      <div style="
+        width:30px;
+        height:30px;
+        background:#1689ff;
+        border:3px solid white;
+        border-radius:50% 50% 50% 0;
+        transform:rotate(-45deg);
+        box-shadow:0 2px 8px rgba(0,0,0,.4);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+      ">
+        <span style="
+          width:8px;
+          height:8px;
+          background:white;
+          border-radius:50%;
+        "></span>
+      </div>
+    `,
+    iconSize: [36, 36],
+    iconAnchor: [15, 30]
+  });
+
+  startMarker = L.marker(state.start, { icon: startIcon })
+    .addTo(map)
+    .bindTooltip("نقطة البداية", { direction: "top" });
+}
   const startIcon = L.divIcon({
     className: "",
     html: `
