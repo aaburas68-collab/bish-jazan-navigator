@@ -12,6 +12,13 @@
         href="https://unpkg.com/leaflet-control-geocoder@2.4.0/dist/Control.Geocoder.css">
 
   <style>
+    :root {
+      --panel-bg: #e7edf3;
+      --panel-border: #aab8c6;
+      --panel-text: #243447;
+      --accent: #2463a6;
+    }
+
     html, body {
       margin: 0;
       padding: 0;
@@ -25,23 +32,129 @@
       height: 100%;
     }
 
-    /* مربع تحديد الموقع: خلفية بيضاء ومكان أقرب للبحث */
+    /* البحث */
+    .leaflet-control-geocoder {
+      max-width: calc(100vw - 80px);
+      margin-top: 8px !important;
+      margin-right: 8px !important;
+      border: 1px solid var(--panel-border) !important;
+      border-radius: 9px !important;
+      background: var(--panel-bg) !important;
+      box-shadow: 0 2px 7px rgba(20, 35, 50, 0.25) !important;
+      overflow: hidden;
+    }
+
+    .leaflet-control-geocoder-form input {
+      width: 170px;
+      max-width: calc(100vw - 125px);
+      box-sizing: border-box;
+      padding: 9px 10px;
+      color: var(--panel-text) !important;
+      background: var(--panel-bg) !important;
+      border: none !important;
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .leaflet-control-geocoder-form input::placeholder {
+      color: #526477;
+      opacity: 1;
+    }
+
+    .leaflet-control-geocoder-icon {
+      background-color: var(--panel-bg) !important;
+      border: none !important;
+    }
+
+    .leaflet-control-geocoder a {
+      color: var(--panel-text) !important;
+    }
+
+    .leaflet-control-geocoder-alternatives {
+      max-width: calc(100vw - 100px);
+      max-height: 45vh;
+      overflow-y: auto;
+      background: var(--panel-bg) !important;
+      border: 1px solid var(--panel-border) !important;
+      border-radius: 8px !important;
+      box-shadow: 0 2px 7px rgba(20, 35, 50, 0.25) !important;
+    }
+
+    .leaflet-control-geocoder-alternatives a {
+      color: var(--panel-text) !important;
+    }
+
+    /* صندوق اختيار أنواع الخرائط */
+    .leaflet-control-layers {
+      margin-top: 5px !important;
+      margin-right: 8px !important;
+      padding: 7px 9px !important;
+      color: var(--panel-text) !important;
+      background: var(--panel-bg) !important;
+      border: 1px solid var(--panel-border) !important;
+      border-radius: 9px !important;
+      box-shadow: 0 2px 7px rgba(20, 35, 50, 0.25) !important;
+      font-size: 12px;
+    }
+
+    .leaflet-control-layers-list {
+      margin: 0;
+    }
+
+    .leaflet-control-layers label {
+      margin: 5px 0;
+      color: var(--panel-text);
+      font-size: 12px;
+    }
+
+    .leaflet-control-layers-toggle {
+      width: 34px !important;
+      height: 34px !important;
+      background-color: var(--panel-bg) !important;
+      border: 1px solid var(--panel-border) !important;
+      border-radius: 8px !important;
+    }
+
+    /* أزرار الزوم على اليسار */
+    .leaflet-control-zoom {
+      margin-top: 8px !important;
+      margin-left: 8px !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    .leaflet-control-zoom a {
+      width: 34px !important;
+      height: 34px !important;
+      line-height: 32px !important;
+      margin-bottom: 5px;
+      color: var(--panel-text) !important;
+      background: var(--panel-bg) !important;
+      border: 1px solid var(--panel-border) !important;
+      border-radius: 8px !important;
+      box-shadow: 0 2px 7px rgba(20, 35, 50, 0.25) !important;
+    }
+
+    /* لوحة موقعي */
     .gps-panel {
       position: absolute;
-      top: 125px;
+      top: 175px;
       right: 8px;
       z-index: 1000;
-      width: 108px;
+      width: 112px;
       box-sizing: border-box;
-      padding: 6px;
+      padding: 7px;
+      color: var(--panel-text);
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
       border-radius: 9px;
-      background: rgba(255, 255, 255, 0.95);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+      box-shadow: 0 2px 7px rgba(20, 35, 50, 0.25);
       font-size: 11px;
     }
 
     .gps-heading {
-      margin-bottom: 5px;
+      margin-bottom: 6px;
       font-weight: bold;
       font-size: 12px;
       text-align: center;
@@ -51,7 +164,7 @@
       display: block;
       width: 100%;
       box-sizing: border-box;
-      margin-top: 4px;
+      margin-top: 5px;
       padding: 7px 3px;
       border: none;
       border-radius: 6px;
@@ -62,51 +175,54 @@
     }
 
     #startGps {
-      background: #1677ff;
-      color: white;
+      background: var(--accent);
+      color: #ffffff;
     }
 
     #stopGps {
-      background: #e53935;
-      color: white;
+      background: #a83d46;
+      color: #ffffff;
     }
 
     #gpsStatus {
-      margin-top: 5px;
+      margin-top: 6px;
       line-height: 1.5;
       overflow-wrap: anywhere;
       text-align: center;
-    }
-
-    /* البحث في أعلى اليمين */
-    .leaflet-control-geocoder {
-      max-width: calc(100vw - 80px);
-      margin-top: 8px !important;
-      margin-right: 8px !important;
-    }
-
-    .leaflet-control-geocoder-form input {
-      max-width: 180px;
-      box-sizing: border-box;
-    }
-
-    /* أدوات اختيار نوع الخريطة في اليمين */
-    .leaflet-control-layers {
-      margin-right: 8px !important;
-    }
-
-    /* أزرار التكبير والتصغير في اليسار */
-    .leaflet-control-zoom {
-      margin-left: 8px !important;
+      color: var(--panel-text);
     }
 
     @media (max-width: 480px) {
+      .leaflet-control-geocoder {
+        margin-top: 6px !important;
+        margin-right: 5px !important;
+        max-width: calc(100vw - 80px);
+      }
+
+      .leaflet-control-geocoder-form input {
+        width: 145px;
+        font-size: 12px;
+      }
+
+      .leaflet-control-layers {
+        margin-right: 5px !important;
+        font-size: 11px;
+      }
+
+      .leaflet-control-layers label {
+        font-size: 11px;
+      }
+
+      .leaflet-control-zoom {
+        margin-top: 6px !important;
+        margin-left: 5px !important;
+      }
+
       .gps-panel {
-        top: 125px;
+        top: 175px;
         right: 5px;
-        bottom: auto;
         width: 104px;
-        padding: 5px;
+        padding: 6px;
       }
 
       .gps-panel button {
@@ -120,24 +236,6 @@
 
       #gpsStatus {
         font-size: 10px;
-      }
-
-      .leaflet-control-geocoder {
-        max-width: calc(100vw - 80px);
-        margin-right: 5px !important;
-      }
-
-      .leaflet-control-geocoder-form input {
-        max-width: 155px;
-      }
-
-      .leaflet-control-layers {
-        margin-right: 5px !important;
-        font-size: 11px;
-      }
-
-      .leaflet-control-zoom {
-        margin-left: 5px !important;
       }
     }
   </style>
@@ -188,7 +286,6 @@
       }
     );
 
-    // الطبقة الافتراضية
     standardMap.addTo(map);
 
     // اختيار نوع الخريطة
@@ -235,7 +332,7 @@
         .openPopup();
     });
 
-    // متغيرات تحديد الموقع والتتبع
+    // متغيرات التتبع
     let gpsWatchId = null;
     let gpsMarker = null;
     let accuracyCircle = null;
@@ -247,14 +344,13 @@
     const startGpsButton = document.getElementById('startGps');
     const stopGpsButton = document.getElementById('stopGps');
 
-    // بدء التتبع أو الرجوع إلى الموقع عند الضغط مجددًا
+    // تحديد الموقع أو الرجوع إليه عند الضغط
     startGpsButton.addEventListener('click', function() {
       if (!navigator.geolocation) {
         gpsStatus.textContent = 'جهازك لا يدعم تحديد الموقع.';
         return;
       }
 
-      // إذا كان التتبع يعمل، لا تحرك الخريطة تلقائيًا
       if (gpsWatchId !== null) {
         if (currentLocation) {
           map.setView(currentLocation, Math.max(map.getZoom(), 17));
@@ -284,7 +380,7 @@
             bestAccuracy = accuracy;
           }
 
-          // إنشاء علامة الموقع أو تحديثها
+          // تحديث علامة الموقع
           if (!gpsMarker) {
             gpsMarker = L.marker(currentLocation).addTo(map);
           } else {
@@ -297,7 +393,7 @@
             Math.round(accuracy) + ' متر'
           );
 
-          // إنشاء دائرة الدقة أو تحديثها
+          // تحديث دائرة الدقة
           if (!accuracyCircle) {
             accuracyCircle = L.circle(currentLocation, {
               radius: accuracy,
