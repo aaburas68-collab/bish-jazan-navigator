@@ -413,7 +413,7 @@
     .more-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
+      gap: 4px;
     }
 
     .more-grid button {
@@ -425,7 +425,16 @@
       padding: 9px;
       font-size: 12px;
     }
-
+.more-grid .primary-btn {
+  min-height: 41px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: var(--panel);
+  color: var(--text);
+  padding: 9px;
+  font-size: 12px;
+  font-weight: 400;
+}
     .place-info {
       display: none;
       background: var(--panel);
@@ -591,10 +600,9 @@
         </div>
       </div>
 
-      <div class="main-actions">
-        <button id="routeBtn" class="primary-btn">ارسم المسار ←</button>
-        <button id="swapBtn" class="secondary-btn" title="تبديل البداية والوجهة">⇅ تبديل</button>
-      </div>
+     <div class="main-actions">
+  <button id="swapBtn" class="secondary-btn" title="تبديل البداية والوجهة">⇅ تبديل</button>
+</div>
     </div>
 
     <div id="routeSummary" class="route-summary">
@@ -639,12 +647,37 @@
    <div class="more-grid">
   <button id="pickStartBtn">📍 تحديد البداية من الخريطة</button>
   <button id="mapDestinationBtn">🎯 تحديد الوجهة من الخريطة</button>
+  <button id="routeBtn" class="primary-btn">ارسم المسار ←</button>
   <button id="fitRouteBtn">↗️ عرض المسار كاملًا</button>
   <button id="stopGpsBtn">⏹ إيقاف تتبع GPS</button>
   <button id="clearAllBtn">🧹 مسح جميع البيانات</button>
   <button id="locationDetailsBtn">ℹ️ معلومات الموقع</button>
 </div>
-
+  <div id="placeInfo" class="place-info"></div>
+<div id="roadInfo" class="road-info"></div>    
+<div style="margin-top:12px;padding:0;background:transparent;border:0;font-size:12px;">
+  <div style="font-size:13px;font-weight:800;margin-bottom:9px;">
+    دليل ألوان المسار
+  </div>
+  <div style="display:grid;gap:7px;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="width:10px;height:10px;flex-shrink:0;border-radius:50%;background:#1689ff;"></span>
+      <span>الأزرق: نقطة البداية</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="width:10px;height:10px;flex-shrink:0;border-radius:50%;background:#ef4444;"></span>
+      <span>الأحمر: المتبقي أكثر من 5 كم</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="width:10px;height:10px;flex-shrink:0;border-radius:50%;background:#facc15;"></span>
+      <span>الأصفر: المتبقي أكثر من 2 وحتى 5 كم</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="width:10px;height:10px;flex-shrink:0;border-radius:50%;background:#22c55e;"></span>
+      <span>الأخضر: المتبقي 2 كم أو أقل، وعند الوصول</span>
+    </div>
+  </div>
+</div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 (() => {
