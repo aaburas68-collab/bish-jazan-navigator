@@ -337,12 +337,18 @@
       white-space: nowrap;
     }
 
-    .main-actions {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 9px;
-      margin-top: 12px;
-    }
+  .main-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 9px;
+  margin-top: 12px;
+  direction: rtl;
+}
+
+.main-actions button {
+  min-width: 0;
+  white-space: normal;
+}
 
     .primary-btn {
       min-height: 48px;
@@ -429,8 +435,8 @@
   min-height: 41px;
   border: 1px solid var(--border);
   border-radius: 11px;
-  background: var(--panel);
-  color: var(--text);
+  background: #22c55e;
+  color: #ffffff;
   padding: 9px;
   font-size: 12px;
   font-weight: 400;
@@ -600,7 +606,9 @@
         </div>
       </div>
 
-     <div class="main-actions">
+   <div class="main-actions">
+  <button id="pickStartBtn">📍 تحديد البداية من الخريطة</button>
+  <button id="mapDestinationBtn">🎯 تحديد الوجهة من الخريطة</button>
   <button id="swapBtn" class="secondary-btn" title="تبديل البداية والوجهة">⇅ تبديل</button>
 </div>
     </div>
@@ -645,8 +653,7 @@
 
     <div id="moreContent" class="more-content">
    <div class="more-grid">
-  <button id="pickStartBtn">📍 تحديد البداية من الخريطة</button>
-  <button id="mapDestinationBtn">🎯 تحديد الوجهة من الخريطة</button>
+
   <button id="routeBtn" class="primary-btn">ارسم المسار ←</button>
   <button id="fitRouteBtn">↗️ عرض المسار كاملًا</button>
   <button id="stopGpsBtn">⏹ إيقاف تتبع GPS</button>
@@ -816,10 +823,38 @@
 }
   
 
-    if (state.end) {
-      endMarker = L.marker(state.end).addTo(map)
-        .bindTooltip("الوجهة", { direction: "top" });
-    }
+   if (state.end) {
+  const endIcon = L.divIcon({
+    className: "",
+    html: `
+      <div style="
+        width:30px;
+        height:30px;
+        background:#22c55e;
+        border:3px solid white;
+        border-radius:50% 50% 50% 0;
+        transform:rotate(-45deg);
+        box-shadow:0 2px 8px rgba(0,0,0,.4);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+      ">
+        <span style="
+          width:8px;
+          height:8px;
+          background:white;
+          border-radius:50%;
+        "></span>
+      </div>
+    `,
+    iconSize: [36, 36],
+    iconAnchor: [15, 30]
+  });
+
+  endMarker = L.marker(state.end, { icon: endIcon })
+    .addTo(map)
+    .bindTooltip("الوجهة", { direction: "top" });
+}
 
     $("startInput").value = state.startLabel;
     $("endInput").value = state.endLabel;
