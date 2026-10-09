@@ -608,11 +608,15 @@ function updateProgress(p){
  const ll=pointAlong(state.routeCoords,p);
 
  // لون دبوس الموقع حسب المسافة المتبقية
- const pinColor=remaining<=2
-  ? "#22c55e"
-  : remaining<=5
-   ? "#facc15"
-   : "#ef4444";
+ let pinColor;
+
+if (remaining <= 2) {
+  pinColor = "#22c55e"; // أخضر: 2 كم أو أقل
+} else if (remaining <= 5) {
+  pinColor = "#facc15"; // أصفر: من أكثر من 2 إلى 5 كم
+} else {
+  pinColor = "#ef4444"; // أحمر: أكثر من 5 كم
+}
 
  const pinHtml=`
   <div class="moving-location-pin" style="--pin-color:${pinColor}">
