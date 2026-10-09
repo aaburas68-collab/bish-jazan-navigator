@@ -5,11 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>خريطة بيش وجازان</title>
 
+  <!-- تنسيق الخريطة -->
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
   >
 
+  <!-- تنسيق البحث -->
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet-control-geocoder@2.4.0/dist/Control.Geocoder.css"
@@ -28,21 +30,41 @@
       font-family: Arial, sans-serif;
       font-size: 14px;
     }
+
+    /* زر تحديد الموقع */
+    .location-button {
+      background: white;
+      border: 2px solid rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+      width: 38px;
+      height: 38px;
+      font-size: 22px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .location-button:hover {
+      background: #f0f0f0;
+    }
   </style>
 </head>
 
 <body>
   <div id="map"></div>
 
+  <!-- مكتبة الخريطة -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+  <!-- مكتبة البحث -->
   <script src="https://unpkg.com/leaflet-control-geocoder@2.4.0/dist/Control.Geocoder.js"></script>
 
   <script>
     // إنشاء الخريطة
     const map = L.map('map').setView([17.45, 42.55], 9);
 
-    // الخريطة العادية
+    // 1- الخريطة العادية
     const standardMap = L.tileLayer(
       'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       {
@@ -50,7 +72,7 @@
       }
     );
 
-    // التضاريس والارتفاعات
+    // 2- التضاريس والارتفاعات
     const terrainMap = L.tileLayer(
       'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
       {
@@ -59,7 +81,7 @@
       }
     );
 
-    // صور الأقمار الصناعية
+    // 3- صور الأقمار الصناعية
     const satelliteMap = L.tileLayer(
       'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
       {
@@ -67,10 +89,10 @@
       }
     );
 
-    // عرض الخريطة العادية عند البداية
+    // تشغيل الخريطة العادية عند البداية
     standardMap.addTo(map);
 
-    // خيارات الخرائط الثلاثة
+    // عرض خيارات الخرائط الثلاثة
     L.control.layers(
       {
         'الخريطة العادية': standardMap,
@@ -83,12 +105,119 @@
       }
     ).addTo(map);
 
-    // إضافة مربع البحث عن الأماكن
+    // مربع البحث عن الأماكن بالعربي والإنجليزي
     L.Control.geocoder({
       defaultMarkGeocode: true,
       placeholder: 'ابحث عن مدينة أو مكان...',
       errorMessage: 'لم يتم العثور على المكان'
     }).addTo(map);
+
+    // علامة ودائرة توضحان الموقع الحالي
+    let currentLocationMarker = null;
+    let currentLocationCircle = null;
+
+    // إنشاء زر تحديد الموقع
+    const LocationControl = L.Control.extend({
+      options: {
+        position: 'topleft'
+      },
+
+      onAdd: function () {
+        const container = L.DomUtil.create('div');
+        const button = L.DomUtil.create(
+          'button',
+          'location-button',
+          container
+        );
+
+        button.type = 'button';
+        button.title = 'تحديد موقعي الحالي';
+        button.setAttribute('aria-label', 'تحديد موقعي الحالي');
+        button.innerHTML = '📍';
+
+        L.DomEvent.disableClickPropagation(container);
+
+        L.DomEvent.on(button, 'click', function () {
+          if (!navigator.geolocation) {
+            alert('متصفحك لا يدعم تحديد الموقع.');
+            return;
+          }
+
+          button.innerHTML = '⏳';
+
+          navigator.geolocation.getCurrentPosition(
+            function (position) {
+              const latitude = position.coords.latitude;
+              const longitude = position.coords.longitude;
+              const accuracy = position.coords.accuracy;
+
+              const userPosition = [latitude, longitude];
+
+              if (currentLocationMarker) {
+                map.removeLayer(currentLocationMarker);
+              }
+
+              if (currentLocationCircle) {
+                map.removeLayer(currentLocationCircle);
+              }
+
+              currentLocationMarker = L.marker(userPosition)
+                .addTo(map)
+                .bindPopup(
+                  'أنت هنا<br>' +
+                  'دقة الموقع التقريبية: ' +
+                  Math.round(accuracy) +
+                  ' متر'
+                )
+                .openPopup();
+
+              currentLocationCircle = L.circle(userPosition, {
+                radius: accuracy,
+                color: '#1677ff',
+                fillColor: '#1677ff',
+                fillOpacity: 0.12
+              }).addTo(map);
+
+              map.setView(
+                userPosition,
+                17
+              );
+
+              button.innerHTML = '📍';
+            },
+
+            function (error) {
+              button.innerHTML = '📍';
+
+              if (error.code === 1) {
+                alert(
+                  'لم تسمح بالوصول إلى موقعك. افتح إعدادات الموقع في المتصفح واسمح للموقع بالوصول إليه.'
+                );
+              } else if (error.code === 2) {
+                alert(
+                  'تعذر تحديد موقعك. تأكد من تشغيل خدمات الموقع وحاول مرة أخرى.'
+                );
+              } else {
+                alert(
+                  'استغرق تحديد الموقع وقتًا طويلًا. حاول مرة أخرى.'
+                );
+              }
+            },
+
+            {
+              enableHighAccuracy: true,
+              timeout: 20000,
+              maximumAge: 0
+            }
+          );
+        });
+
+        return container;
+      }
+    });
+
+    // إضافة زر الموقع إلى الخريطة
+    map.addControl(new LocationControl());
   </script>
 </body>
 </html>
