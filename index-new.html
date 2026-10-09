@@ -1362,31 +1362,72 @@ Blame
     state.lastFrameTime = null;
   }
 
-  function updateTripProgress(progress) {
-    const bounded = Math.min(1, Math.max(0, progress));
-    $("progressBar").style.width = (bounded * 100) + "%";
+ function updateTripProgress(progress) {
+  const bounded = Math.min(1, Math.max(0, progress));
+  $("progressBar").style.width = (bounded * 100) + "%";
 
-    const remaining = state.routeDistance * (1 - bounded);
-    $("progressText").textContent = bounded >= 1
-      ? "وصلت إلى الوجهة"
-      : `تم قطع ${(bounded * 100).toFixed(0)}٪ • المتبقي ${formatDistance(remaining)}`;
+  const remaining = state.routeDistance * (1 - bounded);
 
-    if (state.routeCoords.length) {
-      const point = interpolatePoint(state.routeCoords, bounded);
+  $("progressText").textContent = bounded >= 1
+    ? "وصلت إلى الوجهة"
+    : `تم قطع ${(bounded * 100).toFixed(0)}٪ • المتبقي ${formatDistance(remaining)}`;
 
-      if (!state.carMarker) {
-        const carIcon = L.divIcon({
-          className: "",
-          html: '<div class="car-marker">🚗</div>',
-          iconSize: [37, 37],
-          iconAnchor: [18, 18]
-        });
-        state.carMarker = L.marker(point, { icon: carIcon, zIndexOffset: 1000 }).addTo(map);
-      } else {
-        state.carMarker.setLatLng(point);
-      }
-    }
+  if (!state.routeCoords.length) return;
+
+  const point = interpolatePoint(state.routeCoords, bounded);
+
+  // تحديد اللون بناءً على المسافة المتبقية بالمتر
+  const remainingKm = remaining / 1000;
+  let pinColor;
+
+  if (remainingKm > 5) {
+    pinColor = "#ef4444"; // أحمر
+  } else if (remainingKm > 2) {
+    pinColor = "#facc15"; // أصفر
+  } else {
+    pinColor = "#22c55e"; // أخضر
   }
+
+  // رسم دبوس الموقع
+  const pinHtml = `
+    <div style="
+      width: 36px;
+      height: 36px;
+      background: ${pinColor};
+      border: 3px solid white;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      box-shadow: 0 2px 10px rgba(0,0,0,.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    ">
+      <span style="
+        color: white;
+        font-size: 18px;
+        transform: rotate(45deg);
+        line-height: 1;
+      ">●</span>
+    </div>
+  `;
+
+  const pinIcon = L.divIcon({
+    className: "",
+    html: pinHtml,
+    iconSize: [42, 42],
+    iconAnchor: [18, 36]
+  });
+
+  if (!state.carMarker) {
+    state.carMarker = L.marker(point, {
+      icon: pinIcon,
+      zIndexOffset: 1000
+    }).addTo(map);
+  } else {
+    state.carMarker.setLatLng(point);
+    state.carMarker.setIcon(pinIcon);
+  }
+}
 
   function animateTrip(timestamp) {
     if (state.tripState !== "running") return;
