@@ -818,25 +818,7 @@
     .addTo(map)
     .bindTooltip("نقطة البداية", { direction: "top" });
 }
-  const startIcon = L.divIcon({
-    className: "",
-    html: `
-      <div style="
-        width:28px;height:28px;
-        background:#1689ff;
-        border:3px solid white;
-        border-radius:50%;
-        box-shadow:0 2px 8px rgba(0,0,0,.35);
-      "></div>
-    `,
-    iconSize: [28, 28],
-    iconAnchor: [14, 14]
-  });
-
-  startMarker = L.marker(state.start, { icon: startIcon })
-    .addTo(map)
-    .bindTooltip("نقطة البداية", { direction: "top" });
-}
+  
 
     if (state.end) {
       endMarker = L.marker(state.end).addTo(map)
