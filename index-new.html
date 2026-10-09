@@ -4,12 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>خريطة بيش وجازان</title>
+
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
   <style>
     html, body, #map {
       width: 100%;
       height: 100%;
       margin: 0;
+    }
+
+    .leaflet-control-layers {
+      font-family: Arial, sans-serif;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -20,12 +27,12 @@
   <script>
     const map = L.map('map').setView([17.45, 42.55], 9);
 
-  const standardMap = L.tileLayer(
+    const standardMap = L.tileLayer(
       'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       {
         attribution: '&copy; OpenStreetMap contributors'
       }
-    ).addTo(map);
+    );
 
     const terrainMap = L.tileLayer(
       'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
@@ -35,13 +42,17 @@
       }
     );
 
+    standardMap.addTo(map);
+
     L.control.layers(
       {
         'الخريطة العادية': standardMap,
         'التضاريس والارتفاعات': terrainMap
       },
       null,
-      { collapsed: false }
+      {
+        collapsed: false
+      }
     ).addTo(map);
   </script>
 </body>
