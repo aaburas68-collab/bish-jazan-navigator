@@ -855,16 +855,16 @@ let simulationIndex = 0;
       }
 
       const route = data.routes[0];
-      const coordinates = route.geometry.coordinates.map(
-        ([lng, lat]) => [lat, lng]
-      );
+    routeCoordinates = data.routes[0].geometry.coordinates.map(
+  ([lng, lat]) => [lat, lng]
+);
 
       if (routeLine) map.removeLayer(routeLine);
-      routeLine = L.polyline(coordinates, {
-        color: "#1689ff",
-        weight: 6,
-        opacity: 0.9
-      }).addTo(map);
+     routeLine = L.polyline(routeCoordinates, {
+  color: '#2563eb',
+  weight: 6
+ opacity: 0.9
+}).addTo(map);
 
       map.fitBounds(routeLine.getBounds(), { padding: [40, 40] });
 
