@@ -666,19 +666,36 @@
 .legend-item {
   color: #ffffff;
 }  
-    /* توحيد خلفية الإحصائيات مع مربع دلالة الألوان */
+ /* SAHER — تصميم بطاقات الإحصائيات */
 .trip-stat {
-  background: #1e293b !important;
-  border: 1px solid #334155 !important;
+  background: linear-gradient(145deg, #1e293b, #0f172a) !important;
+  border: 1px solid #475569 !important;
+  border-radius: 16px;
+  padding: 15px;
+  gap: 10px;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.16);
+  transition: border-color 0.2s ease, transform 0.2s ease;
 }
 
 .trip-stat span {
   color: #cbd5e1 !important;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .trip-stat strong {
   color: #ffffff !important;
+  font-size: 23px;
   font-weight: 800;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (hover: hover) {
+  .trip-stat:hover {
+    border-color: #38bdf8 !important;
+    transform: translateY(-2px);
+  }
 }
 
 .distance-legend {
