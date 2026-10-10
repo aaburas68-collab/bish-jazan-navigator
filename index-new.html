@@ -1284,9 +1284,12 @@ function setDestination(point) {
           position.coords.longitude
         );
 
-        if (userMarker) map.removeLayer(userMarker);
-        userMarker = L.marker(point).addTo(map)
-          .bindPopup("موقعي الحالي");
+       if (userMarker) map.removeLayer(userMarker);
+
+userMarker = L.marker(point, {
+  icon: makePin("#38bdf8"),
+  zIndexOffset: 1000
+}).addTo(map).bindPopup("موقعي الحالي");
 
         map.setView(point, 16);
         setStart(point);
