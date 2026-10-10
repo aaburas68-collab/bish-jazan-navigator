@@ -808,6 +808,14 @@
 
   let activeLayer = "street";
 layers.street.addTo(map);
+
+layers.street.on("tileload", () => {
+  console.log("تم تحميل جزء من الخريطة");
+});
+
+layers.street.on("tileerror", (event) => {
+  console.error("فشل تحميل جزء من الخريطة:", event);
+});
 setTimeout(() => map.invalidateSize(true), 1000);
   let startPoint = null;
   let destinationPoint = null;
