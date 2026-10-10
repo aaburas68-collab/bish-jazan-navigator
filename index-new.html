@@ -1007,42 +1007,42 @@ routeLine = L.polyline(routeCoordinates, {
     }
     toast("تم عرض المسار. هذه النسخة لا توفر توجيهًا صوتيًا مباشرًا.");
   });
+  $("launchBtn").addEventListener("click", () => {
+    if (routeCoordinates.length < 2 || !routeLine) {
+      toast("حدد البداية والوجهة وارسم المسار أولًا");
+      return;
+    }
+
+    clearInterval(simulationTimer);
+    simulationIndex = 0;
+
+    if (movingMarker) map.removeLayer(movingMarker);
+
+    movingMarker = L.marker(routeCoordinates[0]).addTo(map);
+    map.setView(routeCoordinates[0], 16);
+
+    const step = Math.max(1, Math.floor(routeCoordinates.length / 200));
+
+    simulationTimer = setInterval(() => {
+      simulationIndex += step;
+
+      if (simulationIndex >= routeCoordinates.length - 1) {
+        simulationIndex = routeCoordinates.length - 1;
+        movingMarker.setLatLng(routeCoordinates[simulationIndex]);
+        clearInterval(simulationTimer);
+        simulationTimer = null;
+        toast("وصلت إلى الوجهة!");
+        return;
+      }
+
+      movingMarker.setLatLng(routeCoordinates[simulationIndex]);
+    }, 150);
+  });
 
   window.addEventListener("resize", () => map.invalidateSize());
   setTimeout(() => map.invalidateSize(), 300);
 })();
-    document.getElementById("launchBtn")?.addEventListener("click", () => {
-  if (!routeCoordinates || routeCoordinates.length < 2) {
-    alert("حدد نقطة البداية والوجهة وارسم المسار أولاً.");
-    return;
-  }
-
-  if (simulationTimer) clearInterval(simulationTimer);
-
-  simulationIndex = 0;
-
-  if (movingMarker) map.removeLayer(movingMarker);
-
-  movingMarker = L.marker(routeCoordinates[0]).addTo(map);
-  map.setView(routeCoordinates[0], 16);
-
-  const step = Math.max(1, Math.floor(routeCoordinates.length / 200));
-
-  simulationTimer = setInterval(() => {
-    simulationIndex += step;
-
-    if (simulationIndex >= routeCoordinates.length - 1) {
-      simulationIndex = routeCoordinates.length - 1;
-      movingMarker.setLatLng(routeCoordinates[simulationIndex]);
-      clearInterval(simulationTimer);
-      simulationTimer = null;
-      alert("وصلت إلى الوجهة!");
-      return;
-    }
-
-    movingMarker.setLatLng(routeCoordinates[simulationIndex]);
-  }, 150);
-});
+   
 </script>
 </body>
 </html>
