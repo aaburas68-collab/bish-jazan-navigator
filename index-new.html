@@ -954,22 +954,22 @@ let simulationIndex = 0;
     });
   }
 
-  function syncMarkers() {
-    if (startMarker) map.removeLayer(startMarker);
-    if (destinationMarker) map.removeLayer(destinationMarker);
+function syncMarkers() {
+  if (startMarker) map.removeLayer(startMarker);
+  if (destinationMarker) map.removeLayer(destinationMarker);
 
-    if (startPoint) {
-      startMarker = L.marker(startPoint, {
-        icon: makePin("#1689ff")
-      }).addTo(map);
-    }
-
-    if (destinationPoint) {
-      destinationMarker = L.marker(destinationPoint, {
-        icon: makePin("#22c55e")
-      }).addTo(map);
-    }
+  if (startPoint) {
+    startMarker = L.marker(startPoint, {
+      icon: makePin("#22c55e")
+    }).addTo(map);
   }
+
+  if (destinationPoint) {
+    destinationMarker = L.marker(destinationPoint, {
+      icon: makePin("#ef4444")
+    }).addTo(map);
+  }
+}
 
   function updateInputs() {
     $("startInput").value = startPoint
