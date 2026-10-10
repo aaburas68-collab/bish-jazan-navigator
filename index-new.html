@@ -669,6 +669,26 @@
 .legend-item {
   color: #ffffff;
 }  
+    /* توحيد خلفية الإحصائيات مع مربع دلالة الألوان */
+.trip-stat {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+}
+
+.trip-stat span {
+  color: #cbd5e1 !important;
+}
+
+.trip-stat strong {
+  color: #ffffff !important;
+  font-weight: 800;
+}
+
+.distance-legend {
+  background: #1e293b;
+  border-color: #334155;
+  color: #ffffff;
+}
   </style>
 </head>
 <body>
@@ -1222,21 +1242,67 @@ $("launchBtn").addEventListener("click", () => {
 
   map.setView(routeCoordinates[0], 16);
 
-  const step = Math.max(1, Math.floor(routeCoordinates.length / 200));
+  const totalPoints = routeCoordinates.length;
+  const segmentDistances = [];
+  let totalRemainingMeters = 0;
 
-  simulationTimer = setInterval(() => {
-    simulationIndex += step;
+  // حساب طول كل جزء من المسار
+  for (let i = 0; i < totalPoints - 1; i++) {
+    const a = L.latLng(routeCoordinates[i]);
+    const b = L.latLng(routeCoordinates[i + 1]);
+    const distance = a.distanceTo(b);
 
-    if (simulationIndex >= routeCoordinates.length - 1) {
-      simulationIndex = routeCoordinates.length - 1;
-      movingMarker.setLatLng(routeCoordinates[simulationIndex]);
-      clearInterval(simulationTimer);
-      simulationTimer = null;
-      toast("وصلت إلى الوجهة!");
-      return;
+    segmentDistances.push(distance);
+    totalRemainingMeters += distance;
+  }
+
+  const totalMeters = totalRemainingMeters;
+  const step = Math.max(1, Math.floor(totalPoints / 200));
+  const tripStartTime = Date.now();
+
+  function updateTripStats() {
+    let remainingMeters = 0;
+
+    for (let i = simulationIndex; i < segmentDistances.length; i++) {
+      remainingMeters += segmentDistances[i];
     }
 
+    $("remainingDistance").textContent =
+      (remainingMeters / 1000).toFixed(1) + " كم";
+
+    const elapsedSeconds = Math.floor(
+      (Date.now() - tripStartTime) / 1000
+    );
+
+    const minutes = Math.floor(elapsedSeconds / 60);
+    const seconds = elapsedSeconds % 60;
+
+    $("elapsedTime").textContent =
+      String(minutes).padStart(2, "0") + ":" +
+      String(seconds).padStart(2, "0");
+  }
+
+  // تحديث القيم فور بدء الرحلة
+  updateTripStats();
+
+  simulationTimer = setInterval(() => {
+    simulationIndex = Math.min(
+      simulationIndex + step,
+      totalPoints - 1
+    );
+
     movingMarker.setLatLng(routeCoordinates[simulationIndex]);
+    updateTripStats();
+
+    if (simulationIndex >= totalPoints - 1) {
+      clearInterval(simulationTimer);
+      simulationTimer = null;
+
+      $("remainingDistance").textContent = "0.0 كم";
+      updateTripStats();
+
+      toast("وصلت إلى الوجهة!");
+    }
   }, 150);
 });
 
