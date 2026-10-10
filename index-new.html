@@ -384,6 +384,28 @@
   position: relative;
   z-index: 1;
 }
+    /* SAHER — خط الربط بين البداية والوجهة */
+.fields .route-field:first-child .field-icon {
+  position: relative;
+}
+
+.fields .route-field:first-child .field-icon::after {
+  content: "";
+  position: absolute;
+  width: 2px;
+  height: 31px;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    to bottom,
+    #38bdf8,
+    #4ade80
+  );
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: -1;
+}
   .route-field {
   display: flex;
   align-items: center;
