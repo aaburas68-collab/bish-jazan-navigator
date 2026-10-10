@@ -633,6 +633,42 @@
   position: relative;
   z-index: 600;
 }
+  /* توحيد شكل مربعات الإحصائيات */
+.trip-stat {
+  background: #2563eb;
+  border: 1px solid #1d4ed8;
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.trip-stat span {
+  color: #dbeafe;
+  font-size: 12px;
+}
+
+.trip-stat strong {
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+/* تحسين وضوح قسم دلالة الألوان */
+.distance-legend {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 14px;
+  padding: 14px;
+  margin: 12px 0;
+  color: #ffffff;
+}
+
+.legend-title,
+.legend-item {
+  color: #ffffff;
+}  
   </style>
 </head>
 <body>
@@ -1023,8 +1059,15 @@ routeLine = L.polyline(routeCoordinates, {
 
       map.fitBounds(routeLine.getBounds(), { padding: [40, 40] });
 
-      const km = route.distance / 1000;
-      const minutes = Math.round(route.duration / 60);
+    const km = route.distance / 1000;
+const minutes = Math.round(route.duration / 60);
+
+$("totalDistance").textContent = km.toFixed(1) + " كم";
+$("remainingDistance").textContent = km.toFixed(1) + " كم";
+$("estimatedTime").textContent =
+  minutes >= 60
+    ? Math.floor(minutes / 60) + " ساعة و" + (minutes % 60) + " دقيقة"
+    : minutes + " دقيقة";
       toast(`المسافة ${km.toFixed(1)} كم تقريبًا • ${minutes} دقيقة`);
     } catch (error) {
       console.error(error);
