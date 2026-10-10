@@ -619,7 +619,8 @@
       <div class="more-options" id="moreOptions">
         <div class="more-grid">
           <button class="primary-btn" id="drawRouteBtn">ارسم المسار</button>
-          <button id="startNavigationBtn">بدء الملاحة</button>
+       <button id="startNavigationBtn">بدء الملاحة</button>
+<button id="launchBtn" class="primary-btn">🚗 انطلق</button>
           <button id="simulateBtn">محاكاة الرحلة</button>
           <button id="stopSimulationBtn">إيقاف المحاكاة</button>
           <button id="fitRouteBtn">عرض المسار كاملًا</button>
@@ -672,7 +673,9 @@
   let selectingPoint = null;
   let searchTimer = null;
   let simulationTimer = null;
-
+let routeCoordinates = [];
+let movingMarker = null;
+let simulationIndex = 0;
   function toast(message) {
     const el = $("toast");
     if (!el) return;
