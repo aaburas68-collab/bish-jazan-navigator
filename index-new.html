@@ -808,7 +808,7 @@
 
   let activeLayer = "street";
 layers.satellite.addTo(map);
-
+setTimeout(() => map.invalidateSize(true), 1000);
   let startPoint = null;
   let destinationPoint = null;
   let startMarker = null;
