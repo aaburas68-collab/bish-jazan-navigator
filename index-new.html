@@ -421,7 +421,14 @@
 
 .route-field:focus-within {
   border-color: #38bdf8;
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
+  background: linear-gradient(145deg, #1e293b, #142235);
+  box-shadow:
+    0 0 0 3px rgba(56, 189, 248, 0.12),
+    0 0 18px rgba(56, 189, 248, 0.08);
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
   .field-icon {
