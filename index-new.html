@@ -961,19 +961,67 @@ let simulationIndex = 0;
       : "";
   }
 
-  function setStart(point) {
-    startPoint = L.latLng(point.lat, point.lng);
-    syncMarkers();
-    updateInputs();
-    toast("تم تحديد نقطة البداية");
-  }
+ async function showPlaceInfo(point, title) {
+  const info = $("placeInfo");
+  info.classList.add("show");
 
-  function setDestination(point) {
-    destinationPoint = L.latLng(point.lat, point.lng);
-    syncMarkers();
-    updateInputs();
-    toast("تم تحديد الوجهة");
+  $("placeName").textContent = title;
+  $("placeAddress").textContent = "جارٍ جلب عنوان المكان...";
+
+  const lat = point.lat.toFixed(6);
+  const lng = point.lng.toFixed(6);
+
+  $("placeCoordinates").textContent =
+    `خط العرض: ${lat} | خط الطول: ${lng}`;
+
+  $("openGoogleMapsBtn").onclick = () => {
+    window.open(
+      `https://www.google.com/maps?q=${lat},${lng}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  };
+
+  $("copyCoordinatesBtn").onclick = async () => {
+    try {
+      await navigator.clipboard.writeText(`${lat}, ${lng}`);
+      toast("تم نسخ الإحداثيات");
+    } catch {
+      toast(`الإحداثيات: ${lat}, ${lng}`);
+    }
+  };
+
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=ar`
+    );
+
+    if (!response.ok) throw new Error("address");
+
+    const data = await response.json();
+    $("placeAddress").textContent =
+      data.display_name || "العنوان غير متوفر لهذا الموقع";
+  } catch {
+    $("placeAddress").textContent =
+      "تعذر جلب العنوان، لكن الإحداثيات متوفرة";
   }
+}
+
+function setStart(point) {
+  startPoint = L.latLng(point.lat, point.lng);
+  syncMarkers();
+  updateInputs();
+  showPlaceInfo(startPoint, "نقطة البداية");
+  toast("تم تحديد نقطة البداية");
+}
+
+function setDestination(point) {
+  destinationPoint = L.latLng(point.lat, point.lng);
+  syncMarkers();
+  updateInputs();
+  showPlaceInfo(destinationPoint, "الوجهة");
+  toast("تم تحديد الوجهة");
+}
 
   map.on("click", (event) => {
     if (selectingPoint === "start") {
