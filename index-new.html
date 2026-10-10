@@ -412,18 +412,36 @@
 }
 
     .field-body { min-width: 0; flex: 1; }
-    .field-label { font-size: 10px; color: var(--muted); margin-bottom: 3px; }
+  .field-label {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 700;
+  margin-bottom: 4px;
+  letter-spacing: 0.2px;
+}
 
-    .route-field input {
-      width: 100%;
-      min-width: 0;
-      background: transparent;
-      color: var(--text);
-      border: 0;
-      outline: 0;
-      padding: 0 0 2px;
-      font-size: 13px;
-    }
+.route-field input {
+  width: 100%;
+  min-width: 0;
+  background: transparent;
+  color: #f8fafc;
+  border: 0;
+  outline: 0;
+  padding: 0 0 2px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+}
+
+.route-field input::placeholder {
+  color: #94a3b8;
+  opacity: 0.85;
+  font-weight: 400;
+}
+
+.route-field input:focus::placeholder {
+  opacity: 0.55;
+}
 
     .route-field input::placeholder { color: #7e8ca1; }
 
