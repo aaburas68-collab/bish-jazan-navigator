@@ -1104,11 +1104,27 @@ $("estimatedTime").textContent =
     else toast("ارسم المسار أولًا");
   });
 
-  $("clearRouteBtn").addEventListener("click", () => {
-    if (routeLine) map.removeLayer(routeLine);
-    routeLine = null;
-    toast("تم حذف المسار");
-  });
+ $("clearRouteBtn").addEventListener("click", () => {
+  if (routeLine) map.removeLayer(routeLine);
+  routeLine = null;
+  routeCoordinates = [];
+
+  clearInterval(simulationTimer);
+  simulationTimer = null;
+  simulationIndex = 0;
+
+  if (movingMarker) {
+    map.removeLayer(movingMarker);
+    movingMarker = null;
+  }
+
+  $("totalDistance").textContent = "-- كم";
+  $("remainingDistance").textContent = "-- كم";
+  $("estimatedTime").textContent = "--";
+  $("elapsedTime").textContent = "00:00";
+
+  toast("تم حذف المسار وإعادة ضبط الإحصائيات");
+});
 
   $("clearBtn").addEventListener("click", () => {
     startPoint = null;
