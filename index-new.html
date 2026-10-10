@@ -9,6 +9,82 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
   <style>
+    .trip-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.trip-stat {
+  background: #f5f7fb;
+  border: 1px solid #e4e8ef;
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.trip-stat span {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.trip-stat strong {
+  color: #111827;
+  font-size: 20px;
+}
+
+.distance-legend {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 12px;
+  margin: 12px 0;
+}
+
+.legend-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  margin: 8px 0;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex: 0 0 12px;
+}
+
+.legend-dot.blue { background: #1689ff; }
+.legend-dot.red { background: #dc2626; }
+.legend-dot.yellow { background: #eab308; }
+.legend-dot.green { background: #16a34a; }
+
+.launch-btn {
+  background: #dc2626 !important;
+  color: white !important;
+  border: none !important;
+  font-weight: 800 !important;
+  box-shadow: 0 4px 12px #dc26264d;
+}
+
+.launch-btn:hover {
+  background: #b91c1c !important;
+}
+
+@media (max-width: 380px) {
+  .trip-stat strong { font-size: 17px; }
+}
     :root {
       --bg: #101827;
       --panel: #182336;
@@ -578,56 +654,99 @@
       <div class="toast" id="toast"></div>
     </main>
 
-    <section class="bottom-panel">
-      <div class="grabber"></div>
-      <div class="panel-heading">
-        <div>
-          <div class="panel-title">تخطيط الرحلة</div>
-          <div class="panel-subtitle">حدد نقطة البداية والوجهة</div>
-        </div>
-        <button class="text-btn" id="clearBtn">مسح الكل</button>
-      </div>
+   <section class="bottom-panel">
+  <div class="grabber"></div>
 
-      <div class="fields">
-        <div class="route-field">
-          <div class="field-icon">🔵</div>
-          <div class="field-body">
-            <div class="field-label">نقطة البداية</div>
-            <input id="startInput" type="text" placeholder="اختر نقطة البداية">
-          </div>
-          <button class="small-field-btn" id="startCurrentBtn">موقعي</button>
-        </div>
-        <div class="route-field">
-          <div class="field-icon">🟢</div>
-          <div class="field-body">
-            <div class="field-label">الوجهة</div>
-            <input id="destinationInput" type="text" placeholder="إلى أين تريد الذهاب؟">
-          </div>
-          <button class="small-field-btn" id="destinationClearBtn">مسح</button>
-        </div>
-      </div>
+  <div class="panel-heading">
+    <div>
+      <div class="panel-title">تخطيط الرحلة</div>
+      <div class="panel-subtitle">حدد نقطة البداية والوجهة</div>
+    </div>
+    <button class="text-btn" id="clearBtn">مسح الكل</button>
+  </div>
 
-      <div class="main-actions">
-        <button class="secondary-btn" id="pickStartBtn">تحديد البداية من الخريطة</button>
-        <button class="secondary-btn" id="mapDestinationBtn">تحديد الوجهة من الخريطة</button>
-        <button class="swap-btn" id="swapBtn" title="تبديل البداية والوجهة">⇅</button>
+  <div class="fields">
+    <div class="route-field">
+      <div class="field-icon">🔵</div>
+      <div class="field-body">
+        <div class="field-label">نقطة البداية</div>
+        <input id="startInput" type="text" placeholder="اختر نقطة البداية">
       </div>
+      <button class="small-field-btn" id="startCurrentBtn">موقعي</button>
+    </div>
 
-      <button class="more-toggle" id="moreToggle">
-        <span>خيارات إضافية</span><span id="moreArrow">⌄</span>
-      </button>
-      <div class="more-options" id="moreOptions">
-        <div class="more-grid">
-          <button class="primary-btn" id="drawRouteBtn">ارسم المسار</button>
-       <button id="startNavigationBtn">بدء الملاحة</button>
-<button id="launchBtn" class="primary-btn">🚗 انطلق</button>
-          <button id="simulateBtn">محاكاة الرحلة</button>
-          <button id="stopSimulationBtn">إيقاف المحاكاة</button>
-          <button id="fitRouteBtn">عرض المسار كاملًا</button>
-          <button id="clearRouteBtn">حذف المسار</button>
-        </div>
+    <div class="route-field">
+      <div class="field-icon">🟢</div>
+      <div class="field-body">
+        <div class="field-label">الوجهة</div>
+        <input id="destinationInput" type="text" placeholder="إلى أين تريد الذهاب؟">
       </div>
-    </section>
+      <button class="small-field-btn" id="destinationClearBtn">مسح</button>
+    </div>
+  </div>
+
+  <div class="main-actions">
+    <button class="secondary-btn" id="pickStartBtn">تحديد البداية من الخريطة</button>
+    <button class="secondary-btn" id="mapDestinationBtn">تحديد الوجهة من الخريطة</button>
+    <button class="swap-btn" id="swapBtn" title="تبديل البداية والوجهة">⇅</button>
+  </div>
+
+  <div class="trip-stats">
+    <div class="trip-stat">
+      <span>المسافة الكلية</span>
+      <strong id="totalDistance">-- كم</strong>
+    </div>
+    <div class="trip-stat">
+      <span>المتبقي</span>
+      <strong id="remainingDistance">-- كم</strong>
+    </div>
+    <div class="trip-stat">
+      <span>الوقت المتوقع</span>
+      <strong id="estimatedTime">--</strong>
+    </div>
+    <div class="trip-stat">
+      <span>وقت الرحلة</span>
+      <strong id="elapsedTime">00:00</strong>
+    </div>
+  </div>
+
+  <div class="distance-legend">
+    <div class="legend-title">دلالة الألوان حسب المسافة المتبقية</div>
+    <div class="legend-item">
+      <span class="legend-dot blue"></span>
+      <span>الأزرق: نقطة الانطلاق</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot red"></span>
+      <span>الأحمر: أكثر من 5 كم</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot yellow"></span>
+      <span>الأصفر: من 2 إلى 5 كم</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot green"></span>
+      <span>الأخضر: أقل من 2 كم</span>
+    </div>
+  </div>
+
+  <button class="more-toggle" id="moreToggle">
+    <span>خيارات إضافية</span>
+    <span id="moreArrow">⌄</span>
+  </button>
+
+  <div class="more-options" id="moreOptions">
+    <div class="more-grid">
+      <button class="primary-btn" id="drawRouteBtn">حساب المسار والمسافة</button>
+      <button id="startNavigationBtn">بدء الملاحة</button>
+      <button id="launchBtn" class="launch-btn">🚗 انطلق</button>
+      <button id="simulateBtn">محاكاة الرحلة</button>
+      <button id="stopSimulationBtn">إيقاف المحاكاة</button>
+      <button id="fitRouteBtn">عرض المسار كاملًا</button>
+      <button id="clearRouteBtn">حذف المسار</button>
+    </div>
+  </div>
+</section>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
