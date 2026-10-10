@@ -631,308 +631,68 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
+(() => {
+  "use strict";
+
   const $ = (id) => document.getElementById(id);
 
-    const map = L.map("map", {
-      zoomControl: false
-    }).setView([17.1495, 42.6254], 10);
-
-    const layers = {
-      street: L.tileLayer(
-        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        {
-          maxZoom: 19,
-          attribution: "&copy; OpenStreetMap"
-        }
-      ),
-      satellite: L.tileLayer(
-        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-        {
-          maxZoom: 19,
-          attribution: "Tiles &copy; Esri"
-        }
-      ),
-      topo: L.tileLayer(
-        "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-        {
-          maxZoom: 17,
-          attribution: "&copy; OpenTopoMap"
-        }
-      )
-    };
-// اختبار تحميل طبقة الخريطة
-layers.street.on("tileerror", function (event) {
-  console.error("فشل تحميل صورة من الخريطة:", event);
-});
-
-layers.street.on("tileload", function () {
-  console.log("تم تحميل صورة من خريطة الشوارع");
-});
-
-layers.street.on("load", function () {
-  console.log("اكتمل تحميل طبقة الشوارع");
-});
-    let activeLayer = "street";
-    layers[activeLayer].addTo(map);
-layers.street.on("tileerror", function () {
-  console.log("فشل تحميل صور خريطة الشوارع");
-});
-
-layers.street.on("tileload", function () {
-  console.log("تم تحميل صورة من خريطة الشوارع");
-});
-    let startPoint = null;
-    let destinationPoint = null;
-    let startMarker = null;
-    let destinationMarker = null;
-    let userMarker = null;
-    let movingMarker = null;
-    let routeLine = null;
-    let routeCoordinates = [];
-    let routeDistanceKm = 0;
-    let traveledKm = 0;
-    let simulationTimer = null;
-    let selectingPoint = null;
-    let navigationActive = false;
-    let watchId = null;
-
-    function toast(message) {
-      const element = $("toast");
-      if (!element) return;
-
-      element.textContent = message;
-      element.classList.add("show");
-
-      clearTimeout(toast.timer);
-      toast.timer = setTimeout(() => {
-        element.classList.remove("show");
-      }, 2800);
-    }
-
-    function updateGpsStatus(message, active = false) {
-      $("gpsStatus").textContent = message;
-      $("gpsDot").classList.toggle("active", active);
-    }
-
-    function makePin(className) {
-      return L.divIcon({
-        className: "",
-        html: `<div class="${className}"></div>`,
-        iconSize: [30, 30],
-        iconAnchor: [15, 30]
-      });
-    }
-
-    function syncMarkers() {
-      if (startMarker) map.removeLayer(startMarker);
-      if (destinationMarker) map.removeLayer(destinationMarker);
-
-      if (startPoint) {
-        startMarker = L.marker(startPoint, {
-          icon: makePin("location-pin pin-blue")
-        }).addTo(map);
-      }
-
-      if (destinationPoint) {
-        destinationMarker = L.marker(destinationPoint, {
-          icon: makePin("location-pin pin-destination")
-        }).addTo(map);
-      }
-    }
-
-    function updateTripProgress() {
-      if (!routeDistanceKm || routeCoordinates.length < 2) return;
-
-      const remainingKm = Math.max(0, routeDistanceKm - traveledKm);
-      const progress = Math.min(100, (traveledKm / routeDistanceKm) * 100);
-
-      $("remainingDistance").textContent =
-        `المسافة المتبقية: ${remainingKm.toFixed(1)} كم`;
-
-      $("progressBar").style.width = `${progress}%`;
-      $("tripProgress").textContent = `${Math.round(progress)}%`;
-
-      let colorClass = "pin-red";
-
-      if (remainingKm <= 2 || progress >= 100) {
-        colorClass = "pin-green";
-      } else if (remainingKm <= 5) {
-        colorClass = "pin-yellow";
-      }
-
-      if (movingMarker) {
-        movingMarker.setIcon(makePin(`car-marker ${colorClass}`));
-      }
-    }  
-    function getDistanceKm(a, b) {
-      const earthRadius = 6371;
-      const lat1 = a[0] * Math.PI / 180;
-      const lat2 = b[0] * Math.PI / 180;
-      const deltaLat = (b[0] - a[0]) * Math.PI / 180;
-      const deltaLng = (b[1] - a[1]) * Math.PI / 180;
-
-      const value =
-        Math.sin(deltaLat / 2) ** 2 +
-        Math.cos(lat1) * Math.cos(lat2) *
-        Math.sin(deltaLng / 2) ** 2;
-
-      return earthRadius * 2 *
-        Math.atan2(Math.sqrt(value), Math.sqrt(1 - value));
-    }
-
-    function updateRouteInputs() {
-      $("startInput").value = startPoint
-        ? `${startPoint[0].toFixed(5)}, ${startPoint[1].toFixed(5)}`
-        : "";
-
-      $("destinationInput").value = destinationPoint
-        ? `${destinationPoint[0].toFixed(5)}, ${destinationPoint[1].toFixed(5)}`
-        : "";
-    }
-
-    function setStart(point) {
-      startPoint = [point.lat, point.lng];
-      syncMarkers();
-      updateRouteInputs();
-      toast("تم تحديد نقطة البداية");
-    }
-
-    function setDestination(point) {
-      destinationPoint = [point.lat, point.lng];
-      syncMarkers();
-      updateRouteInputs();
-      toast("تم تحديد الوجهة");
-    }
-
-    map.on("click", function (event) {
-      if (selectingPoint === "start") {
-        setStart(event.latlng);
-        selectingPoint = null;
-        $("mapHint").textContent = "حدد البداية والوجهة لرسم المسار";
-      } else if (selectingPoint === "destination") {
-        setDestination(event.latlng);
-        selectingPoint = null;
-        $("mapHint").textContent = "حدد البداية والوجهة لرسم المسار";
-      }
-    });
-
-    $("pickStartBtn").addEventListener("click", () => {
-      selectingPoint = "start";
-      $("mapHint").textContent = "اضغط على الخريطة لتحديد البداية";
-      toast("اختر نقطة البداية من الخريطة");
-    });
-
-    $("mapDestinationBtn").addEventListener("click", () => {
-      selectingPoint = "destination";
-      $("mapHint").textContent = "اضغط على الخريطة لتحديد الوجهة";
-      toast("اختر الوجهة من الخريطة");
-    });
-
-    $("swapBtn").addEventListener("click", () => {
-      const temporary = startPoint;
-      startPoint = destinationPoint;
-      destinationPoint = temporary;
-      syncMarkers();
-      updateRouteInputs();
-      toast("تم تبديل البداية والوجهة");
-    });
-
-    $("locateBtn").addEventListener("click", locateUser);
-    $("startCurrentBtn").addEventListener("click", locateUser);
-
-    function locateUser() {
-      if (!navigator.geolocation) {
-        toast("المتصفح لا يدعم تحديد الموقع");
-        return;
-      }
-
-      updateGpsStatus("جارٍ تحديد الموقع...");
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const point = [
-            position.coords.latitude,
-            position.coords.longitude
-          ];
-
-          if (userMarker) map.removeLayer(userMarker);
-
-          userMarker = L.marker(point).addTo(map);
-          map.setView(point, 16);
-          setStart({ lat: point[0], lng: point[1] });
-          updateGpsStatus("تم تحديد الموقع", true);
-          toast("تم تحديد موقعك الحالي");
-        },
-        () => {
-          updateGpsStatus("تعذر تحديد الموقع");
-          toast("تحقق من إذن الموقع وإعدادات GPS");
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 15000,
-          maximumAge: 5000
-        }
-      );
-    }
-
-    $("zoomInBtn").addEventListener("click", () => map.zoomIn());
-    $("zoomOutBtn").addEventListener("click", () => map.zoomOut());
-
-    $("layersBtn").addEventListener("click", () => {
-      $("layerMenu").classList.toggle("open");
-    });
-
-    document.querySelectorAll(".layer-option").forEach((button) => {
-      button.addEventListener("click", () => {
-        const layerName = button.dataset.layer;
-
-        if (!layers[layerName]) return;
-
-        map.removeLayer(layers[activeLayer]);
-        activeLayer = layerName;
-        layers[activeLayer].addTo(map);
-
-        document.querySelectorAll(".layer-option").forEach((item) => {
-          item.classList.toggle("selected", item === button);
-        });
-
-        $("layerMenu").classList.remove("open");
-      });
-    });
- 
-  let currentLayer = layers.street;
- 
- 
- 
-  let routeLine = null;
-  let routeCoordinates = [];
-  let routeDistanceKm = 0;
-  let traveledKm = 0;
-  let simulationTimer = null;
-  let selectingPoint = null;
-  let watchId = null;
-
- 
-
-  function showToast(message) {
-    const toast = $("toast");
-    if (!toast) return;
-
-    toast.textContent = message;
-    toast.classList.add("show");
-
-    clearTimeout(showToast.timer);
-    showToast.timer = setTimeout(() => {
-      toast.classList.remove("show");
-    }, 2800);
+  // منع تشغيل التطبيق إذا لم تُحمّل مكتبة Leaflet
+  if (typeof L === "undefined") {
+    alert("تعذر تحميل مكتبة الخريطة. تحقق من اتصال الإنترنت.");
+    return;
   }
 
-  function createPin(className) {
+  const map = L.map("map", { zoomControl: false })
+    .setView([17.1495, 42.6254], 10);
+
+  const layers = {
+    street: L.tileLayer(
+      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      { maxZoom: 19, attribution: "&copy; OpenStreetMap" }
+    ),
+    satellite: L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      { maxZoom: 19, attribution: "Tiles &copy; Esri" }
+    ),
+    topo: L.tileLayer(
+      "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+      { maxZoom: 17, attribution: "&copy; OpenTopoMap" }
+    )
+  };
+
+  let activeLayer = "street";
+  layers.street.addTo(map);
+
+  let startPoint = null;
+  let destinationPoint = null;
+  let startMarker = null;
+  let destinationMarker = null;
+  let userMarker = null;
+  let routeLine = null;
+  let selectingPoint = null;
+  let searchTimer = null;
+  let simulationTimer = null;
+
+  function toast(message) {
+    const el = $("toast");
+    if (!el) return;
+    el.textContent = message;
+    el.classList.add("show");
+    clearTimeout(toast.timer);
+    toast.timer = setTimeout(() => el.classList.remove("show"), 2800);
+  }
+
+  function updateGpsStatus(message, active = false) {
+    if ($("gpsStatus")) $("gpsStatus").textContent = message;
+    if ($("gpsDot")) $("gpsDot").classList.toggle("active", active);
+  }
+
+  function makePin(color) {
     return L.divIcon({
       className: "",
-      html: `<div class="${className}"></div>`,
-      iconSize: [30, 30],
-      iconAnchor: [15, 30]
+      html: `<div style="width:20px;height:20px;background:${color};border:3px solid white;border-radius:50%;box-shadow:0 1px 6px #333"></div>`,
+      iconSize: [20, 20],
+      iconAnchor: [10, 10]
     });
   }
 
@@ -942,13 +702,13 @@ layers.street.on("tileload", function () {
 
     if (startPoint) {
       startMarker = L.marker(startPoint, {
-        icon: createPin("location-pin pin-blue")
+        icon: makePin("#1689ff")
       }).addTo(map);
     }
 
     if (destinationPoint) {
       destinationMarker = L.marker(destinationPoint, {
-        icon: createPin("location-pin pin-destination")
+        icon: makePin("#22c55e")
       }).addTo(map);
     }
   }
@@ -962,177 +722,289 @@ layers.street.on("tileload", function () {
       ? `${destinationPoint.lat.toFixed(5)}, ${destinationPoint.lng.toFixed(5)}`
       : "";
   }
-    }
 
-  function updateTripProgress(progress) {
-    const bounded = Math.min(1, Math.max(0, progress));
-    $("progressBar").style.width = (bounded * 100) + "%";
-
-    const remaining = state.routeDistance * (1 - bounded);
-    $("progressText").textContent = bounded >= 1
-      ? "وصلت إلى الوجهة"
-      : `تم قطع ${(bounded * 100).toFixed(0)}٪ • المتبقي ${formatDistance(remaining)}`;
-
-    if (state.routeCoords.length) {
-      const point = interpolatePoint(state.routeCoords, bounded);
-      const pinClass = getMovingPinClass(remaining);
-      const pinHtml = `<div class="car-marker ${pinClass}" aria-label="الدبوس المتحرك"></div>`;
-
-      if (!state.carMarker) {
-        const pinIcon = L.divIcon({
-          className: "",
-          html: pinHtml,
-          iconSize: [36, 36],
-          iconAnchor: [18, 31]
-        });
-        state.carMarker = L.marker(point, {
-          icon: pinIcon,
-          zIndexOffset: 1000
-        }).addTo(map);
-      } else {
-        state.carMarker.setLatLng(point);
-        state.carMarker.setIcon(L.divIcon({
-          className: "",
-          html: pinHtml,
-          iconSize: [36, 36],
-          iconAnchor: [18, 31]
-        }));
-      }
-    }
+  function setStart(point) {
+    startPoint = L.latLng(point.lat, point.lng);
+    syncMarkers();
+    updateInputs();
+    toast("تم تحديد نقطة البداية");
   }
 
-  function animateTrip(timestamp) {
-    if (state.tripState !== "running") return;
+  function setDestination(point) {
+    destinationPoint = L.latLng(point.lat, point.lng);
+    syncMarkers();
+    updateInputs();
+    toast("تم تحديد الوجهة");
+  }
 
-    if (state.lastFrameTime !== null) {
-      state.tripElapsedMs += timestamp - state.lastFrameTime;
-    }
-    state.lastFrameTime = timestamp;
-
-    // محاكاة تعليمية قصيرة لحركة الدبوس على المسار، وليست تتبعًا فعليًا للقيادة.
-    const simulationDuration = Math.max(20000, Math.min(60000, state.routeDuration * 1000));
-    const progress = state.tripElapsedMs / simulationDuration;
-
-    updateTripProgress(progress);
-
-    if (progress >= 1) {
-      state.tripState = "arrived";
-      stopTripAnimation();
-      $("panelTitle").textContent = "وصلت إلى وجهتك";
-      $("panelSubtitle").textContent = "انتهت محاكاة الرحلة";
-      $("pauseTripBtn").disabled = true;
-      $("startTripBtn").style.display = "none";
-      toast("وصلت إلى الوجهة في المحاكاة");
+  map.on("click", (event) => {
+    if (selectingPoint === "start") {
+      setStart(event.latlng);
+    } else if (selectingPoint === "destination") {
+      setDestination(event.latlng);
+    } else {
       return;
     }
 
-    state.animationId = requestAnimationFrame(animateTrip);
-  }
-
-  function startTrip() {
-    if (!state.routeLine || !state.routeCoords.length) {
-      toast("احسب المسار أولًا");
-      return;
-    }
-
-    state.tripState = "running";
-    state.tripElapsedMs = 0;
-    state.lastFrameTime = null;
-
-    $("tripActions").classList.add("show");
-    $("progressWrap").style.display = "block";
-    $("pauseTripBtn").textContent = "⏸ إيقاف مؤقت";
-    $("pauseTripBtn").disabled = false;
-    $("startTripBtn").style.display = "none";
-    $("panelTitle").textContent = "رحلتك جارية";
-    $("panelSubtitle").textContent = "محاكاة حركة على المسار المحدد";
-
-    updateTripProgress(0);
-    state.animationId = requestAnimationFrame(animateTrip);
-  }
-
-  function togglePauseTrip() {
-    if (state.tripState === "running") {
-      state.tripState = "paused";
-      stopTripAnimation();
-      $("pauseTripBtn").textContent = "▶️ متابعة الرحلة";
-      $("panelTitle").textContent = "الرحلة متوقفة مؤقتًا";
-      toast("تم إيقاف المحاكاة مؤقتًا");
-    } else if (state.tripState === "paused") {
-      state.tripState = "running";
-      state.lastFrameTime = null;
-      $("pauseTripBtn").textContent = "⏸ إيقاف مؤقت";
-      $("panelTitle").textContent = "رحلتك جارية";
-      state.animationId = requestAnimationFrame(animateTrip);
-    }
-  }
-
-  function finishTrip() {
-    stopTripAnimation();
-    state.tripState = "idle";
-    state.tripElapsedMs = 0;
-    if (state.carMarker) {
-      map.removeLayer(state.carMarker);
-      state.carMarker = null;
-    }
-
-    $("tripActions").classList.remove("show");
-    $("startTripBtn").style.display = "block";
-    $("startTripBtn").textContent = "🚗 ابدأ المحاكاة من جديد";
-    $("progressBar").style.width = "0%";
-    $("progressText").textContent = "جاهز للانطلاق";
-    $("panelTitle").textContent = "المسار جاهز";
-    $("panelSubtitle").textContent = "يمكنك بدء المحاكاة مجددًا";
-  }
-
-  $("startTripBtn").addEventListener("click", startTrip);
-  $("pauseTripBtn").addEventListener("click", togglePauseTrip);
-  $("finishTripBtn").addEventListener("click", finishTrip);
-
-  $("clearRouteBtn").addEventListener("click", () => {
-    clearRouteOnly();
-    $("panelTitle").textContent = "وين وجهتك؟";
-    $("panelSubtitle").textContent = "حدد البداية والوجهة لعرض المسار";
-    toast("تم مسح المسار");
+    selectingPoint = null;
+    $("mapHint").textContent = "حدد البداية والوجهة لرسم المسار";
   });
 
-  $("clearAllBtn").addEventListener("click", clearEverything);
+  $("pickStartBtn").addEventListener("click", () => {
+    selectingPoint = "start";
+    $("mapHint").textContent = "اضغط على الخريطة لتحديد البداية";
+    toast("اختر نقطة البداية من الخريطة");
+  });
 
-  $("locationDetailsBtn").addEventListener("click", () => {
-    if (state.lastPlace) {
-      $("placeInfo").classList.add("show");
-      $("placeInfo").scrollIntoView({ behavior: "smooth", block: "nearest" });
-    } else if (state.start) {
-      reverseGeocode(state.start);
-    } else {
-      toast("حدد موقعًا أولًا لعرض معلوماته");
+  $("mapDestinationBtn").addEventListener("click", () => {
+    selectingPoint = "destination";
+    $("mapHint").textContent = "اضغط على الخريطة لتحديد الوجهة";
+    toast("اختر الوجهة من الخريطة");
+  });
+
+  $("swapBtn").addEventListener("click", () => {
+    const temp = startPoint;
+    startPoint = destinationPoint;
+    destinationPoint = temp;
+    syncMarkers();
+    updateInputs();
+    if (routeLine) drawRoute();
+  });
+
+  $("layersBtn").addEventListener("click", () => {
+    $("layerMenu").classList.toggle("open");
+  });
+
+  document.querySelectorAll(".layer-option").forEach((button) => {
+    button.addEventListener("click", () => {
+      const name = button.dataset.layer;
+      if (!layers[name]) return;
+
+      map.removeLayer(layers[activeLayer]);
+      activeLayer = name;
+      layers[name].addTo(map);
+
+      document.querySelectorAll(".layer-option").forEach((item) => {
+        item.classList.toggle("selected", item === button);
+      });
+      $("layerMenu").classList.remove("open");
+    });
+  });
+
+  $("zoomInBtn").addEventListener("click", () => map.zoomIn());
+  $("zoomOutBtn").addEventListener("click", () => map.zoomOut());
+
+  function locateUser() {
+    if (!navigator.geolocation) {
+      toast("المتصفح لا يدعم تحديد الموقع");
+      return;
     }
+
+    updateGpsStatus("جارٍ تحديد الموقع...");
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const point = L.latLng(
+          position.coords.latitude,
+          position.coords.longitude
+        );
+
+        if (userMarker) map.removeLayer(userMarker);
+        userMarker = L.marker(point).addTo(map)
+          .bindPopup("موقعي الحالي");
+
+        map.setView(point, 16);
+        setStart(point);
+        updateGpsStatus("تم تحديد الموقع", true);
+      },
+      () => {
+        updateGpsStatus("تعذر تحديد الموقع");
+        toast("اسمح للمتصفح بالوصول إلى موقعك");
+      },
+      { enableHighAccuracy: true, timeout: 15000 }
+    );
+  }
+
+  $("locateBtn").addEventListener("click", locateUser);
+  $("startCurrentBtn").addEventListener("click", locateUser);
+
+  async function drawRoute() {
+    if (!startPoint || !destinationPoint) {
+      toast("حدد نقطة البداية والوجهة أولًا");
+      return;
+    }
+
+    toast("جارٍ حساب المسار...");
+
+    try {
+      const url =
+        "https://router.project-osrm.org/route/v1/driving/" +
+        `${startPoint.lng},${startPoint.lat};` +
+        `${destinationPoint.lng},${destinationPoint.lat}` +
+        "?overview=full&geometries=geojson";
+
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("route");
+
+      const data = await response.json();
+      if (!data.routes || !data.routes.length) {
+        throw new Error("no-route");
+      }
+
+      const route = data.routes[0];
+      const coordinates = route.geometry.coordinates.map(
+        ([lng, lat]) => [lat, lng]
+      );
+
+      if (routeLine) map.removeLayer(routeLine);
+      routeLine = L.polyline(coordinates, {
+        color: "#1689ff",
+        weight: 6,
+        opacity: 0.9
+      }).addTo(map);
+
+      map.fitBounds(routeLine.getBounds(), { padding: [40, 40] });
+
+      const km = route.distance / 1000;
+      const minutes = Math.round(route.duration / 60);
+      toast(`المسافة ${km.toFixed(1)} كم تقريبًا • ${minutes} دقيقة`);
+    } catch (error) {
+      console.error(error);
+      toast("تعذر حساب المسار. تحقق من الإنترنت وحاول مجددًا.");
+    }
+  }
+
+  $("drawRouteBtn").addEventListener("click", drawRoute);
+
+  $("fitRouteBtn").addEventListener("click", () => {
+    if (routeLine) map.fitBounds(routeLine.getBounds(), {
+      padding: [40, 40]
+    });
+    else toast("ارسم المسار أولًا");
+  });
+
+  $("clearRouteBtn").addEventListener("click", () => {
+    if (routeLine) map.removeLayer(routeLine);
+    routeLine = null;
+    toast("تم حذف المسار");
+  });
+
+  $("clearBtn").addEventListener("click", () => {
+    startPoint = null;
+    destinationPoint = null;
+    if (routeLine) map.removeLayer(routeLine);
+    routeLine = null;
+    syncMarkers();
+    updateInputs();
+    toast("تم مسح نقاط الرحلة");
+  });
+
+  $("destinationClearBtn").addEventListener("click", () => {
+    destinationPoint = null;
+    if (routeLine) map.removeLayer(routeLine);
+    routeLine = null;
+    syncMarkers();
+    updateInputs();
+  });
+
+  async function searchPlaces() {
+    const query = $("searchInput").value.trim();
+    const results = $("searchResults");
+    if (!query) {
+      results.classList.remove("open");
+      return;
+    }
+
+    results.innerHTML = '<div class="search-message">جارٍ البحث...</div>';
+    results.classList.add("open");
+
+    try {
+      const url =
+        "https://nominatim.openstreetmap.org/search?format=json&limit=5&accept-language=ar&q=" +
+        encodeURIComponent(query);
+
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("search");
+
+      const places = await response.json();
+      results.innerHTML = "";
+
+      if (!places.length) {
+        results.innerHTML =
+          '<div class="search-message">لم يتم العثور على نتائج</div>';
+        return;
+      }
+
+      places.forEach((place) => {
+        const button = document.createElement("button");
+        button.className = "result-item";
+        button.innerHTML =
+          `<div class="result-title"></div>` +
+          `<div class="result-sub">اضغط لعرض الموقع على الخريطة</div>`;
+        button.querySelector(".result-title").textContent =
+          place.display_name;
+
+        button.addEventListener("click", () => {
+          const point = L.latLng(Number(place.lat), Number(place.lon));
+          map.setView(point, 15);
+
+          if (selectingPoint === "start") setStart(point);
+          else if (selectingPoint === "destination") setDestination(point);
+
+          results.classList.remove("open");
+        });
+
+        results.appendChild(button);
+      });
+    } catch (error) {
+      console.error(error);
+      results.innerHTML =
+        '<div class="search-message">تعذر البحث. تحقق من الإنترنت وحاول مجددًا.</div>';
+    }
+  }
+
+  $("searchBtn").addEventListener("click", searchPlaces);
+  $("searchInput").addEventListener("keydown", (event) => {
+    if (event.key === "Enter") searchPlaces();
+  });
+
+  $("searchInput").addEventListener("input", () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(searchPlaces, 700);
   });
 
   $("moreToggle").addEventListener("click", () => {
-    const open = $("moreContent").classList.toggle("open");
-    $("moreToggle").setAttribute("aria-expanded", String(open));
+    const options = $("moreOptions");
+    const open = options.style.display !== "block";
+    options.style.display = open ? "block" : "none";
     $("moreArrow").textContent = open ? "⌃" : "⌄";
   });
 
-  $("collapseBtn").addEventListener("click", () => {
-    state.expanded = !state.expanded;
-    $("planner").style.display = state.expanded ? "block" : "none";
-    $("moreToggle").style.display = state.expanded ? "flex" : "none";
-    $("routeSummary").style.display = state.expanded ? "" : "none";
-    $("collapseBtn").textContent = state.expanded ? "تصغير⌄" : "تخطيط⌃";
-    if (!state.expanded) {
-      $("panelSubtitle").textContent = state.endLabel || "اضغط «تخطيط» لإدخال الوجهة";
+  $("simulateBtn").addEventListener("click", () => {
+    if (!routeLine) {
+      toast("ارسم المسار أولًا");
+      return;
     }
+
+    toast("المسار جاهز. المحاكاة المتحركة غير مفعلة في هذه النسخة.");
   });
 
-  // تحديث العرض بعد تحميل الخطوط وتغير حجم الشاشة.
-  window.addEventListener("resize", () => {
-    setTimeout(() => map.invalidateSize(), 150);
+  $("stopSimulationBtn").addEventListener("click", () => {
+    clearInterval(simulationTimer);
+    simulationTimer = null;
+    toast("تم إيقاف المحاكاة");
   });
 
-  // اجعل الخريطة قابلة للاستخدام فور فتح الصفحة.
-  setTimeout(() => map.invalidateSize(), 250);
+  $("startNavigationBtn").addEventListener("click", () => {
+    if (!routeLine) {
+      toast("ارسم المسار أولًا");
+      return;
+    }
+    toast("تم عرض المسار. هذه النسخة لا توفر توجيهًا صوتيًا مباشرًا.");
+  });
+
+  window.addEventListener("resize", () => map.invalidateSize());
+  setTimeout(() => map.invalidateSize(), 300);
 })();
 </script>
 </body>
