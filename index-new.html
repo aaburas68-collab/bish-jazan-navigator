@@ -899,37 +899,8 @@ layers.street.on("tileload", function () {
         $("layerMenu").classList.remove("open");
       });
     });
-    const map = L.map("map", {
-    zoomControl: false
-  }).setView([17.1495, 42.6254], 10);
-
-  const streetLayer = L.tileLayer(
-    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {
-      maxZoom: 19,
-      attribution: "&copy; OpenStreetMap"
-    }
-  );
-
-  const satelliteLayer = L.tileLayer(
-    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    {
-      maxZoom: 19,
-      attribution: "Tiles &copy; Esri"
-    }
-  );
-
-  const topoLayer = L.tileLayer(
-    "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-    {
-      maxZoom: 17,
-      attribution: "&copy; OpenTopoMap"
-    }
-  );
-
-  streetLayer.addTo(map);
-
-  let currentLayer = streetLayer;
+ 
+  let currentLayer = layers.street;
   let startMarker = null;
   let destinationMarker = null;
   let movingMarker = null;
