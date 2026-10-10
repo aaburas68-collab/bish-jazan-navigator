@@ -374,7 +374,16 @@
     }
 
     .fields { display: grid; gap: 9px; }
+/* SAHER — ربط حقول الرحلة */
+.fields {
+  position: relative;
+  gap: 12px;
+}
 
+.fields .route-field {
+  position: relative;
+  z-index: 1;
+}
   .route-field {
   display: flex;
   align-items: center;
