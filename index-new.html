@@ -1007,7 +1007,9 @@ routeLine = L.polyline(routeCoordinates, {
     }
     toast("تم عرض المسار. هذه النسخة لا توفر توجيهًا صوتيًا مباشرًا.");
   });
-  $("launchBtn").addEventListener("click", () => {
+ $("launchBtn").addEventListener("click", () => {
+  alert("زر انطلق يعمل!");
+});
     if (routeCoordinates.length < 2 || !routeLine) {
       toast("حدد البداية والوجهة وارسم المسار أولًا");
       return;
