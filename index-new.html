@@ -428,14 +428,31 @@
     .route-field input::placeholder { color: #7e8ca1; }
 
     .small-field-btn {
-      background: var(--panel2);
-      border: 0;
-      color: var(--text);
-      padding: 8px 9px;
-      border-radius: 9px;
-      font-size: 11px;
-      white-space: nowrap;
-    }
+  min-height: 36px;
+  background: linear-gradient(145deg, #334155, #1e293b);
+  border: 1px solid #475569;
+  color: #e2e8f0;
+  padding: 8px 11px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 750;
+  white-space: nowrap;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.2s ease,
+    background 0.2s ease;
+}
+
+@media (hover: hover) {
+  .small-field-btn:hover {
+    background: #334155;
+    border-color: #38bdf8;
+  }
+}
+
+.small-field-btn:active {
+  transform: scale(0.96);
+}
 
     .main-actions {
       display: grid;
