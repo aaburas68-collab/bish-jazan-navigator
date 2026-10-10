@@ -1166,9 +1166,11 @@ routeCoordinates = route.geometry.coordinates.map(
 if (routeLine) map.removeLayer(routeLine);
 
 routeLine = L.polyline(routeCoordinates, {
-  color: '#2563eb',
+  color: "#00BFFF",
   weight: 6,
-  opacity: 0.9
+  opacity: 0.95,
+  lineCap: "round",
+  lineJoin: "round"
 }).addTo(map);
 
       map.fitBounds(routeLine.getBounds(), { padding: [40, 40] });
