@@ -1167,17 +1167,17 @@ async function playCameraAlertSound() {
     console.error("تعذر تشغيل صوت التنبيه:", error);
   }
 }
-function alertForCamera(camera) {
+function alertForCamera(camera, distance) {
   if (alertedCameraIds.has(camera.id)) return;
 
   alertedCameraIds.add(camera.id);
 
-  const distanceText = "أقل من 300 متر";
+  const distanceText = Math.round(distance) + " متر";
 
   toast(
     "تنبيه: كاميرا سرعة أمامك — " +
     (camera.name || camera.road_name || "كاميرا سرعة") +
-    " (" + distanceText + ")"
+    " (المسافة: " + distanceText + ")"
   );
 
   playCameraAlertSound();
@@ -1205,7 +1205,7 @@ function checkNearbyCameras(point) {
     const distance = currentPoint.distanceTo(cameraPoint);
 
     if (distance <= CAMERA_ALERT_DISTANCE) {
-      alertForCamera(camera);
+     alertForCamera(camera, distance);
     }
   });
 }
