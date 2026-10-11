@@ -1085,6 +1085,34 @@ const layers = {
 
   let activeLayer = "street";
 layers.street.addTo(map);
+  $("layersBtn").addEventListener("click", () => {
+  $("layerMenu").classList.toggle("open");
+});
+
+document.querySelectorAll(".layer-option").forEach((button) => {
+  button.addEventListener("click", () => {
+    const name = button.dataset.layer;
+
+    if (!layers[name]) return;
+
+    if (map.hasLayer(layers[activeLayer])) {
+      map.removeLayer(layers[activeLayer]);
+    }
+
+    activeLayer = name;
+    layers[name].addTo(map);
+
+    document.querySelectorAll(".layer-option").forEach((item) => {
+      item.classList.toggle("selected", item === button);
+    });
+
+    $("layerMenu").classList.remove("open");
+    setTimeout(() => map.invalidateSize(), 100);
+  });
+});
+
+$("zoomInBtn").addEventListener("click", () => map.zoomIn());
+$("zoomOutBtn").addEventListener("click", () => map.zoomOut());
 
 layers.street.on("tileload", () => {
   console.log("تم تحميل جزء من الخريطة");
@@ -1261,7 +1289,25 @@ function checkNearbyCameras(point) {
   alertForCamera(nearestCamera, nearestDistance);
 }
 
-   
+  function makePin(color) {
+  return L.divIcon({
+    className: "",
+    html: `
+      <div style="
+        width: 28px;
+        height: 28px;
+        background: ${color};
+        border: 3px solid white;
+        border-radius: 50% 50% 50% 0;
+        transform: rotate(-45deg);
+        box-shadow: 0 2px 8px #0006;
+      "></div>
+    `,
+    iconSize: [28, 28],
+    iconAnchor: [14, 28],
+    popupAnchor: [0, -28]
+  });
+}
  
 function syncMarkers() {
   if (startMarker) map.removeLayer(startMarker);
