@@ -1201,15 +1201,50 @@ function checkNearbyCameras(point) {
   if (!point || !window.speedCameras) return;
 
   const currentPoint = L.latLng(point);
+  let nearestCamera = null;
+  let nearestDistance = Infinity;
 
   window.speedCameras.forEach((camera) => {
     if (camera.is_active !== true) return;
+
     if (
       typeof camera.latitude !== "number" ||
       typeof camera.longitude !== "number"
     ) {
       return;
     }
+
+    const cameraPoint = L.latLng(
+      camera.latitude,
+      camera.longitude
+    );
+
+    const distance = currentPoint.distanceTo(cameraPoint);
+
+    if (
+      distance <= CAMERA_ALERT_DISTANCE &&
+      distance < nearestDistance
+    ) {
+      nearestCamera = camera;
+      nearestDistance = distance;
+    }
+  });
+
+  const toastEl = $("toast");
+
+  if (!nearestCamera) {
+    if (
+      toastEl &&
+      toastEl.textContent.startsWith("تنبيه: كاميرا سرعة أمامك")
+    ) {
+      toastEl.classList.remove("show");
+      clearTimeout(toast.timer);
+    }
+    return;
+  }
+
+  alertForCamera(nearestCamera, nearestDistance);
+}
 
     const cameraPoint = L.latLng(
       camera.latitude,
