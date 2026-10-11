@@ -1100,7 +1100,7 @@ setTimeout(() => map.invalidateSize(true), 1000);
   let startMarker = null;
   let destinationMarker = null;
   let alertedCameraIds = new Set();
-const CAMERA_ALERT_DISTANCE = 10;
+const CAMERA_ALERT_DISTANCE = 300;
 let cameraAlertAudioContext = null;
   let userMarker = null;
   let gpsWatchId = null;
@@ -1723,13 +1723,15 @@ $("estimatedTime").textContent =
     toast("تم إيقاف المحاكاة");
   });
 
-  $("startNavigationBtn").addEventListener("click", () => {
-    if (!routeLine) {
-      toast("ارسم المسار أولًا");
-      return;
-    }
-    toast("تم عرض المسار. هذه النسخة لا توفر توجيهًا صوتيًا مباشرًا.");
-  });
+ $("startNavigationBtn").addEventListener("click", () => {
+  if (!routeLine) {
+    toast("ارسم المسار أولًا");
+    return;
+  }
+
+  startGpsTracking();
+  toast("بدأت الملاحة: جارٍ تتبّع موقعك الحقيقي");
+});
 $("launchBtn").addEventListener("click", async () => {
   if (cameraAlertAudioContext?.state === "suspended") {
     await cameraAlertAudioContext.resume();
