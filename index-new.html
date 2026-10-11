@@ -1414,62 +1414,34 @@ function setDestination(point) {
   toast("تم تحديد الوجهة");
 }
 
-  map.on("click", (event) => {
-    if (selectingPoint === "start") {
-      setStart(event.latlng);
-    } else if (selectingPoint === "destination") {
-      setDestination(event.latlng);
-    } else {
-      return;
-    }
+map.on("click", (event) => {
+  if (addingCamera) {
+    const point = event.latlng;
 
-    selectingPoint = null;
-    $("mapHint").textContent = "حدد البداية والوجهة لرسم المسار";
-  });
+    addingCamera = false;
+    $("mapHint").textContent = "تم تحديد موقع الكاميرا";
 
-  $("pickStartBtn").addEventListener("click", () => {
-    selectingPoint = "start";
-    $("mapHint").textContent = "اضغط على الخريطة لتحديد البداية";
-    toast("اختر نقطة البداية من الخريطة");
-  });
+    const marker = L.marker(point, {
+      icon: makeCameraPin()
+    }).addTo(map);
 
-  $("mapDestinationBtn").addEventListener("click", () => {
-    selectingPoint = "destination";
-    $("mapHint").textContent = "اضغط على الخريطة لتحديد الوجهة";
-    toast("اختر الوجهة من الخريطة");
-  });
+    marker.bindPopup("كاميرا ساهر جديدة").openPopup();
 
-  $("swapBtn").addEventListener("click", () => {
-    const temp = startPoint;
-    startPoint = destinationPoint;
-    destinationPoint = temp;
-    syncMarkers();
-    updateInputs();
-    if (routeLine) drawRoute();
-  });
+    toast("تم وضع علامة الكاميرا على الخريطة");
+    return;
+  }
 
-  $("layersBtn").addEventListener("click", () => {
-    $("layerMenu").classList.toggle("open");
-  });
+  if (selectingPoint === "start") {
+    setStart(event.latlng);
+  } else if (selectingPoint === "destination") {
+    setDestination(event.latlng);
+  } else {
+    return;
+  }
 
-  document.querySelectorAll(".layer-option").forEach((button) => {
-    button.addEventListener("click", () => {
-      const name = button.dataset.layer;
-      if (!layers[name]) return;
-
-      map.removeLayer(layers[activeLayer]);
-      activeLayer = name;
-      layers[name].addTo(map);
-
-      document.querySelectorAll(".layer-option").forEach((item) => {
-        item.classList.toggle("selected", item === button);
-      });
-      $("layerMenu").classList.remove("open");
-    });
-  });
-
-  $("zoomInBtn").addEventListener("click", () => map.zoomIn());
-  $("zoomOutBtn").addEventListener("click", () => map.zoomOut());
+  selectingPoint = null;
+  $("mapHint").textContent = "حدد البداية والوجهة لرسم المسار";
+});
 
   function locateUser() {
     if (!navigator.geolocation) {
