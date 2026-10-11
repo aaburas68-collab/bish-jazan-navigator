@@ -1506,6 +1506,12 @@ userMarker = L.marker(point, {
   }
 
 $("locateBtn").addEventListener("click", startGpsTracking);
+  let addingCamera = false;
+
+$("addCameraBtn").addEventListener("click", () => {
+  addingCamera = true;
+  toast("اضغط على الخريطة لتحديد موقع كاميرا ساهر");
+});
   $("startCurrentBtn").addEventListener("click", locateUser);
   function startGpsTracking() {
   if (!navigator.geolocation) {
