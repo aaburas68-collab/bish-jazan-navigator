@@ -1175,7 +1175,32 @@ function alertForCamera(camera) {
     (camera.name || camera.road_name || "كاميرا سرعة") +
     " (" + distanceText + ")"
   );
+function checkNearbyCameras(point) {
+  if (!point || !window.speedCameras) return;
 
+  const currentPoint = L.latLng(point);
+
+  window.speedCameras.forEach((camera) => {
+    if (camera.is_active !== true) return;
+    if (
+      typeof camera.latitude !== "number" ||
+      typeof camera.longitude !== "number"
+    ) {
+      return;
+    }
+
+    const cameraPoint = L.latLng(
+      camera.latitude,
+      camera.longitude
+    );
+
+    const distance = currentPoint.distanceTo(cameraPoint);
+
+    if (distance <= CAMERA_ALERT_DISTANCE) {
+      alertForCamera(camera);
+    }
+  });
+}
   playCameraAlertSound();
 }
 function syncMarkers() {
