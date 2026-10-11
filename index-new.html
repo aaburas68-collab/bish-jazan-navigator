@@ -1716,6 +1716,7 @@ $("launchBtn").addEventListener("click", async () => {
 
     movingMarker.setLatLng(routeCoordinates[simulationIndex]);
     checkNearbyCameras(routeCoordinates[simulationIndex]);
+    console.log("فحص الكاميرات عند النقطة:", routeCoordinates[simulationIndex]);
     updateTripStats();
 
     if (simulationIndex >= totalPoints - 1) {
