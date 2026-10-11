@@ -1146,7 +1146,61 @@ function syncMarkers() {
     }).addTo(map);
   }
 }
+async function loadSpeedCameras() {
+    const { data, error } = await supabaseClient
+      .from("speed_cameras")
+      .select("name,latitude,longitude,speed_limit,road_name,is_active,notes")
+      .eq("is_active", true);
 
+    if (error) {
+      console.error("تعذر تحميل كاميرات السرعة:", error.message);
+      return;
+    }
+
+    data.forEach((camera) => {
+      if (
+        typeof camera.latitude !== "number" ||
+        typeof camera.longitude !== "number"
+      ) {
+        return;
+      }
+
+      const marker = L.marker(
+        [camera.latitude, camera.longitude],
+        { icon: makePin("#f59e0b") }
+      ).addTo(map);
+
+      const popup = document.createElement("div");
+      const title = document.createElement("strong");
+      title.textContent = camera.name || "كاميرا سرعة";
+      popup.appendChild(title);
+
+      const speed = document.createElement("div");
+      speed.textContent =
+        "حد السرعة: " +
+        (camera.speed_limit ?? "غير محدد") +
+        " كم/س";
+      popup.appendChild(speed);
+
+      if (camera.road_name) {
+        const road = document.createElement("div");
+        road.textContent = "الطريق: " + camera.road_name;
+        popup.appendChild(road);
+      }
+
+      if (camera.notes) {
+        const notes = document.createElement("div");
+        notes.textContent = "ملاحظات: " + camera.notes;
+        popup.appendChild(notes);
+      }
+
+      marker.bindPopup(popup);
+    });
+
+    console.log("تم تحميل كاميرات السرعة:", data.length);
+  }
+
+  loadSpeedCameras();
   function updateInputs() {
     $("startInput").value = startPoint
       ? `${startPoint.lat.toFixed(5)}, ${startPoint.lng.toFixed(5)}`
