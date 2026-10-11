@@ -1138,6 +1138,82 @@ body {
     padding: 0 14px;
   }
 }
+    /* SAHER — Search Result Cards */
+.search-results {
+  display: none;
+  max-height: min(360px, 48vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: #FFFFFF;
+  border: 1px solid #DCE7F2;
+  border-radius: 18px;
+  box-shadow: 0 14px 34px rgba(24, 65, 112, 0.16);
+}
+
+.search-results.open {
+  display: block;
+}
+
+.search-results .result-item {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  text-align: right;
+  background: #FFFFFF;
+  color: #18324F;
+  border: 0;
+  border-bottom: 1px solid #EAF0F7;
+  cursor: pointer;
+  transition: background-color 0.18s ease;
+}
+
+.search-results .result-item:last-child {
+  border-bottom: 0;
+}
+
+.search-results .result-item:hover {
+  background: #F0F6FF;
+}
+
+.search-results .result-item:focus-visible {
+  outline: 2px solid #1769D2;
+  outline-offset: -3px;
+}
+
+.search-results .result-title {
+  color: #18324F;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+.search-results .result-sub {
+  margin-top: 5px;
+  color: #1769D2;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.search-message {
+  padding: 16px;
+  color: #637A92;
+  background: #FFFFFF;
+  font-size: 14px;
+  line-height: 1.8;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .search-results {
+    max-height: 42vh;
+    border-radius: 15px;
+  }
+
+  .search-results .result-item {
+    padding: 12px;
+  }
+}
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
