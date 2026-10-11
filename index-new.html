@@ -1444,8 +1444,52 @@ userMarker = L.marker(point, {
     );
   }
 
-  $("locateBtn").addEventListener("click", locateUser);
+$("locateBtn").addEventListener("click", startGpsTracking);
   $("startCurrentBtn").addEventListener("click", locateUser);
+  function startGpsTracking() {
+  if (!navigator.geolocation) {
+    toast("المتصفح لا يدعم تحديد الموقع");
+    return;
+  }
+
+  if (gpsWatchId !== null) {
+    navigator.geolocation.clearWatch(gpsWatchId);
+  }
+
+  updateGpsStatus("جارٍ تتبّع موقعك...");
+
+  gpsWatchId = navigator.geolocation.watchPosition(
+    (position) => {
+      const point = L.latLng(
+        position.coords.latitude,
+        position.coords.longitude
+      );
+
+      if (userMarker) {
+        userMarker.setLatLng(point);
+      } else {
+        userMarker = L.marker(point, {
+          icon: makePin("#38bdf8"),
+          zIndexOffset: 1000
+        }).addTo(map).bindPopup("موقعي الحالي");
+      }
+
+      map.setView(point, 16);
+      checkNearbyCameras(point);
+      updateGpsStatus("تتبّع الموقع يعمل", true);
+    },
+    (error) => {
+      console.error("خطأ تتبّع GPS:", error.message);
+      updateGpsStatus("تعذر تتبّع الموقع");
+      toast("تحقق من إذن الموقع وإعدادات GPS");
+    },
+    {
+      enableHighAccuracy: true,
+      maximumAge: 1000,
+      timeout: 15000
+    }
+  );
+}
 
   async function drawRoute() {
     if (!startPoint || !destinationPoint) {
