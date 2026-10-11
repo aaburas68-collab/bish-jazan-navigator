@@ -1710,6 +1710,7 @@ $("launchBtn").addEventListener("click", () => {
     );
 
     movingMarker.setLatLng(routeCoordinates[simulationIndex]);
+    checkNearbyCameras(routeCoordinates[simulationIndex]);
     updateTripStats();
 
     if (simulationIndex >= totalPoints - 1) {
