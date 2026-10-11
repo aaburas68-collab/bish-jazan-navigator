@@ -1135,14 +1135,30 @@ let simulationIndex = 0;
     if ($("gpsDot")) $("gpsDot").classList.toggle("active", active);
   }
 
-  function makePin(color) {
-    return L.divIcon({
-      className: "",
-      html: `<div style="width:20px;height:20px;background:${color};border:3px solid white;border-radius:50%;box-shadow:0 1px 6px #333"></div>`,
-      iconSize: [20, 20],
-      iconAnchor: [10, 10]
-    });
-  }
+ function makeCameraPin() {
+  return L.divIcon({
+    className: "",
+    html: `
+      <div style="width:46px;height:54px;position:relative;filter:drop-shadow(0 2px 3px #5558)">
+        <svg viewBox="0 0 140 170" width="46" height="54" xmlns="http://www.w3.org/2000/svg">
+          <path d="M70 105 L70 150" stroke="#4b5563" stroke-width="8" stroke-linecap="round"/>
+          <path d="M51 151 L89 151" stroke="#4b5563" stroke-width="6" stroke-linecap="round"/>
+          <rect x="22" y="28" width="96" height="70" rx="10" fill="#f97316" stroke="#c2410c" stroke-width="3"/>
+          <rect x="30" y="36" width="80" height="54" rx="6" fill="#374151"/>
+          <rect x="38" y="44" width="44" height="38" rx="5" fill="#d1d5db"/>
+          <circle cx="60" cy="63" r="13" fill="#111827" stroke="#9ca3af" stroke-width="3"/>
+          <circle cx="60" cy="63" r="6" fill="#60a5fa"/>
+          <rect x="87" y="47" width="15" height="10" rx="2" fill="#ef4444"/>
+          <rect x="87" y="64" width="15" height="16" rx="2" fill="#f9fafb"/>
+          <path d="M42 19 L98 19" stroke="#f97316" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+      </div>
+    `,
+    iconSize: [46, 54],
+    iconAnchor: [23, 48],
+    popupAnchor: [0, -48]
+  });
+}
 async function playCameraAlertSound() {
   try {
     const AudioContextClass =
@@ -1285,7 +1301,7 @@ window.speedCameras = data;
 
       const marker = L.marker(
         [camera.latitude, camera.longitude],
-        { icon: makePin("#f59e0b") }
+      { icon: makeCameraPin() }
       ).addTo(map);
 
       const popup = document.createElement("div");
