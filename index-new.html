@@ -1477,6 +1477,17 @@ $("addCameraBtn").addEventListener("click", () => {
   toast("اضغط على الخريطة لتحديد موقع كاميرا ساهر");
 });
   $("startCurrentBtn").addEventListener("click", locateUser);
+  $("pickStartBtn").addEventListener("click", () => {
+  selectingPoint = "start";
+  $("mapHint").textContent = "اضغط على الخريطة لتحديد البداية";
+  toast("اختر نقطة البداية من الخريطة");
+});
+
+$("mapDestinationBtn").addEventListener("click", () => {
+  selectingPoint = "destination";
+  $("mapHint").textContent = "اضغط على الخريطة لتحديد الوجهة";
+  toast("اختر الوجهة من الخريطة");
+});
   function startGpsTracking() {
   if (!navigator.geolocation) {
     toast("المتصفح لا يدعم تحديد الموقع");
