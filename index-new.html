@@ -1111,6 +1111,7 @@ let cameraAlertAudioContext = null;
 let routeCoordinates = [];
 let movingMarker = null;
 let simulationIndex = 0;
+  let cameraToastLastUpdate = 0;
   function toast(message) {
     const el = $("toast");
     if (!el) return;
@@ -1168,10 +1169,6 @@ async function playCameraAlertSound() {
   }
 }
 function alertForCamera(camera, distance) {
-  if (alertedCameraIds.has(camera.id)) return;
-
-  alertedCameraIds.add(camera.id);
-
   const distanceText = Math.round(distance) + " متر";
 
   toast(
@@ -1180,7 +1177,10 @@ function alertForCamera(camera, distance) {
     " (المسافة: " + distanceText + ")"
   );
 
-  playCameraAlertSound();
+  if (!alertedCameraIds.has(camera.id)) {
+    alertedCameraIds.add(camera.id);
+    playCameraAlertSound();
+  }
 }
 
 function checkNearbyCameras(point) {
