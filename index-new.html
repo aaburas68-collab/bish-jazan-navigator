@@ -7,7 +7,6 @@
   <title>ساهر | الملاحة الذكية</title>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-
   <style>
     .trip-stats {
   display: grid;
@@ -857,6 +856,17 @@
   justify-content: center;
 }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  const SUPABASE_URL = 'https://talxizalgjwqrnypfikd.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_UqLNRLNl74183rkKrFEj9w_yTj9X-s9';
+</script>
+  <script>
+  const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+</script>
 </head>
 <body>
   <div class="app">
@@ -1591,6 +1601,22 @@ $("launchBtn").addEventListener("click", () => {
   setTimeout(() => map.invalidateSize(), 300);
 })();
    
+</script>
+  <script>
+  async function testSupabaseConnection() {
+    const { data, error } = await supabaseClient
+      .from('speed_cameras')
+      .select('*')
+      .limit(1);
+
+    if (error) {
+      console.error('خطأ في الاتصال:', error.message);
+    } else {
+      console.log('الاتصال ناجح، وعدد النتائج:', data.length);
+    }
+  }
+
+  testSupabaseConnection();
 </script>
 </body>
 </html>
