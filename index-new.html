@@ -1036,6 +1036,108 @@ body {
     animation: none;
   }
 }
+    /* SAHER — Premium Search Bar */
+.search-wrap {
+  width: min(100% - 28px, 680px);
+  margin: 14px auto;
+  position: relative;
+  z-index: 1600;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 7px 6px 14px;
+  background: #FFFFFF;
+  border: 1px solid #D7E4F2;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(27, 76, 132, 0.12);
+  transition: border-color 0.2s ease,
+              box-shadow 0.2s ease;
+}
+
+.search-box:focus-within {
+  border-color: #1769D2;
+  box-shadow: 0 0 0 4px rgba(23, 105, 210, 0.10);
+}
+
+.search-icon {
+  color: #1769D2;
+  font-size: 27px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.search-box input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  padding: 12px 4px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #18324F;
+  font: inherit;
+  font-size: 15px;
+}
+
+.search-box input::placeholder {
+  color: #8294A8;
+}
+
+.search-btn {
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 13px;
+  background: #1769D2;
+  color: #FFFFFF;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease,
+              transform 0.2s ease;
+}
+
+.search-btn:hover {
+  background: #1056B4;
+}
+
+.search-btn:active {
+  transform: scale(0.97);
+}
+
+.search-results {
+  margin-top: 8px;
+  background: #FFFFFF;
+  color: #18324F;
+  border: 1px solid #DCE7F2;
+  border-radius: 16px;
+  box-shadow: 0 12px 28px rgba(27, 76, 132, 0.14);
+  overflow: hidden;
+}
+
+@media (max-width: 480px) {
+  .search-wrap {
+    width: calc(100% - 20px);
+    margin: 10px auto;
+  }
+
+  .search-box {
+    gap: 7px;
+    padding-left: 10px;
+  }
+
+  .search-box input {
+    font-size: 14px;
+  }
+
+  .search-btn {
+    padding: 0 14px;
+  }
+}
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
