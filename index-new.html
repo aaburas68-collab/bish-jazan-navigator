@@ -2101,7 +2101,29 @@ $("estimatedTime").textContent =
       places.forEach((place) => {
         const button = document.createElement("button");
         button.className = "result-item";
-       const category = place.type || place.class || "مكان";
+      const categoryNames = {
+  city: "مدينة",
+  town: "بلدة",
+  village: "قرية",
+  suburb: "حي",
+  neighbourhood: "حي",
+  residential: "منطقة سكنية",
+  road: "شارع",
+  street: "شارع",
+  restaurant: "مطعم",
+  cafe: "مقهى",
+  hospital: "مستشفى",
+  school: "مدرسة",
+  university: "جامعة",
+  park: "حديقة",
+  shop: "متجر",
+  building: "مبنى",
+  administrative: "منطقة إدارية"
+};
+
+const category = categoryNames[place.type] ||
+                 categoryNames[place.class] ||
+                 "مكان";
 
 button.innerHTML =
   `<div class="result-heading">` +
