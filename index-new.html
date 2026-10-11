@@ -1246,18 +1246,7 @@ function checkNearbyCameras(point) {
   alertForCamera(nearestCamera, nearestDistance);
 }
 
-    const cameraPoint = L.latLng(
-      camera.latitude,
-      camera.longitude
-    );
-
-    const distance = currentPoint.distanceTo(cameraPoint);
-
-    if (distance <= CAMERA_ALERT_DISTANCE) {
-     alertForCamera(camera, distance);
-    }
-  });
-}
+   
  
 function syncMarkers() {
   if (startMarker) map.removeLayer(startMarker);
