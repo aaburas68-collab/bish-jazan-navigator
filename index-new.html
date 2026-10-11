@@ -1204,7 +1204,7 @@ async function loadSpeedCameras() {
       console.error("تعذر تحميل كاميرات السرعة:", error.message);
       return;
     }
-
+window.speedCameras = data;
     data.forEach((camera) => {
       if (
         typeof camera.latitude !== "number" ||
