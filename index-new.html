@@ -853,6 +853,65 @@
   align-items: center;
   justify-content: center;
 }
+    /* SAHER — Clean White & Blue Theme */
+:root {
+  color-scheme: light;
+  --saher-bg: #F4F8FC;
+  --saher-surface: #FFFFFF;
+  --saher-surface-2: #EAF2FC;
+  --saher-blue: #1769D2;
+  --saher-blue-hover: #1056B4;
+  --saher-text: #18324F;
+  --saher-muted: #637A92;
+  --saher-border: #DCE7F2;
+  --saher-shadow: 0 6px 22px rgba(30, 70, 120, 0.12);
+}
+
+body {
+  background: var(--saher-bg);
+  color: var(--saher-text);
+}
+
+.map-tools button {
+  background: var(--saher-surface);
+  color: var(--saher-text);
+  border: 1px solid var(--saher-border);
+  box-shadow: var(--saher-shadow);
+  transition: background-color 0.2s ease,
+              border-color 0.2s ease,
+              box-shadow 0.2s ease;
+}
+
+.map-tools button:hover {
+  background: var(--saher-surface-2);
+  border-color: var(--saher-blue);
+}
+
+.map-tools button:focus-visible {
+  outline: 2px solid var(--saher-blue);
+  outline-offset: 2px;
+}
+
+.bottom-panel,
+.route-summary,
+.more-content {
+  background: var(--saher-surface);
+  color: var(--saher-text);
+  border-color: var(--saher-border);
+  box-shadow: var(--saher-shadow);
+}
+
+.map-hint {
+  background: rgba(255, 255, 255, 0.97);
+  color: var(--saher-text);
+  border: 1px solid var(--saher-border);
+  border-radius: 12px;
+  box-shadow: var(--saher-shadow);
+}
+
+.trip-progress {
+  background: var(--saher-blue);
+}
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
