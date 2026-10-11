@@ -1228,7 +1228,7 @@ function syncMarkers() {
 async function loadSpeedCameras() {
     const { data, error } = await supabaseClient
       .from("speed_cameras")
-      .select("name,latitude,longitude,speed_limit,road_name,is_active,notes")
+    .select("id,name,latitude,longitude,speed_limit,road_name,is_active,notes")
       .eq("is_active", true);
 
     if (error) {
