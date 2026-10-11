@@ -1132,19 +1132,22 @@ let simulationIndex = 0;
       iconAnchor: [10, 10]
     });
   }
-function playCameraAlertSound() {
+async function playCameraAlertSound() {
   try {
     const AudioContextClass =
       window.AudioContext || window.webkitAudioContext;
 
-    if (!AudioContextClass) return;
+    if (!AudioContextClass) {
+      console.error("المتصفح لا يدعم تشغيل الصوت");
+      return;
+    }
 
     if (!cameraAlertAudioContext) {
       cameraAlertAudioContext = new AudioContextClass();
     }
 
     if (cameraAlertAudioContext.state === "suspended") {
-      cameraAlertAudioContext.resume();
+      await cameraAlertAudioContext.resume();
     }
 
     const oscillator = cameraAlertAudioContext.createOscillator();
@@ -1163,7 +1166,6 @@ function playCameraAlertSound() {
     console.error("تعذر تشغيل صوت التنبيه:", error);
   }
 }
-
 function alertForCamera(camera) {
   if (alertedCameraIds.has(camera.id)) return;
 
@@ -1641,7 +1643,10 @@ $("estimatedTime").textContent =
     }
     toast("تم عرض المسار. هذه النسخة لا توفر توجيهًا صوتيًا مباشرًا.");
   });
-$("launchBtn").addEventListener("click", () => {
+$("launchBtn").addEventListener("click", async () => {
+  if (cameraAlertAudioContext?.state === "suspended") {
+    await cameraAlertAudioContext.resume();
+  }
   if (routeCoordinates.length < 2 || !routeLine) {
     toast("حدد البداية والوجهة وارسم المسار أولًا");
     return;
