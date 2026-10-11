@@ -1214,6 +1214,30 @@ body {
     padding: 12px;
   }
 }
+    /* SAHER — Place Category */
+.search-results .result-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.search-results .result-heading .result-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.search-results .result-category {
+  flex-shrink: 0;
+  padding: 3px 8px;
+  margin-top: 3px;
+  border-radius: 8px;
+  background: #EAF2FC;
+  color: #1769D2;
+  font-size: 11px;
+  font-weight: 700;
+  direction: ltr;
+}
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
@@ -2077,11 +2101,20 @@ $("estimatedTime").textContent =
       places.forEach((place) => {
         const button = document.createElement("button");
         button.className = "result-item";
-        button.innerHTML =
-          `<div class="result-title"></div>` +
-          `<div class="result-sub">اضغط لعرض الموقع على الخريطة</div>`;
-        button.querySelector(".result-title").textContent =
-          place.display_name;
+       const category = place.type || place.class || "مكان";
+
+button.innerHTML =
+  `<div class="result-heading">` +
+    `<span class="result-title"></span>` +
+    `<span class="result-category"></span>` +
+  `</div>` +
+  `<div class="result-sub">اضغط لعرض الموقع على الخريطة</div>`;
+
+button.querySelector(".result-title").textContent =
+  place.display_name;
+
+button.querySelector(".result-category").textContent =
+  category;
 
         button.addEventListener("click", () => {
           const point = L.latLng(Number(place.lat), Number(place.lon));
