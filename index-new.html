@@ -1112,14 +1112,23 @@ let routeCoordinates = [];
 let movingMarker = null;
 let simulationIndex = 0;
   let cameraToastLastUpdate = 0;
-  function toast(message) {
-    const el = $("toast");
-    if (!el) return;
-    el.textContent = message;
-    el.classList.add("show");
-    clearTimeout(toast.timer);
-    toast.timer = setTimeout(() => el.classList.remove("show"), 2800);
+ function toast(message) {
+  const el = $("toast");
+  if (!el) return;
+
+  el.textContent = message;
+  el.classList.add("show");
+
+  clearTimeout(toast.timer);
+
+  if (message.startsWith("تنبيه: كاميرا سرعة أمامك")) {
+    return;
   }
+
+  toast.timer = setTimeout(() => {
+    el.classList.remove("show");
+  }, 2800);
+}
 
   function updateGpsStatus(message, active = false) {
     if ($("gpsStatus")) $("gpsStatus").textContent = message;
@@ -1170,16 +1179,21 @@ async function playCameraAlertSound() {
 }
 function alertForCamera(camera, distance) {
   const distanceText = Math.round(distance) + " متر";
-
-  toast(
+  const message =
     "تنبيه: كاميرا سرعة أمامك — " +
     (camera.name || camera.road_name || "كاميرا سرعة") +
-    " (المسافة: " + distanceText + ")"
-  );
+    " (المسافة: " + distanceText + ")";
+
+  const now = Date.now();
 
   if (!alertedCameraIds.has(camera.id)) {
     alertedCameraIds.add(camera.id);
     playCameraAlertSound();
+  }
+
+  if (now - cameraToastLastUpdate >= 500) {
+    cameraToastLastUpdate = now;
+    toast(message);
   }
 }
 
