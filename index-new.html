@@ -1766,6 +1766,48 @@ window.speedCameras = data;
 
   loadSpeedCameras();
   function updateInputs() {
+    function clearAllPoints() {
+  // إيقاف المحاكاة
+  if (simulationTimer) {
+    clearInterval(simulationTimer);
+    simulationTimer = null;
+  }
+
+  // إزالة المسار
+  if (routeLine) {
+    map.removeLayer(routeLine);
+    routeLine = null;
+  }
+
+  // إزالة العلامة المتحركة
+  if (movingMarker) {
+    map.removeLayer(movingMarker);
+    movingMarker = null;
+  }
+
+  // تصفير بيانات المسار والمحاكاة
+  routeCoordinates = [];
+  simulationIndex = 0;
+
+  // مسح البداية والوجهة
+  startPoint = null;
+  destinationPoint = null;
+
+  // إزالة علامتي البداية والوجهة
+  syncMarkers();
+  updateInputs();
+
+  // إلغاء وضع اختيار النقاط
+  selectingPoint = null;
+
+  // إخفاء معلومات المكان
+  $("placeInfo").classList.remove("show");
+
+  // تحديث رسالة الخريطة
+  $("mapHint").textContent = "حدد البداية والوجهة لرسم المسار";
+
+  toast("تم مسح البداية والوجهة والمسار");
+}
     $("startInput").value = startPoint
       ? `${startPoint.lat.toFixed(5)}, ${startPoint.lng.toFixed(5)}`
       : "";
@@ -1908,6 +1950,7 @@ $("addCameraBtn").addEventListener("click", () => {
   toast("اضغط على الخريطة لتحديد موقع كاميرا ساهر");
 });
   $("startCurrentBtn").addEventListener("click", locateUser);
+  $("clearBtn").addEventListener("click", clearAllPoints);
   $("pickStartBtn").addEventListener("click", () => {
   selectingPoint = "start";
   $("mapHint").textContent = "اضغط على الخريطة لتحديد البداية";
