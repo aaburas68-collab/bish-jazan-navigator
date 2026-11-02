@@ -2007,14 +2007,19 @@ $("mapDestinationBtn").addEventListener("click", () => {
       );
 const speed = position.coords.speed;
 const heading = position.coords.heading;
-      if (userMarker) {
-        userMarker.setLatLng(point);
-      } else {
-        userMarker = L.marker(point, {
-         icon: makeCarIcon(),
-          zIndexOffset: 1000
-        }).addTo(map).bindPopup("موقعي الحالي");
-      }
+    if (userMarker) {
+  userMarker.setLatLng(point);
+
+  if (heading !== null && Number.isFinite(heading)) {
+    userMarker.setIcon(makeCarIcon(heading));
+  }
+
+} else {
+  userMarker = L.marker(point, {
+    icon: makeCarIcon(heading ?? 0),
+    zIndexOffset: 1000
+  }).addTo(map).bindPopup("موقعي الحالي");
+}
 
       map.setView(point, 16);
       checkNearbyCameras(point);
