@@ -2011,7 +2011,7 @@ const heading = position.coords.heading;
         userMarker.setLatLng(point);
       } else {
         userMarker = L.marker(point, {
-          icon: makePin("#38bdf8"),
+         icon: makeCarIcon(),
           zIndexOffset: 1000
         }).addTo(map).bindPopup("موقعي الحالي");
       }
