@@ -1695,8 +1695,15 @@ function checkNearbyCameras(point) {
 }
  
 function syncMarkers() {
-  if (startMarker) map.removeLayer(startMarker);
-  if (destinationMarker) map.removeLayer(destinationMarker);
+  if (startMarker) {
+    map.removeLayer(startMarker);
+    startMarker = null;
+  }
+
+  if (destinationMarker) {
+    map.removeLayer(destinationMarker);
+    destinationMarker = null;
+  }
 
   if (startPoint) {
     startMarker = L.marker(startPoint, {
@@ -2095,15 +2102,48 @@ $("estimatedTime").textContent =
   toast("تم حذف المسار وإعادة ضبط الإحصائيات");
 });
 
-  $("clearBtn").addEventListener("click", () => {
-    startPoint = null;
-    destinationPoint = null;
-    if (routeLine) map.removeLayer(routeLine);
+$("clearBtn").addEventListener("click", () => {
+  // مسح نقاط البداية والوجهة
+  startPoint = null;
+  destinationPoint = null;
+
+  // حذف خط المسار
+  if (routeLine) {
+    map.removeLayer(routeLine);
     routeLine = null;
-    syncMarkers();
-    updateInputs();
-    toast("تم مسح نقاط الرحلة");
-  });
+  }
+
+  // حذف بيانات المسار والمحاكاة
+  routeCoordinates = [];
+  simulationIndex = 0;
+
+  if (simulationTimer) {
+    clearInterval(simulationTimer);
+    simulationTimer = null;
+  }
+
+  // حذف العلامة المتحركة
+  if (movingMarker) {
+    map.removeLayer(movingMarker);
+    movingMarker = null;
+  }
+
+  // حذف دبابيس البداية والوجهة وتحديث الحقول
+  syncMarkers();
+  updateInputs();
+
+  // تصفير إحصائيات الرحلة
+  $("totalDistance").textContent = "-- كم";
+  $("remainingDistance").textContent = "-- كم";
+  $("estimatedTime").textContent = "--";
+  $("elapsedTime").textContent = "00:00";
+
+  // إلغاء وضع تحديد النقاط
+  selectingPoint = null;
+  $("mapHint").textContent = "حدد البداية والوجهة لرسم المسار";
+
+  toast("تم مسح الرحلة بالكامل");
+});
 
   $("destinationClearBtn").addEventListener("click", () => {
     destinationPoint = null;
