@@ -1987,7 +1987,8 @@ $("mapDestinationBtn").addEventListener("click", () => {
         position.coords.latitude,
         position.coords.longitude
       );
-
+const speed = position.coords.speed;
+const heading = position.coords.heading;
       if (userMarker) {
         userMarker.setLatLng(point);
       } else {
