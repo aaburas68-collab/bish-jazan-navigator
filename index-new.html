@@ -1693,7 +1693,7 @@ function checkNearbyCameras(point) {
     popupAnchor: [0, -28]
   });
 }
-  function makeCarIcon() {
+function makeCarIcon(heading = 0) {
   return L.divIcon({
     className: "car-marker",
     html: `
@@ -1704,6 +1704,7 @@ function checkNearbyCameras(point) {
         align-items: center;
         justify-content: center;
         font-size: 36px;
+        transform: rotate(${heading}deg);
         filter: drop-shadow(0 2px 3px #0007);
       ">🚗</div>
     `,
@@ -1711,7 +1712,6 @@ function checkNearbyCameras(point) {
     iconAnchor: [19, 24]
   });
 }
- 
 function syncMarkers() {
   if (startMarker) {
     map.removeLayer(startMarker);
