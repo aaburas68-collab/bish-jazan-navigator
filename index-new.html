@@ -1630,8 +1630,7 @@ function checkNearbyCameras(point) {
   if (!point || !window.speedCameras) return;
 
   const currentPoint = L.latLng(point);
-  let nearestCamera = null;
-  let nearestDistance = Infinity;
+  const nearbyCameras = [];
 
   window.speedCameras.forEach((camera) => {
     if (camera.is_active !== true) return;
@@ -1650,18 +1649,17 @@ function checkNearbyCameras(point) {
 
     const distance = currentPoint.distanceTo(cameraPoint);
 
-    if (
-      distance <= CAMERA_ALERT_DISTANCE &&
-      distance < nearestDistance
-    ) {
-      nearestCamera = camera;
-      nearestDistance = distance;
+    if (distance <= CAMERA_ALERT_DISTANCE) {
+      nearbyCameras.push({
+        camera: camera,
+        distance: distance
+      });
     }
   });
 
-  const toastEl = $("toast");
+  if (nearbyCameras.length === 0) {
+    const toastEl = $("toast");
 
-  if (!nearestCamera) {
     if (
       toastEl &&
       toastEl.textContent.startsWith("تنبيه: كاميرا سرعة أمامك")
@@ -1669,10 +1667,13 @@ function checkNearbyCameras(point) {
       toastEl.classList.remove("show");
       clearTimeout(toast.timer);
     }
+
     return;
   }
 
-  alertForCamera(nearestCamera, nearestDistance);
+  nearbyCameras.forEach((item) => {
+    alertForCamera(item.camera, item.distance);
+  });
 }
 
   function makePin(color) {
@@ -1952,6 +1953,7 @@ function getDistanceMeters(point1, point2) {
     Math.sqrt(1 - a)
   );
 }
+  
   function locateUser() {
     if (!navigator.geolocation) {
       toast("المتصفح لا يدعم تحديد الموقع");
@@ -2208,6 +2210,7 @@ $("clearBtn").addEventListener("click", () => {
   // حذف بيانات المسار والمحاكاة
   routeCoordinates = [];
   totalRouteMeters = 0;
+  alertedCameraIds.clear();
   simulationIndex = 0;
 
   if (simulationTimer) {
